@@ -1,0 +1,192 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:ping_app/auth/repo/ping_auth_state.dart';
+import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/settings/repo/setting_repo.dart';
+import 'package:ping_app/settings/view/sub_view/message_template/message_add_edit_view.dart';
+import 'package:ping_app/subscription/model/subscription_model.dart';
+import 'package:ping_app/subscription/repo/subscription_state.dart';
+import 'package:ping_app/util/messenger.dart';
+import 'package:ping_app/util/navigator.dart';
+import 'package:provider/provider.dart';
+
+class MessageListView extends StatefulWidget {
+  final bool pickMessageMode;
+
+  const MessageListView({super.key, this.pickMessageMode = false});
+
+  @override
+  State<MessageListView> createState() => _MessageListViewState();
+}
+
+class _MessageListViewState extends State<MessageListView> {
+  bool loading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    late String teamLeadId;
+    final pingAuthState = context.watch<PingAuthState>();
+    final pingUser = pingAuthState.currentPingUser;
+
+    if (pingUser != null) {
+      teamLeadId = pingUser.userId;
+    } else {
+      final memberState = context.watch<MemberState>();
+      final userId = memberState.teamLead?.userId;
+      if (userId != null) {
+        teamLeadId = userId;
+      } else {
+        return getErrorMessage(context, "No user is logged in");
+      }
+    }
+
+    return Scaffold(
+      key: const Key("messageListView"),
+      appBar: AppBar(title: Text('t_messageTemplates'.tr())),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: StreamBuilder<List<String>>(
+                        stream: SettingRepo.instance.getMessages(teamLeadId),
+                        builder: (context, snap) {
+                          if (snap.hasError) {
+                            return getErrorMessage(context, snap.error);
+                          }
+
+                          final messages = snap.data;
+                          if (messages == null) {
+                            return getLoader();
+                          }
+
+                          if (messages.isEmpty) {
+                            return Center(
+                              key: Key("emptyMessageList"),
+                              child: Text('t_noMessageTemplates'.tr()),
+                            );
+                          }
+
+                          return _buildList(messages);
+                        }),
+                  ),
+                  if (!widget.pickMessageMode)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        key: Key("buttonAddMessage"),
+                        onPressed: loading
+                            ? null
+                            : () async {
+                                setState(() => loading = true);
+                                final subState = context
+                                    .read<SubscriptionState>()
+                                    .subscriptionType;
+
+                                try {
+                                  final numberOfMessages = await SettingRepo
+                                      .instance
+                                      .getMessageCount();
+                                  if (numberOfMessages >=
+                                      subState.maxMessageTemplateAllowed) {
+                                    snack(
+                                      't_youHaveMessagesTemplate'.tr(),
+                                    );
+                                  } else {
+                                    push(const MessageAddEditView());
+                                  }
+                                } catch (e) {
+                                  snack(e);
+                                }
+                                setState(() => loading = false);
+                              },
+                        child: Text('t_addMessage'.tr()),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (loading)
+            Positioned.fill(
+              child: AbsorbPointer(
+                absorbing: true,
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: getLoader(),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList(List<String> messages) {
+    buildMessages() => messages
+        .map((message) => ListTile(
+              key: ValueKey(message),
+              title: Text(message),
+              onTap: widget.pickMessageMode ? () => pop(data: message) : null,
+              trailing: widget.pickMessageMode
+                  ? const SizedBox()
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          key: Key("editButton"),
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () => push(
+                            MessageAddEditView(originalMessage: message),
+                          ),
+                        ),
+                        IconButton(
+                          key: Key("keyDeleteButton"),
+                          icon: const Icon(Icons.delete_outline,
+                              color: Colors.red),
+                          onPressed: () => sureDialog(
+                            title: 't_deleteTemplate'.tr(),
+                            message: 't_areYouThisTemplate'.tr(),
+                            context: context,
+                            onYes: () => deleteAction(message),
+                          ),
+                        ),
+                        const Icon(Icons.drag_indicator),
+                      ],
+                    ),
+            ))
+        .toList();
+    return widget.pickMessageMode
+        ? ListView(children: buildMessages())
+        : ReorderableListView(
+            buildDefaultDragHandles: false,
+            onReorder: (oldIndex, newIndex) =>
+                actionReordering(oldIndex, newIndex),
+            children: buildMessages(),
+          );
+  }
+
+  void deleteAction(String message) async {
+    setState(() => loading = true);
+    try {
+      await SettingRepo.instance.removeMessage(message);
+    } catch (e) {
+      snack(e);
+    }
+    setState(() => loading = false);
+  }
+
+  void actionReordering(int oldIndex, int newIndex) async {
+    setState(() => loading = true);
+    try {
+      await SettingRepo.instance.reorderMessages(oldIndex, newIndex);
+    } catch (e) {
+      snack(e);
+    }
+    setState(() => loading = false);
+  }
+}

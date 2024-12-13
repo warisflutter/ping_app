@@ -1,0 +1,20 @@
+Asset validation failed
+Invalid UIDeviceFamily. The Info.plist of Apple Watch application 'Runner.app/Watch/watchOs Watch App.app' contains an invalid UIDeviceFamily value of '1'. (ID: 50d94f09-bb09-492b-85fd-30eb61321286)
+
+Asset validation failed
+Invalid UIDeviceFamily. The Info.plist of Apple Watch application 'Runner.app/Watch/watchOs Watch App.app' contains an invalid UIDeviceFamily value of '2'. (ID: ac04dae9-33cf-4d8c-bc0b-7f9b046502d7)
+
+Asset validation failed
+Invalid WatchKit App Bundle. The value '14.0' for the MinimumOSVersion key in Info.plist in bundle 'com.martin.pingapp.pingApp.watchApp' is not supported. (ID: 1b9cd263-5997-4391-a1ac-4259cc3e7597)
+
+Asset validation failed
+Unsupported Key. The Info.plist of bundle Runner.app/Watch/watchOs Watch App.app may not contain the UIRequiredDeviceCapabilities key. (ID: 734c8fcb-17ea-46c5-97d2-e9b88243b6b8)
+
+Asset validation failed
+Missing Icons. No icons found for watch application 'Runner.app/Watch/watchOs Watch App.app'. Make sure that its Info.plist file includes entries for CFBundleIconFiles. (ID: 7f861690-fced-41a2-8cdd-3edc81ebfbaa)
+
+Asset validation failed
+Invalid Info.plist value. The value for the key 'DTPlatformName' in bundle Runner.app/Watch/watchOs Watch App.app is invalid. (ID: aaf3d03b-cd2e-4b40-aa57-711f2eda540b)
+
+Asset validation failed
+Missing architecture. The “Runner.app/Watch/watchOs Watch App.app” bundle must contain [arm64_32] because it is built with the watchOS 5.0 SDK or later. (ID: c93ffcea-9bea-442c-86da-46189ed7e7d4)
