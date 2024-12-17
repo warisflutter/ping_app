@@ -1,59 +1,26 @@
 {
   "project_info": {
-    "project_number": "29322079000",
-    "project_id": "pingapp-17ef7",
-    "storage_bucket": "pingapp-17ef7.appspot.com"
+    "project_number": "607056826389",
+    "project_id": "pingapp-94e13",
+    "storage_bucket": "pingapp-94e13.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:29322079000:android:8844f77d6483ed01644c6d",
+        "mobilesdk_app_id": "1:607056826389:android:09be4bec1f917686a6be1c",
         "android_client_info": {
           "package_name": "com.martin.pingapp.ping_app"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "29322079000-784u5q6oah9du5u8r5m60qter0a1uncu.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.martin.pingapp.ping_app",
-            "certificate_hash": "84ec61ca47fbe349b754910187fee96307567d9d"
-          }
-        },
-        {
-          "client_id": "29322079000-mu78rikko8k5vtnt6lcu06ukogvgiogs.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.martin.pingapp.ping_app",
-            "certificate_hash": "e222c77c7cef9448be3c8167db3a955a446f64dd"
-          }
-        },
-        {
-          "client_id": "29322079000-skb3lkdeu787vmnbjuttsg7sriim88m0.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAABCNKS7zgkAX6xA_MmLkCH7LAlV6TTIY"
+          "current_key": "AIzaSyAj-Ds-KrosuhllhHc78f0OlLOO94W22Dk"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "29322079000-skb3lkdeu787vmnbjuttsg7sriim88m0.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.martin.pingapp.pingApp"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
