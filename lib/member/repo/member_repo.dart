@@ -16,13 +16,11 @@ class MemberRepo {
   MemberRepo._();
 
   final _memberCollection = FirebaseFirestore.instance.collection('members');
-  final _memberOrder = FirebaseFirestore.instance
-      .collection("members_order")
-      .doc(FirebaseAuth.instance.currentUser?.uid ?? "all");
+  final _memberOrder =
+      FirebaseFirestore.instance.collection("members_order").doc(FirebaseAuth.instance.currentUser?.uid ?? "all");
 
   //save members order (list of string)
-  Future<void> saveMemberOrder(List<String> order) =>
-      _memberOrder.set({"order": order});
+  Future<void> saveMemberOrder(List<String> order) => _memberOrder.set({"order": order});
 
   Future<List<String>> getMemberOrder() async {
     final doc = await _memberOrder.get();
@@ -70,29 +68,37 @@ class MemberRepo {
     required PingUserModel ofTeamLead,
     required String? ifMemberId,
   }) {
+    print("ifMemberId: ${ifMemberId}");
+    print("keyTeamLeadId: ${MemberModel.keyTeamLeadId.toString()}");
     return _memberCollection
-        .where(MemberModel.keyTeamLeadId, isEqualTo: ofTeamLead.userId)
+        .where(
+          MemberModel.keyTeamLeadId,
+          isEqualTo: ofTeamLead.userId,
+        )
         .snapshots()
         .map((snapshot) {
-      final rawData = snapshot.docs
-          .map((doc) => MemberModel.fromJson(doc.id, doc.data()))
-          .toList();
-      final members = ifMemberId == null
-          ? rawData
-          : [...rawData.where((element) => element.id != ifMemberId)];
-      return members;
+      print("Raw Firestore Data: ${snapshot.docs.map((e) => e['isOnline']).toList()}");
+      print("this is my snapshot 1: ${snapshot.docs[1]["isOnline"]}");
+      print("this is my snapshot 2: ${snapshot.docs[2]["isOnline"]}");
+      final rawData = snapshot.docs.map((doc) {
+        print("Mapping 'isOnline' for ${doc.id}: ${doc.data()[MemberModel.keyMemberOnline]}");
+        return MemberModel.fromJson(doc.id, doc.data());
+      }).toList();
+      // final rawData = snapshot.docs.map((doc) => MemberModel.fromJson(doc.id, doc.data())).toList();
+      print("rawData1: ${rawData.length}");
+      print("rawData2: ${rawData.map((e) => e.isOnline).toList()}");
+      // final members = (ifMemberId == null) ? rawData : [...rawData.where((element) => element.id != ifMemberId)];
+      // return members;
+      return rawData;
     });
   }
 
   Future<int> getMemberCount(String teamLeadId) async {
-    final snapshot = await _memberCollection
-        .where(MemberModel.keyTeamLeadId, isEqualTo: teamLeadId)
-        .get();
+    final snapshot = await _memberCollection.where(MemberModel.keyTeamLeadId, isEqualTo: teamLeadId).get();
     return snapshot.size;
   }
 
-  Future<void> updateFcmToken(String memberId, String fcmToken) =>
-      _memberCollection.doc(memberId).update({
+  Future<void> updateFcmToken(String memberId, String fcmToken) => _memberCollection.doc(memberId).update({
         MemberModel.keyFcm: fcmToken,
       });
 
@@ -117,9 +123,7 @@ class MemberRepo {
   Future<List<MemberModel>> getMembersByIds(List<String> memberIds) async {
     if (memberIds.isEmpty) return [];
 
-    final snapshots = await Future.wait(
-        memberIds.map((id) => _memberCollection.doc(id).get())
-    );
+    final snapshots = await Future.wait(memberIds.map((id) => _memberCollection.doc(id).get()));
 
     return snapshots
         .where((doc) => doc.exists && doc.data() != null)

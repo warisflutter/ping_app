@@ -29,6 +29,7 @@ class AppLifecycleService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("AppLifecycleState: $state");
     if (_userId == null) {
       return;
     }
@@ -42,6 +43,8 @@ class AppLifecycleService with WidgetsBindingObserver {
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
+        _setUserOffline();
+        break;
       case AppLifecycleState.hidden:
         break;
     }
@@ -77,5 +80,7 @@ class AppLifecycleService with WidgetsBindingObserver {
 
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    print("app life cycle service call");
+    _setUserOffline();
   }
 }

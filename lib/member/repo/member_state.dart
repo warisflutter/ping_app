@@ -54,13 +54,12 @@ class MemberState extends ChangeNotifier {
     loadMemberIdFromPrefs();
   }
 
-  void loadMemberIdFromPrefs() async {
+  Future<void> loadMemberIdFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final id = prefs.getString("memberId");
     if (id != null) {
       final memberModel = await MemberRepo.instance.getMemberById(id);
-      final pingUser =
-          await AuthRepo.instance.getUserById(memberModel.teamLeadId);
+      final pingUser = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
 
       _memberModel = memberModel;
       _teamLead = pingUser;
@@ -77,8 +76,7 @@ class MemberState extends ChangeNotifier {
     if (_teamLeadSubscription != null) {
       await _teamLeadSubscription!.cancel();
     }
-    _teamLeadSubscription =
-        AuthRepo.instance.getUserStreamById(teamLeadId).listen((pingUser) {
+    _teamLeadSubscription = AuthRepo.instance.getUserStreamById(teamLeadId).listen((pingUser) {
       _teamLead = pingUser;
       notifyListeners();
     });
@@ -88,8 +86,7 @@ class MemberState extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("memberId", memberId);
     final memberModel = await MemberRepo.instance.getMemberById(memberId);
-    final pingUser =
-        await AuthRepo.instance.getUserById(memberModel.teamLeadId);
+    final pingUser = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
     _memberModel = memberModel;
     _teamLead = pingUser;
     notifyListeners();

@@ -78,9 +78,8 @@ class MemberModel {
   })  : _id = id,
         _isOnline = isOnline;
 
-  bool get isOnline =>
-      _isOnline &&
-      lastSeen.isAfter(DateTime.now().subtract(const Duration(minutes: 10)));
+  bool get isOnline => _isOnline;
+  // && lastSeen.isAfter(DateTime.now().subtract(const Duration(minutes: 10)));
 
   bool get isTeamLead => _id == teamLeadId;
 
@@ -106,12 +105,9 @@ class MemberModel {
       : name = json[keyMemberName],
         teamLeadId = json['teamLeadId'],
         initials = json['initials'] ?? "",
-        memberColor = json['color'] == null
-            ? null
-            : ColorSerialization.fromJson(json['color']),
+        memberColor = json['color'] == null ? null : ColorSerialization.fromJson(json['color']),
         _isOnline = json[keyMemberOnline] ?? false,
-        lastSeen =
-            (json[keyLastSeen] as Timestamp?)?.toDate() ?? DateTime(1800),
+        lastSeen = (json[keyLastSeen] as Timestamp?)?.toDate() ?? DateTime(1800),
         isBlocked = json[keyIsBlocked],
         fcm = json[keyFcm];
 
@@ -125,4 +121,11 @@ class MemberModel {
         "teamLeadId": teamLeadId,
         keyIsBlocked: isBlocked,
       };
+  @override
+  String toString() {
+    return 'MemberModel{id: $_id,'
+        ' name: $name, initials: $initials, teamLeadId: $teamLeadId,'
+        ' fcm: $fcm, isBlocked: $isBlocked, isOnline: $_isOnline, lastSeen: $lastSeen, '
+        'memberColor: ${memberColor?.toString() ?? "null"}}';
+  }
 }

@@ -39,8 +39,7 @@ class _MemberListViewState extends State<MemberListView> {
     final isTeamLead = mode.isTeamLead;
     final isMember = mode.isMember;
 
-    final myTeamLead =
-        isTeamLead ? authState.currentPingUser : memberState.teamLead;
+    final myTeamLead = isTeamLead ? authState.currentPingUser : memberState.teamLead;
 
     final ifMember = memberState.member;
     if (isMember && ifMember == null) {
@@ -67,8 +66,7 @@ class _MemberListViewState extends State<MemberListView> {
                       final subType = subscriptionState.subscriptionType;
 
                       try {
-                        final numberOfMembers = await MemberRepo.instance
-                            .getMemberCount(myTeamLead.userId);
+                        final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
                         if (numberOfMembers >= subType.maxMembersAllowed) {
                           snack(
                             't_youHaveMembersAllowed'.tr(),
@@ -111,25 +109,22 @@ class _MemberListViewState extends State<MemberListView> {
           if (data.isEmpty && !isMember) {
             return getErrorMessage(context, 't_noMembersFound'.tr());
           }
-          final operationsBlocked =
-              (subscriptionState.subscriptionType.maxMembersAllowed) <=
-                  data.length;
+          final operationsBlocked = (subscriptionState.subscriptionType.maxMembersAllowed) <= data.length;
 
           final members = data.where((member) => !member.isBlocked).toList();
-          int numberOfOnlineMembers =
-              members.where((member) => member.isOnline).toList().length;
+          print("This is members: ${members.map((e) => e.isOnline).toList()}");
+
+          int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
           if (isMember) {
             if (myTeamLead.isOnline == true) {
               numberOfOnlineMembers++;
             }
           }
-          final blockedMembers =
-              data.where((member) => member.isBlocked).toList();
+          final blockedMembers = data.where((member) => member.isBlocked).toList();
 
           final sortIds = memberState.idOrder;
           if (sortIds != null) {
-            final availIds =
-                sortIds.where((id) => members.any((m) => m.id == id)).toList();
+            final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();
             members.sort(
               (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
             );
@@ -155,19 +150,15 @@ class _MemberListViewState extends State<MemberListView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ChoiceChip(
-                            label:
-                                Text("${'t_members'.tr()} (${members.length})"),
+                            label: Text("${'t_members'.tr()} (${members.length})"),
                             selected: !showBlocked,
-                            onSelected: (selected) =>
-                                setState(() => showBlocked = false),
+                            onSelected: (selected) => setState(() => showBlocked = false),
                           ),
                           const SizedBox(width: 16),
                           ChoiceChip(
-                            label: Text(
-                                "${'t_blocked'.tr()} (${blockedMembers.length})"),
+                            label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
                             selected: showBlocked,
-                            onSelected: (selected) =>
-                                setState(() => showBlocked = true),
+                            onSelected: (selected) => setState(() => showBlocked = true),
                           ),
                         ],
                       ),
@@ -176,11 +167,8 @@ class _MemberListViewState extends State<MemberListView> {
                     MemberListItem(
                       operationsBlocked: operationsBlocked,
                       isLoggedInAsMember: isMember,
-                      currentUserModel: isMember
-                          ? ifMember!
-                          : MemberModel.fromPingUserModel(myTeamLead),
-                      listTimeMemberModel:
-                          MemberModel.fromPingUserModel(myTeamLead),
+                      currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                      listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
                     ),
                   const Divider(),
                   Expanded(
@@ -191,37 +179,30 @@ class _MemberListViewState extends State<MemberListView> {
                                       operationsBlocked: operationsBlocked,
                                       key: ValueKey(member.id),
                                       isLoggedInAsMember: isMember,
-                                      currentUserModel: isMember
-                                          ? ifMember!
-                                          : MemberModel.fromPingUserModel(
-                                              myTeamLead),
+                                      currentUserModel:
+                                          isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
                                       listTimeMemberModel: member,
                                     ))
                                 .toList(),
                           )
                         : ReorderableListView(
-                            // buildDefaultDragHandles: false,
                             onReorder: (oldIndex, newIndex) {
-                              final currentIds =
-                                  members.map((e) => e.id).toList();
-                              memberState.reorderIdOrder(
-                                  currentIds, oldIndex, newIndex);
+                              final currentIds = members.map((e) => e.id).toList();
+                              memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
                             },
-                            children: members
-                                .map(
-                                  (member) => MemberListItem(
-                                    operationsBlocked: operationsBlocked,
-                                    key: ValueKey(member.id),
-                                    reOrderAble: true,
-                                    isLoggedInAsMember: isMember,
-                                    currentUserModel: isMember
-                                        ? ifMember!
-                                        : MemberModel.fromPingUserModel(
-                                            myTeamLead),
-                                    listTimeMemberModel: member,
-                                  ),
-                                )
-                                .toList()),
+                            children: members.map(
+                              (member) {
+                                print("team lead members: name ${member.name} status ${member.isOnline}");
+                                return MemberListItem(
+                                  operationsBlocked: operationsBlocked,
+                                  key: ValueKey(member.id),
+                                  reOrderAble: true,
+                                  isLoggedInAsMember: isMember,
+                                  currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                  listTimeMemberModel: member,
+                                );
+                              },
+                            ).toList()),
                   ),
                 ]),
               ),
@@ -244,8 +225,7 @@ class _MemberListViewState extends State<MemberListView> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(teamName, style: Theme.of(context).textTheme.bodyLarge),
-            Text("${'t_online'.tr()} ($onlineCount)",
-                style: Theme.of(context).textTheme.bodyLarge),
+            Text("${'t_online'.tr()} ($onlineCount)", style: Theme.of(context).textTheme.bodyLarge),
           ],
         ),
       ),

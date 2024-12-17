@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -64,10 +66,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                     SizedBox(height: mainSpacing),
                     Text(
                       't_createNewAccount'.tr(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: mainSpacing),
                     getForm(),
@@ -77,7 +76,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                       children: [
                         getTermsAndPolicy(context),
                         const SizedBox(height: 12),
-                        loading
+                        (loading)
                             ? getLoader()
                             : ElevatedButton(
                                 onPressed: () => _onCreateAccountClicked(),
@@ -86,19 +85,17 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                         const SizedBox(height: 8),
                         if (!kIsWeb)
                           OutlinedButton(
-                            onPressed:
-                                loading ? null : () => _onScanQrCodeClick(),
+                            onPressed: (loading) ? null : () => _onScanQrCodeClick(),
                             child: Text('t_scanQrCode'.tr()),
                           )
                         else
                           OutlinedButton(
-                            onPressed:
-                                loading ? null : () => _onJoinByIdClick(),
+                            onPressed: loading ? null : () => _onJoinByIdClick(),
                             child: Text('t_joinById'.tr()),
                           ),
                         GoogleSignInButton(onSignedIn: () {}),
                         const SizedBox(height: 4),
-                        AppleSignInButton(onSignedIn: () {}),
+                        (Platform.isIOS) ? AppleSignInButton(onSignedIn: () {}) : const SizedBox.shrink(),
                         const SizedBox(height: 12),
                         getAlreadyHaveAccount(context),
                         const SizedBox(height: 12),
@@ -207,8 +204,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                   ),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
-                  validator: (s) =>
-                      s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
+                  validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
                   controller: initials,
                   maxLength: 3,
                   readOnly: loading,
@@ -292,8 +288,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
       return;
     }
 
-    final captchaVerified = await showDialog(
-        context: context, builder: (context) => const CaptchaAlertDialog());
+    final captchaVerified = await showDialog(context: context, builder: (context) => const CaptchaAlertDialog());
 
     if (!captchaVerified) {
       snack('t_invalidCaptcha'.tr());
