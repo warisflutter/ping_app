@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/util/navigator.dart';
@@ -24,8 +25,7 @@ class _CaptchaAlertDialogState extends State<CaptchaAlertDialog> {
   }
 
   void _generateCaptcha() {
-    const String chars =
-        'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    const String chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
     Random rnd = Random();
     String result = '';
     for (var i = 0; i < 6; i++) {
@@ -68,9 +68,7 @@ class _CaptchaAlertDialogState extends State<CaptchaAlertDialog> {
           const SizedBox(height: 8),
           TextFormField(
             controller: enteredCaptcha,
-            decoration: InputDecoration(
-                hintText: 't_enterCaptcha'.tr(),
-                prefixIcon: const Icon(Icons.security)),
+            decoration: InputDecoration(hintText: 't_enterCaptcha'.tr(), prefixIcon: const Icon(Icons.security)),
           ),
         ],
       ),
@@ -87,8 +85,7 @@ class AdvancedCaptchaPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final backgroundPaint = Paint()..color = Colors.grey[100]!;
-    canvas.drawRect(
-        Rect.fromLTWH(0, 0, size.width, size.height), backgroundPaint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), backgroundPaint);
 
     // Draw complex background pattern
     drawComplexBackground(canvas, size);
@@ -177,8 +174,12 @@ class AdvancedCaptchaPainter extends CustomPainter {
     }
   }
 
-  void drawTextWithOutline(Canvas canvas, String text, Color color,
-      {required double fontSize}) {
+  void drawTextWithOutline(
+    Canvas canvas,
+    String text,
+    Color color, {
+    required double fontSize,
+  }) {
     final textStyle = TextStyle(
       fontSize: fontSize,
       fontWeight: FontWeight.bold,
@@ -190,8 +191,8 @@ class AdvancedCaptchaPainter extends CustomPainter {
     final textSpan = TextSpan(text: text, style: textStyle);
     final textPainter = TextPainter(
       text: textSpan,
-      //TODO: Verify captcha working properly
-      // textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+      textDirection: ui.TextDirection.ltr,
     );
     textPainter.layout();
     textPainter.paint(canvas, Offset.zero);
@@ -205,8 +206,8 @@ class AdvancedCaptchaPainter extends CustomPainter {
     final fillTextSpan = TextSpan(text: text, style: fillTextStyle);
     final fillTextPainter = TextPainter(
       text: fillTextSpan,
-      //TODO: Verify captcha working properly
-      // textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+      textDirection: ui.TextDirection.ltr,
     );
     fillTextPainter.layout();
     fillTextPainter.paint(canvas, Offset.zero);
@@ -220,8 +221,7 @@ class AdvancedCaptchaPainter extends CustomPainter {
 
     for (int i = 0; i < 8; i++) {
       final path = Path();
-      path.moveTo(
-          random.nextDouble() * size.width, random.nextDouble() * size.height);
+      path.moveTo(random.nextDouble() * size.width, random.nextDouble() * size.height);
       for (int j = 0; j < 4; j++) {
         path.quadraticBezierTo(
           random.nextDouble() * size.width,
@@ -238,8 +238,7 @@ class AdvancedCaptchaPainter extends CustomPainter {
     final paint = Paint()..color = Colors.black.withOpacity(0.1);
     for (int i = 0; i < 1000; i++) {
       canvas.drawCircle(
-        Offset(random.nextDouble() * size.width,
-            random.nextDouble() * size.height),
+        Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
         random.nextDouble() * 2,
         paint,
       );
