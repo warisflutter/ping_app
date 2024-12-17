@@ -56,21 +56,19 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAABCNKS7zgkAX6xA_MmLkCH7LAlV6TTIY',
-    appId: '1:29322079000:android:8844f77d6483ed01644c6d',
-    messagingSenderId: '29322079000',
-    projectId: 'pingapp-17ef7',
-    storageBucket: 'pingapp-17ef7.appspot.com',
+    apiKey: 'AIzaSyAj-Ds-KrosuhllhHc78f0OlLOO94W22Dk',
+    appId: '1:607056826389:android:09be4bec1f917686a6be1c',
+    messagingSenderId: '607056826389',
+    projectId: 'pingapp-94e13',
+    storageBucket: 'pingapp-94e13.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBY_1BnyowrCYPA4aN7uOYJ3OewtfKsXHQ',
-    appId: '1:29322079000:ios:b631e82f6e320ac3644c6d',
-    messagingSenderId: '29322079000',
-    projectId: 'pingapp-17ef7',
-    storageBucket: 'pingapp-17ef7.appspot.com',
-    androidClientId: '29322079000-784u5q6oah9du5u8r5m60qter0a1uncu.apps.googleusercontent.com',
-    iosClientId: '29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCDfx4Eh2ZVajvd9yTnTKEKGScjIpiicJY',
+    appId: '1:607056826389:ios:a71ecff07c0c1003a6be1c',
+    messagingSenderId: '607056826389',
+    projectId: 'pingapp-94e13',
+    storageBucket: 'pingapp-94e13.firebasestorage.app',
     iosBundleId: 'com.martin.pingapp.pingApp',
   );
 
