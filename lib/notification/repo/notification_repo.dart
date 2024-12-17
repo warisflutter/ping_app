@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 import 'dart:typed_data';
@@ -13,21 +14,26 @@ class NotificationRepo {
 
   NotificationRepo._();
 
-  final notificationCollection =
-      FirebaseFirestore.instance.collection("notifications");
+  final notificationCollection = FirebaseFirestore.instance.collection("notifications");
 
   final audioStorage = FirebaseStorage.instance.ref('audio');
 
   Future<void> sendPingNotification(
-      MemberModel fromMember, MemberModel toMember) async {
-    final n = PingNotificationModel(
-      fromId: fromMember.id,
-      toId: toMember.id,
-      type: NotificationType.ping,
-      message: "${fromMember.name} ${'t_sentAPing'.tr()}",
-    );
-
-    await notificationCollection.add(n.toJson());
+    MemberModel fromMember,
+    MemberModel toMember,
+  ) async {
+    try {
+      final n = PingNotificationModel(
+        fromId: fromMember.id,
+        toId: toMember.id,
+        type: NotificationType.ping,
+        message: "${fromMember.name} ${'t_sentAPing'.tr()}",
+      );
+      await notificationCollection.add(n.toJson());
+    } catch (e, st) {
+      log("error: $e");
+      log("st: $st");
+    }
   }
 
   Future<void> sendWatchNotification({
@@ -50,8 +56,7 @@ class NotificationRepo {
     await notificationCollection.add(n);
   }
 
-  Future<void> sendMessageNotification(
-      MemberModel fromMember, MemberModel toMember, String message) async {
+  Future<void> sendMessageNotification(MemberModel fromMember, MemberModel toMember, String message) async {
     final n = PingNotificationModel(
       fromId: fromMember.id,
       toId: toMember.id,
@@ -63,8 +68,7 @@ class NotificationRepo {
     await notificationCollection.add(n.toJson());
   }
 
-  Future<void> sendAudioNotification(
-      MemberModel fromMember, MemberModel toMember, File audio) async {
+  Future<void> sendAudioNotification(MemberModel fromMember, MemberModel toMember, File audio) async {
     final doc = notificationCollection.doc();
     final fileUrl = await uploadFileAndGetUrl(doc.id, audio);
 
@@ -79,8 +83,7 @@ class NotificationRepo {
     await doc.set(n.toJson());
   }
 
-  Future<void> sendDataAudioNotification(
-      MemberModel fromMember, MemberModel toMember, Uint8List data) async {
+  Future<void> sendDataAudioNotification(MemberModel fromMember, MemberModel toMember, Uint8List data) async {
     final doc = notificationCollection.doc();
     final fileUrl = await uploadDataAndGetUrl(doc.id, data);
 
@@ -105,29 +108,22 @@ class NotificationRepo {
     return notificationCollection
         .where('toId', isEqualTo: memberId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PingNotificationModel.fromJson(doc.id, doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => PingNotificationModel.fromJson(doc.id, doc.data())).toList());
   }
 
   Stream<List<PingNotificationModel>> getNotificationsFromMe(String memberId) {
     return notificationCollection
         .where('fromId', isEqualTo: memberId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PingNotificationModel.fromJson(doc.id, doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => PingNotificationModel.fromJson(doc.id, doc.data())).toList());
   }
 
-  Stream<List<PingNotificationModel>> getNotificationsFromMeToId(
-      String fromId, String toId) {
+  Stream<List<PingNotificationModel>> getNotificationsFromMeToId(String fromId, String toId) {
     return notificationCollection
         .where('fromId', isEqualTo: fromId)
         .where('toId', isEqualTo: toId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PingNotificationModel.fromJson(doc.id, doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => PingNotificationModel.fromJson(doc.id, doc.data())).toList());
   }
 
   Stream<PingNotificationModel?> getMostRecentNotification(String memberId) {
@@ -135,20 +131,17 @@ class NotificationRepo {
       if (event.isEmpty) {
         return null;
       }
-      event.sort((a, b) =>
-          (b.sentAt ?? DateTime.now()).compareTo(a.sentAt ?? DateTime.now()));
+      event.sort((a, b) => (b.sentAt ?? DateTime.now()).compareTo(a.sentAt ?? DateTime.now()));
       return event.first;
     });
   }
 
-  Stream<PingNotificationModel?> getMostRecentNotificationFromMeToId(
-      String fromId, String toId) {
+  Stream<PingNotificationModel?> getMostRecentNotificationFromMeToId(String fromId, String toId) {
     return getNotificationsFromMeToId(fromId, toId).map((event) {
       if (event.isEmpty) {
         return null;
       }
-      event.sort((a, b) =>
-          (b.sentAt ?? DateTime.now()).compareTo(a.sentAt ?? DateTime.now()));
+      event.sort((a, b) => (b.sentAt ?? DateTime.now()).compareTo(a.sentAt ?? DateTime.now()));
       return event.first;
     });
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -53,8 +54,7 @@ class _MemberListItemState extends State<MemberListItem> {
       await notificationSubscription?.cancel();
     }
     notificationSubscription = NotificationRepo.instance
-        .getMostRecentNotificationFromMeToId(
-            widget.currentUserModel.id, widget.listTimeMemberModel.id)
+        .getMostRecentNotificationFromMeToId(widget.currentUserModel.id, widget.listTimeMemberModel.id)
         .listen((notification) {
       final nextTick = notification?.nextTick();
       if (nextTick != null) {
@@ -99,20 +99,14 @@ class _MemberListItemState extends State<MemberListItem> {
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Text(
                     widget.listTimeMemberModel.initials,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 )),
               ),
               Expanded(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8) -
-                          (widget.reOrderAble
-                              ? const EdgeInsets.only(left: 8)
-                              : EdgeInsets.zero),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8) -
+                      (widget.reOrderAble ? const EdgeInsets.only(left: 8) : EdgeInsets.zero),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -125,12 +119,10 @@ class _MemberListItemState extends State<MemberListItem> {
                               color: Colors.grey,
                             ),
                           const SizedBox(width: 8),
-                          if (widget.listTimeMemberModel.isOnline &&
-                              !widget.listTimeMemberModel.isBlocked)
+                          if (widget.listTimeMemberModel.isOnline && !widget.listTimeMemberModel.isBlocked)
                             const Padding(
                               padding: EdgeInsets.only(right: 8.0),
-                              child: Icon(Icons.circle,
-                                  color: Colors.green, size: 12),
+                              child: Icon(Icons.circle, color: Colors.green, size: 12),
                             ),
                           Text(widget.listTimeMemberModel.name),
                         ],
@@ -146,7 +138,7 @@ class _MemberListItemState extends State<MemberListItem> {
                           icon: const Icon(Icons.more_horiz),
                         )
                       else
-                        SizedBox(height: 40)
+                        const SizedBox(height: 40)
                     ],
                   ),
                 ),
@@ -158,8 +150,7 @@ class _MemberListItemState extends State<MemberListItem> {
     );
   }
 
-  void showMemberOptions(BuildContext context, bool isMember, MemberModel me,
-      MemberModel selected) {
+  void showMemberOptions(BuildContext context, bool isMember, MemberModel me, MemberModel selected) {
     showBottomSheet(
       context: context,
       enableDrag: false,
@@ -194,9 +185,9 @@ class _MemberListItemState extends State<MemberListItem> {
                   leading: const Icon(Icons.phonelink_ring),
                   title: const Text("Ping"),
                   onTap: () {
+                    log("ping button");
                     pop();
-                    NotificationRepo.instance
-                        .sendPingNotification(me, selected);
+                    NotificationRepo.instance.sendPingNotification(me, selected);
                   },
                 ),
             if (!widget.operationsBlocked)
@@ -205,13 +196,11 @@ class _MemberListItemState extends State<MemberListItem> {
                   leading: const Icon(Icons.message),
                   title: const Text("Message"),
                   onTap: () async {
-                    final message = await push<String>(
-                        const MessageListView(pickMessageMode: true));
+                    final message = await push<String>(const MessageListView(pickMessageMode: true));
                     if (message != null) {
                       pop();
                       try {
-                        await NotificationRepo.instance
-                            .sendMessageNotification(me, selected, message);
+                        await NotificationRepo.instance.sendMessageNotification(me, selected, message);
                         snack("Message sent successfully", info: true);
                       } catch (e) {
                         snack(e);
@@ -226,12 +215,10 @@ class _MemberListItemState extends State<MemberListItem> {
                   title: const Text("Audio Message"),
                   onTap: () async {
                     if (kIsWeb) {
-                      final data =
-                          await push<Uint8List?>(const AudioRecordWeb());
+                      final data = await push<Uint8List?>(const AudioRecordWeb());
                       if (data != null) {
                         pop();
-                        NotificationRepo.instance
-                            .sendDataAudioNotification(me, selected, data);
+                        NotificationRepo.instance.sendDataAudioNotification(me, selected, data);
                       }
                       return;
                     }
@@ -239,12 +226,10 @@ class _MemberListItemState extends State<MemberListItem> {
                     if (file == null) {
                       return;
                     }
-                    final send =
-                        await push<bool>(VerifyAudioView(audioFile: file));
+                    final send = await push<bool>(VerifyAudioView(audioFile: file));
                     if (send ?? false) {
                       pop();
-                      NotificationRepo.instance
-                          .sendAudioNotification(me, selected, file);
+                      NotificationRepo.instance.sendAudioNotification(me, selected, file);
                     }
                   },
                 ),
@@ -270,12 +255,8 @@ class _MemberListItemState extends State<MemberListItem> {
             if (!widget.operationsBlocked)
               if (!isMember)
                 ListTile(
-                  leading: selected.isBlocked
-                      ? const Icon(Icons.lock_open)
-                      : const Icon(Icons.block),
-                  title: selected.isBlocked
-                      ? const Text("Unblock Member")
-                      : const Text("Block Member"),
+                  leading: selected.isBlocked ? const Icon(Icons.lock_open) : const Icon(Icons.block),
+                  title: selected.isBlocked ? const Text("Unblock Member") : const Text("Block Member"),
                   onTap: () {
                     pop();
                     MemberRepo.instance
@@ -296,9 +277,7 @@ class _MemberListItemState extends State<MemberListItem> {
                     context: context,
                     title: "Remove Member",
                     message: "Are you sure you want to remove ${selected.name}",
-                    onYes: () => MemberRepo.instance
-                        .removeMember(selected.id)
-                        .catchError((error) => snack(error)),
+                    onYes: () => MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error)),
                   );
                 },
               ),
