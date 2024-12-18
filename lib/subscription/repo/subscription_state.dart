@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -12,7 +11,8 @@ class SubscriptionState extends ChangeNotifier {
   bool get isDemoAccount {
     final fbUser = FirebaseAuth.instance.currentUser;
     return fbUser?.email == "kamran.bashir.arain@gmail.com" ||
-        fbUser?.email == "kamran.bashir.arain+sb@gmail.com" || kDebugMode;
+        fbUser?.email == "kamran.bashir.arain+sb@gmail.com" ||
+        kDebugMode;
   }
 
   //Non Listening Fields
@@ -103,15 +103,12 @@ class SubscriptionState extends ChangeNotifier {
 
   void _initPackage() async {
     try {
-      await Purchases.setLogLevel(
-          kDebugMode ? LogLevel.verbose : LogLevel.error);
+      await Purchases.setLogLevel(kDebugMode ? LogLevel.verbose : LogLevel.error);
       PurchasesConfiguration configuration;
       if (Platform.isAndroid) {
-        configuration =
-            PurchasesConfiguration("goog_kCplDPixKcmaEltvVIbijWjlaCJ");
+        configuration = PurchasesConfiguration("goog_kCplDPixKcmaEltvVIbijWjlaCJ");
       } else if (Platform.isIOS) {
-        configuration =
-            PurchasesConfiguration("appl_ZTYJUxNFNDUfDZISXXtjVKspmXB");
+        configuration = PurchasesConfiguration("appl_ZTYJUxNFNDUfDZISXXtjVKspmXB");
       } else {
         throw 't_invalidPlatform'.tr();
       }
@@ -161,16 +158,13 @@ class SubscriptionState extends ChangeNotifier {
     }
     _userId = userId;
 
-    _entitlementInfo = await SubscriptionRepo.instance
-        .getSubscriptionStatusStream(userId)
-        .first;
+    _entitlementInfo = await SubscriptionRepo.instance.getSubscriptionStatusStream(userId).first;
 
     if (_webListener != null) {
       await _webListener?.cancel();
     }
-    _webListener = SubscriptionRepo.instance
-        .getSubscriptionStatusStream(userId)
-        .listen((info) => _entitlementInfo = info);
+    _webListener =
+        SubscriptionRepo.instance.getSubscriptionStatusStream(userId).listen((info) => _entitlementInfo = info);
     _loading = false;
   }
 
