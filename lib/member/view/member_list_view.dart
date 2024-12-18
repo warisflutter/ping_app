@@ -52,7 +52,7 @@ class _MemberListViewState extends State<MemberListView> {
     if (myTeamLead == null) {
       return getErrorMessage(context, 't_teamLeadTheApp'.tr());
     }
-
+    print("..............${ifMember?.isBlocked}");
     return Scaffold(
       appBar: AppBar(
         title: Text(isMember ? ifMember!.name : 't_myTeam'.tr()),

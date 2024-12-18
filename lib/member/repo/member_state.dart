@@ -62,6 +62,7 @@ class MemberState extends ChangeNotifier {
       final pingUser = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
 
       _memberModel = memberModel;
+      debugPrint("This is member model:: $_memberModel");
       _teamLead = pingUser;
       final teamLeadId = _teamLead?.userId;
       if (teamLeadId != null) {

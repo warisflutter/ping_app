@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
+import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
 import 'package:ping_app/member/view/add_member_view/member_qr_code.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
@@ -16,6 +17,7 @@ import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/record_web/audio_main.dart';
+import 'package:provider/provider.dart';
 
 class MemberListItem extends StatefulWidget {
   final bool isLoggedInAsMember;
@@ -45,6 +47,7 @@ class _MemberListItemState extends State<MemberListItem> {
 
   @override
   void initState() {
+    context.read<MemberState>().loadMemberIdFromPrefs();
     loadRecentNotification();
     super.initState();
   }
@@ -160,128 +163,144 @@ class _MemberListItemState extends State<MemberListItem> {
         constraints: const BoxConstraints(maxHeight: 450),
         onClosing: () {},
         builder: (context) {
-          return Column(children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: IconButton(
-                  onPressed: () => pop(),
-                  icon: const Icon(Icons.close),
-                ),
-              ),
-            ),
-            if (widget.operationsBlocked)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: getErrorMessage(
-                  context,
-                  "You have more members than allowed. Please upgrade your plan or delete some members.",
-                ),
-              ),
-            if (!widget.operationsBlocked)
-              if (!selected.isBlocked)
-                ListTile(
-                  leading: const Icon(Icons.phonelink_ring),
-                  title: const Text("Ping"),
-                  onTap: () {
-                    log("ping button");
-                    pop();
-                    NotificationRepo.instance.sendPingNotification(me, selected);
-                  },
-                ),
-            if (!widget.operationsBlocked)
-              if (!selected.isBlocked)
-                ListTile(
-                  leading: const Icon(Icons.message),
-                  title: const Text("Message"),
-                  onTap: () async {
-                    final message = await push<String>(const MessageListView(pickMessageMode: true));
-                    if (message != null) {
-                      pop();
-                      try {
-                        await NotificationRepo.instance.sendMessageNotification(me, selected, message);
-                        snack("Message sent successfully", info: true);
-                      } catch (e) {
-                        snack(e);
-                      }
-                    }
-                  },
-                ),
-            if (!widget.operationsBlocked)
-              if (!selected.isBlocked)
-                ListTile(
-                  leading: const Icon(Icons.mic),
-                  title: const Text("Audio Message"),
-                  onTap: () async {
-                    if (kIsWeb) {
-                      final data = await push<Uint8List?>(const AudioRecordWeb());
-                      if (data != null) {
+          return Consumer<MemberState>(
+            builder: (context, memberState, _) {
+              final member = memberState.member;
+              return Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: IconButton(
+                        onPressed: () => pop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ),
+                  ),
+                  if (widget.operationsBlocked)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: getErrorMessage(
+                        context,
+                        "You have more members than allowed. Please upgrade your plan or delete some members.",
+                      ),
+                    ),
+                  if (!widget.operationsBlocked)
+                    if (!selected.isBlocked)
+                      ListTile(
+                        leading: const Icon(Icons.phonelink_ring),
+                        title: const Text("Ping"),
+                        onTap: () {
+                          log("ping button");
+                          pop();
+                          if (member != null && !member.isBlocked) {
+                            NotificationRepo.instance.sendPingNotification(me, selected);
+                          } else {
+                            snack("Block member can`t send ping", info: true);
+                          }
+                        },
+                      ),
+                  if (!widget.operationsBlocked)
+                    if (!selected.isBlocked)
+                      ListTile(
+                        leading: const Icon(Icons.message),
+                        title: const Text("Message"),
+                        onTap: () async {
+                          final message = await push<String>(const MessageListView(pickMessageMode: true));
+                          if (message != null) {
+                            pop();
+                            try {
+                              if (member != null && !member.isBlocked) {
+                                await NotificationRepo.instance.sendMessageNotification(me, selected, message);
+                                snack("Message sent successfully", info: false);
+                              } else {
+                                snack("Block member can`t send ping", info: false);
+                              }
+                            } catch (e) {
+                              snack(e);
+                            }
+                          }
+                        },
+                      ),
+                  if (!widget.operationsBlocked)
+                    if (!selected.isBlocked)
+                      ListTile(
+                        leading: const Icon(Icons.mic),
+                        title: const Text("Audio Message"),
+                        onTap: () async {
+                          if (kIsWeb) {
+                            final data = await push<Uint8List?>(const AudioRecordWeb());
+                            if (data != null) {
+                              pop();
+                              NotificationRepo.instance.sendDataAudioNotification(me, selected, data);
+                            }
+                            return;
+                          }
+                          final file = await push<File>(const PingAudioRecord());
+                          if (file == null) {
+                            return;
+                          }
+                          final send = await push<bool>(VerifyAudioView(audioFile: file));
+                          if (send ?? false) {
+                            pop();
+                            NotificationRepo.instance.sendAudioNotification(me, selected, file);
+                          }
+                        },
+                      ),
+                  if (!widget.operationsBlocked)
+                    if (!isMember)
+                      ListTile(
+                        leading: const Icon(Icons.edit),
+                        title: const Text("Update Member"),
+                        onTap: () {
+                          pop();
+                          push(MemberManageView(member: selected));
+                        },
+                      ),
+                  if (!widget.operationsBlocked)
+                    ListTile(
+                      leading: const Icon(Icons.qr_code),
+                      title: const Text("View QR Code"),
+                      onTap: () {
                         pop();
-                        NotificationRepo.instance.sendDataAudioNotification(me, selected, data);
-                      }
-                      return;
-                    }
-                    final file = await push<File>(const PingAudioRecord());
-                    if (file == null) {
-                      return;
-                    }
-                    final send = await push<bool>(VerifyAudioView(audioFile: file));
-                    if (send ?? false) {
-                      pop();
-                      NotificationRepo.instance.sendAudioNotification(me, selected, file);
-                    }
-                  },
-                ),
-            if (!widget.operationsBlocked)
-              if (!isMember)
-                ListTile(
-                  leading: const Icon(Icons.edit),
-                  title: const Text("Update Member"),
-                  onTap: () {
-                    pop();
-                    push(MemberManageView(member: selected));
-                  },
-                ),
-            if (!widget.operationsBlocked)
-              ListTile(
-                leading: const Icon(Icons.qr_code),
-                title: const Text("View QR Code"),
-                onTap: () {
-                  pop();
-                  push(MemberQrCode(memberId: selected.id));
-                },
-              ),
-            if (!widget.operationsBlocked)
-              if (!isMember)
-                ListTile(
-                  leading: selected.isBlocked ? const Icon(Icons.lock_open) : const Icon(Icons.block),
-                  title: selected.isBlocked ? const Text("Unblock Member") : const Text("Block Member"),
-                  onTap: () {
-                    pop();
-                    MemberRepo.instance
-                        .blockUnblockMember(selected.id, !selected.isBlocked)
-                        .catchError((error) => snack(error));
-                  },
-                ),
-            if (!isMember)
-              ListTile(
-                leading: const Icon(Icons.remove_circle, color: Colors.red),
-                title: const Text(
-                  "Remove Member",
-                  style: TextStyle(color: Colors.red),
-                ),
-                onTap: () {
-                  pop();
-                  sureDialog(
-                    context: context,
-                    title: "Remove Member",
-                    message: "Are you sure you want to remove ${selected.name}",
-                    onYes: () => MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error)),
-                  );
-                },
-              ),
-          ]);
+                        push(MemberQrCode(memberId: selected.id));
+                      },
+                    ),
+                  if (!widget.operationsBlocked)
+                    if (!isMember)
+                      ListTile(
+                        leading: selected.isBlocked ? const Icon(Icons.lock_open) : const Icon(Icons.block),
+                        title: selected.isBlocked ? const Text("Unblock Member") : const Text("Block Member"),
+                        onTap: () {
+                          pop();
+                          MemberRepo.instance
+                              .blockUnblockMember(selected.id, !selected.isBlocked)
+                              .catchError((error) => snack(error));
+                        },
+                      ),
+                  if (!isMember)
+                    ListTile(
+                      leading: const Icon(Icons.remove_circle, color: Colors.red),
+                      title: const Text(
+                        "Remove Member",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onTap: () {
+                        pop();
+                        sureDialog(
+                          context: context,
+                          title: "Remove Member",
+                          message: "Are you sure you want to remove ${selected.name}",
+                          onYes: () =>
+                              MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error)),
+                        );
+                      },
+                    ),
+                ],
+              );
+            },
+          );
         },
       ),
     );
