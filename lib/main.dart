@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:ping_app/admin/admin_provider.dart';
+import 'package:ping_app/admin/admin_view.dart';
 import 'package:ping_app/util/loading_screen.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
@@ -57,6 +59,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => MemberState()),
         ChangeNotifierProvider(create: (_) => SubscriptionState()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
       ],
       child: MaterialApp(
         localizationsDelegates: context.localizationDelegates,
@@ -78,18 +81,20 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: Builder(builder: (context) {
-          return PopScope(
-            canPop: false,
-            onPopInvoked: (didPop) {
-              if (didPop) {
-                return;
-              }
-              _onPopInvoked(context);
-            },
-            child: const HomeWidget(),
-          );
-        }),
+        home: Builder(
+          builder: (context) {
+            return PopScope(
+              canPop: false,
+              onPopInvoked: (didPop) {
+                if (didPop) {
+                  return;
+                }
+                _onPopInvoked(context);
+              },
+              child: homeWidget(context),
+            );
+          },
+        ),
       ),
     );
   }
@@ -133,187 +138,101 @@ enum UserState {
   dashboard,
   subscriptionPayWall,
   verifySubscription,
+  admin,
 }
 
-// Widget homeWidget(BuildContext context) {
-//   final state = context.watch<PingAuthState>();
-//   AppLifecycleService().reset();
-//   print("state loading: ${state.loading}");
-//
-//   final pingUser = state.currentPingUser;
-//   final firebaseUser = state.currentFirebaseUser;
-//
-//   UserState userState;
-//
-//   if (state.loading) {
-//     print("---------if--------------state.loading");
-//     userState = UserState.loading;
-//   } else if (firebaseUser != null && pingUser == null) {
-//     print("---------else if--------------firebaseUser != null && pingUser == null");
-//     userState = UserState.completeProfile;
-//   } else if (firebaseUser == null || pingUser == null) {
-//     print("---------else if--------------firebaseUser == null || pingUser == null");
-//     final memberState = context.watch<MemberState>();
-//     final member = memberState.member;
-//
-//     if (member != null) {
-//       print("---------if--------------member != null");
-//       userState = UserState.member;
-//     } else {
-//       print("---------else--------------member != null");
-//       userState = UserState.createAccount;
-//     }
-//   } else if (!firebaseUser.emailVerified) {
-//     userState = UserState.verifyEmail;
-//   } else {
-//     final subscriptionState = context.watch<SubscriptionState>();
-//
-//     if (subscriptionState.error != null) {
-//       userState = UserState.subscriptionError;
-//     } else if (subscriptionState.loading) {
-//       userState = UserState.subscriptionLoading;
-//     } else {
-//       userState = subscriptionState.subscriptionType != EntitlementType.none
-//           ? UserState.dashboard
-//           : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
-//     }
-//   }
-//
-//   switch (userState) {
-//     case UserState.loading:
-//       return LoadingScreen(message: 't_authenticating'.tr());
-//     case UserState.completeProfile:
-//       return CompleteProfileView(firebaseUser: firebaseUser!);
-//     case UserState.member:
-//       final memberState = context.watch<MemberState>();
-//       final member = memberState.member;
-//       final subscriptionState = context.watch<SubscriptionState>();
-//
-//       WidgetsBinding.instance.addPostFrameCallback((_) {
-//         NotificationService.instance.setNotificationListener(
-//           context,
-//           member!.id,
-//           -1,
-//         );
-//         subscriptionState.updateUser(member.teamLeadId);
-//         FcmRepo.instance.updateMemberFcmToken(member.id);
-//         AppLifecycleService().initialize(isMember: true, userId: member.id);
-//       });
-//
-//       return const MemberDashboard();
-//     case UserState.createAccount:
-//       return const CreateAccountView();
-//     case UserState.verifyEmail:
-//       return VerifyEmailView(user: firebaseUser!);
-//     case UserState.subscriptionError:
-//       final subscriptionState = context.watch<SubscriptionState>();
-//       return LoadingScreen(
-//         message: 't_anErrorTheApp'.tr(),
-//         error: subscriptionState.error,
-//       );
-//     case UserState.subscriptionLoading:
-//       return LoadingScreen(
-//         message: 't_checkingSubscriptionPleaseWait'.tr(),
-//       );
-//     case UserState.dashboard:
-//       final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser!;
-//       final subscriptionState = context.watch<SubscriptionState>();
-//
-//       WidgetsBinding.instance.addPostFrameCallback((_) {
-//         subscriptionState.updateUser(firebaseUser.uid);
-//       });
-//
-//       NotificationService.instance.setNotificationListener(context, firebaseUser.uid, 1);
-//       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
-//       AppLifecycleService().initialize(
-//         isMember: false,
-//         userId: firebaseUser.uid,
-//       );
-//       return const DashboardView();
-//     case UserState.subscriptionPayWall:
-//       return const SubscriptionPayWall();
-//     case UserState.verifySubscription:
-//       return const VerifySubscriptionView();
-//   }
-// }
+Widget homeWidget(BuildContext context) {
+  final adminProvider = context.watch<AdminProvider>();
+  final state = context.watch<PingAuthState>();
+  AppLifecycleService().reset();
+  final pingUser = state.currentPingUser;
+  final firebaseUser = state.currentFirebaseUser;
 
-class HomeWidget extends StatelessWidget {
-  const HomeWidget({super.key});
+  UserState userState;
 
-  @override
-  Widget build(BuildContext context) {
-    final state = context.watch<PingAuthState>();
-    AppLifecycleService().reset();
-    print("state loading: ${state.loading}");
+  if (state.loading) {
+    debugPrint("---------if--------------state.loading");
+    userState = UserState.loading;
+  } else if (adminProvider.type != null && adminProvider.type == "admin") {
+    debugPrint("---------else if--------------adminProvider.type != null && adminProvider.type == admin");
+    userState = UserState.admin;
+  } else if (firebaseUser != null && pingUser == null && adminProvider.type == null) {
+    debugPrint("---------else if--------------firebaseUser != null && pingUser == null");
+    userState = UserState.completeProfile;
+  } else if (firebaseUser == null || pingUser == null && adminProvider.type == null) {
+    debugPrint("---------else if--------------firebaseUser == null || pingUser == null");
+    final memberState = context.watch<MemberState>();
+    final member = memberState.member;
 
-    if (state.loading) {
+    if (member != null) {
+      debugPrint("---------if--------------member != null");
+      userState = UserState.member;
+    } else {
+      debugPrint("---------else--------------member != null");
+      userState = UserState.createAccount;
+    }
+  } else if (!firebaseUser.emailVerified) {
+    userState = UserState.verifyEmail;
+  } else {
+    final subscriptionState = context.watch<SubscriptionState>();
+
+    if (subscriptionState.error != null) {
+      userState = UserState.subscriptionError;
+    } else if (subscriptionState.loading) {
+      userState = UserState.subscriptionLoading;
+    } else {
+      userState = subscriptionState.subscriptionType != EntitlementType.none
+          ? UserState.dashboard
+          : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
+    }
+  }
+
+  switch (userState) {
+    case UserState.loading:
       return LoadingScreen(message: 't_authenticating'.tr());
-    }
-
-    final pingUser = state.currentPingUser;
-    final firebaseUser = state.currentFirebaseUser;
-
-    if (firebaseUser != null && pingUser == null) {
-      return CompleteProfileView(firebaseUser: firebaseUser);
-    }
-
-    if (firebaseUser == null || pingUser == null) {
+    case UserState.admin:
+      return const AdminView();
+    case UserState.completeProfile:
+      return CompleteProfileView(firebaseUser: firebaseUser!);
+    case UserState.member:
       final memberState = context.watch<MemberState>();
       final member = memberState.member;
-      print("member is null or not||||||||||||||| ${member}");
+      final subscriptionState = context.watch<SubscriptionState>();
 
-      if (member != null) {
-        print(".........this is my member////");
-        final subscriptionState = context.watch<SubscriptionState>();
-        if (subscriptionState.error != null) {
-          return LoadingScreen(
-            message: 't_anErrorTheApp'.tr(),
-            error: subscriptionState.error,
-          );
-        }
-
-        if (subscriptionState.loading) {
-          return LoadingScreen(
-            message: 't_checkingSubscriptionPleaseWait'.tr(),
-          );
-        }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         NotificationService.instance.setNotificationListener(
           context,
-          member.id,
+          member!.id,
           -1,
         );
         subscriptionState.updateUser(member.teamLeadId);
         FcmRepo.instance.updateMemberFcmToken(member.id);
         AppLifecycleService().initialize(isMember: true, userId: member.id);
+      });
 
-        return const MemberDashboard();
-      } else {
-        return const CreateAccountView();
-      }
-    }
-    if (!firebaseUser.emailVerified) {
-      return VerifyEmailView(user: firebaseUser);
-    }
-
-    final subscriptionState = context.watch<SubscriptionState>();
-    if (subscriptionState.error != null) {
+      return const MemberDashboard();
+    case UserState.createAccount:
+      return const CreateAccountView();
+    case UserState.verifyEmail:
+      return VerifyEmailView(user: firebaseUser!);
+    case UserState.subscriptionError:
+      final subscriptionState = context.watch<SubscriptionState>();
       return LoadingScreen(
         message: 't_anErrorTheApp'.tr(),
         error: subscriptionState.error,
       );
-    }
-
-    if (subscriptionState.loading) {
+    case UserState.subscriptionLoading:
       return LoadingScreen(
         message: 't_checkingSubscriptionPleaseWait'.tr(),
       );
-    }
+    case UserState.dashboard:
+      final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser!;
+      final subscriptionState = context.watch<SubscriptionState>();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      subscriptionState.updateUser(firebaseUser.uid);
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        subscriptionState.updateUser(firebaseUser.uid);
+      });
 
-    if (subscriptionState.subscriptionType != EntitlementType.none) {
       NotificationService.instance.setNotificationListener(context, firebaseUser.uid, 1);
       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
       AppLifecycleService().initialize(
@@ -321,11 +240,100 @@ class HomeWidget extends StatelessWidget {
         userId: firebaseUser.uid,
       );
       return const DashboardView();
-    } else {
-      if (kIsWeb) {
-        return const VerifySubscriptionView();
-      }
+    case UserState.subscriptionPayWall:
       return const SubscriptionPayWall();
-    }
+    case UserState.verifySubscription:
+      return const VerifySubscriptionView();
   }
 }
+
+// class HomeWidget extends StatelessWidget {
+//   const HomeWidget({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final state = context.watch<PingAuthState>();
+//     AppLifecycleService().reset();
+//     print("state loading: ${state.loading}");
+//
+//     if (state.loading) {
+//       return LoadingScreen(message: 't_authenticating'.tr());
+//     }
+//
+//     final pingUser = state.currentPingUser;
+//     final firebaseUser = state.currentFirebaseUser;
+//
+//     if (firebaseUser != null && pingUser == null) {
+//       return CompleteProfileView(firebaseUser: firebaseUser);
+//     }
+//
+//     if (firebaseUser == null || pingUser == null) {
+//       final memberState = context.watch<MemberState>();
+//       final member = memberState.member;
+//
+//       if (member != null) {
+//         final subscriptionState = context.watch<SubscriptionState>();
+//         if (subscriptionState.error != null) {
+//           return LoadingScreen(
+//             message: 't_anErrorTheApp'.tr(),
+//             error: subscriptionState.error,
+//           );
+//         }
+//
+//         if (subscriptionState.loading) {
+//           return LoadingScreen(
+//             message: 't_checkingSubscriptionPleaseWait'.tr(),
+//           );
+//         }
+//         NotificationService.instance.setNotificationListener(
+//           context,
+//           member.id,
+//           -1,
+//         );
+//         subscriptionState.updateUser(member.teamLeadId);
+//         FcmRepo.instance.updateMemberFcmToken(member.id);
+//         AppLifecycleService().initialize(isMember: true, userId: member.id);
+//
+//         return const MemberDashboard();
+//       } else {
+//         return const CreateAccountView();
+//       }
+//     }
+//     if (!firebaseUser.emailVerified) {
+//       return VerifyEmailView(user: firebaseUser);
+//     }
+//
+//     final subscriptionState = context.watch<SubscriptionState>();
+//     if (subscriptionState.error != null) {
+//       return LoadingScreen(
+//         message: 't_anErrorTheApp'.tr(),
+//         error: subscriptionState.error,
+//       );
+//     }
+//
+//     if (subscriptionState.loading) {
+//       return LoadingScreen(
+//         message: 't_checkingSubscriptionPleaseWait'.tr(),
+//       );
+//     }
+//
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       subscriptionState.updateUser(firebaseUser.uid);
+//     });
+//
+//     if (subscriptionState.subscriptionType != EntitlementType.none) {
+//       NotificationService.instance.setNotificationListener(context, firebaseUser.uid, 1);
+//       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+//       AppLifecycleService().initialize(
+//         isMember: false,
+//         userId: firebaseUser.uid,
+//       );
+//       return const DashboardView();
+//     } else {
+//       if (kIsWeb) {
+//         return const VerifySubscriptionView();
+//       }
+//       return const SubscriptionPayWall();
+//     }
+//   }
+// }

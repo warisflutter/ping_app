@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
+import 'package:ping_app/admin/admin_provider.dart';
 import 'package:ping_app/member/view/member_list_view.dart';
 import 'package:ping_app/notification/view/notification_view.dart';
 import 'package:ping_app/settings/view/setting_view.dart';
+import 'package:provider/provider.dart';
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -37,9 +41,7 @@ class _DashboardViewState extends State<DashboardView> {
                 dividerHeight: 0,
                 tabs: [
                   Tab(text: 't_team'.tr(), icon: const Icon(Icons.group)),
-                  Tab(
-                      text: 't_notifications'.tr(),
-                      icon: const Icon(Icons.notifications)),
+                  Tab(text: 't_notifications'.tr(), icon: const Icon(Icons.notifications)),
                   Tab(
                     key: const Key("tabSettings"),
                     text: 't_settings'.tr(),

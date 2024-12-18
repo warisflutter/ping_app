@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -55,10 +56,7 @@ class _LoginViewState extends State<LoginView> {
                     SizedBox(height: mainSpacing),
                     Text(
                       't_signInYourAccount'.tr(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: mainSpacing),
                     getForm(),
@@ -187,13 +185,14 @@ class _LoginViewState extends State<LoginView> {
         password: password,
       );
       final uid = ref.user?.uid;
+      // final res = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      // print("$res");
       if (uid != null) {
         final pingUser = await AuthRepo.instance.getUserById(uid);
         if (pingUser != null) {
           if (pingUser.isDeleted) {
             await FirebaseAuth.instance.signOut();
-            snack(
-                't_errorAccountTheUser'.tr());
+            snack('t_errorAccountTheUser'.tr());
           }
         }
       }

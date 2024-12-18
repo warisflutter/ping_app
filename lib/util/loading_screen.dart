@@ -40,9 +40,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
         body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Stack(children: [
-        Center(
-          child: Image.asset("assets/images/logo.png", width: mobileWidth),
-        ),
+        // Center(
+        //   child: Image.asset("assets/images/logo.png", width: mobileWidth),
+        // ),
         Positioned(
           bottom: 32,
           left: 0,

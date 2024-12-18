@@ -14,6 +14,7 @@ import 'package:ping_app/settings/view/sub_view/message_template/message_templat
 import 'package:ping_app/settings/view/sub_view/update_password_view.dart';
 import 'package:ping_app/settings/view/sub_view/subscription_info_view.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
+import 'package:ping_app/util/dialogs.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
@@ -111,13 +112,22 @@ class _SettingViewState extends State<SettingView> {
                 title: Text('t_generateActivityReport'.tr()),
                 leading: const Icon(Icons.newspaper),
                 onTap: () async {
-                  final teamLead =
-                      context.read<PingAuthState>().currentPingUser;
+                  final teamLead = context.read<PingAuthState>().currentPingUser;
                   if (teamLead == null) {
                     snack('t_teamLeadTheApp'.tr());
                     return;
                   }
                   push(ActivityReportProgress(teamLeadId: teamLead.userId));
+                },
+              ),
+              ListTile(
+                title: const Text('Voucher'),
+                leading: const Icon(Icons.gif_box),
+                onTap: () async {
+                  PingDialogs.showVoucherDialog(
+                    context: context,
+                    applyVoucher: () {},
+                  );
                 },
               ),
               PingHeadingCard(title: 't_help'.tr()),
@@ -157,8 +167,7 @@ class _SettingViewState extends State<SettingView> {
                     message: 't_areYouSameEmail'.tr(),
                     onYes: () async {
                       try {
-                        await AuthRepo.instance
-                            .deleteUser(FirebaseAuth.instance.currentUser!.uid);
+                        await AuthRepo.instance.deleteUser(FirebaseAuth.instance.currentUser!.uid);
                         snack('t_accountDeletedSuccessfully'.tr());
                         FirebaseAuth.instance.signOut();
                       } catch (e) {
