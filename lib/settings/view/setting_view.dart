@@ -18,6 +18,7 @@ import 'package:ping_app/util/dialogs.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
+import 'package:ping_app/voucher/voucher_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -29,6 +30,11 @@ class SettingView extends StatefulWidget {
 }
 
 class _SettingViewState extends State<SettingView> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final pingUser = context.watch<PingAuthState>().currentPingUser;
@@ -61,9 +67,7 @@ class _SettingViewState extends State<SettingView> {
               ListTile(
                 title: Text('t_changeYourName'.tr()),
                 leading: const Icon(Icons.person),
-                onTap: () => push(
-                  const ChangeNameView(mode: ChangeNameMode.fullName),
-                ),
+                onTap: () => push(const ChangeNameView(mode: ChangeNameMode.fullName)),
               ),
               ListTile(
                 title: Text('t_changeTeamName'.tr()),
@@ -123,10 +127,12 @@ class _SettingViewState extends State<SettingView> {
               ListTile(
                 title: const Text('Voucher'),
                 leading: const Icon(Icons.gif_box),
-                onTap: () async {
+                onTap: () {
                   PingDialogs.showVoucherDialog(
                     context: context,
-                    applyVoucher: () {},
+                    applyVoucher: () async {
+                      await Provider.of<VoucherProvider>(context, listen: false).applyForVoucher(context);
+                    },
                   );
                 },
               ),
