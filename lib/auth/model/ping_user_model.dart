@@ -20,9 +20,7 @@ class PingUserModel {
   final bool _isOnline;
   final DateTime lastSeen;
 
-  bool get isOnline =>
-      _isOnline &&
-      lastSeen.isAfter(DateTime.now().subtract(const Duration(minutes: 10)));
+  bool get isOnline => _isOnline && lastSeen.isAfter(DateTime.now().subtract(const Duration(minutes: 10)));
 
   PingUserModel({
     required this.teamName,
@@ -59,8 +57,7 @@ class PingUserModel {
         lastSeen = (json['lastSeen'] as Timestamp?)?.toDate() ?? DateTime(1800),
         email = json['email'],
         isDeleted = json[keyIsDeleted] ?? false,
-        _createdAt =
-            (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+        _createdAt = (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
 
   Map<String, dynamic> toJson() {
     return {
@@ -74,5 +71,14 @@ class PingUserModel {
       keyIsDeleted: isDeleted,
       'createdAt': _createdAt ?? FieldValue.serverTimestamp(),
     };
+  }
+
+  static PingUserModel empty() {
+    return PingUserModel(
+      initials: "",
+      teamName: "",
+      email: "",
+      fullName: "",
+    );
   }
 }
