@@ -24,6 +24,7 @@ import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/voucher/voucher_provider.dart';
 import 'package:ping_app/watch_os/watch_repo.dart';
 import 'package:provider/provider.dart';
 
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MemberState()),
         ChangeNotifierProvider(create: (_) => SubscriptionState()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => VoucherProvider()),
       ],
       child: MaterialApp(
         localizationsDelegates: context.localizationDelegates,
