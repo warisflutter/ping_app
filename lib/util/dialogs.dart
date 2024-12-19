@@ -11,10 +11,12 @@ class PingDialogs {
         return AlertDialog(
           title: const Text("Apply Voucher"),
           content: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 "Add Request for Voucher",
+                textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 16),
