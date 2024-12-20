@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -201,9 +200,9 @@ class _LoginViewState extends State<LoginView> {
         // }
         snack('t_errorAccountTheUser'.tr());
       } else if (res["type"] == "admin") {
-        replace(const AdminView());
+        replaceAll(const AdminView());
       } else {
-        popToDashboard();
+        replaceAll(const DashboardView());
       }
     } catch (e) {
       snack(e);
