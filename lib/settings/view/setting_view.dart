@@ -13,7 +13,7 @@ import 'package:ping_app/settings/view/sub_view/change_name_view.dart';
 import 'package:ping_app/settings/view/sub_view/contact_support.dart';
 import 'package:ping_app/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:ping_app/settings/view/sub_view/update_password_view.dart';
-import 'package:ping_app/settings/view/sub_view/subscription_info_view.dart';
+import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/dialogs.dart';
 import 'package:ping_app/util/messenger.dart';
