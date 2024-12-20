@@ -67,9 +67,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                       ),
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
-                      validator: (s) => s?.length == 3
-                          ? null
-                          : 't_provide3CharacterInitial'.tr(),
+                      validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
                       controller: initials,
                       maxLength: 3,
                     ),
@@ -105,6 +103,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
       setState(() => _isLoading = true);
       try {
         final updatedUser = PingUserModel(
+          type: "user",
           teamName: _teamNameController.text,
           initials: initials.text,
           fullName: _fullNameController.text,
