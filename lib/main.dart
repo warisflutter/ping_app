@@ -24,6 +24,7 @@ import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
+import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/watch_os/watch_repo.dart';
 import 'package:provider/provider.dart';
@@ -36,13 +37,18 @@ void main() async {
   WatchConnectivity.instance.setupMethodChannel();
 
   runApp(
-    EasyLocalization(supportedLocales: const [
-      Locale('en'),
-      Locale('de'),
-      Locale('fr'),
-      Locale('es'),
-      Locale('it'),
-    ], path: 'assets/translations', fallbackLocale: const Locale('en'), child: const MyApp()),
+    EasyLocalization(
+      supportedLocales: const [
+        Locale('en'),
+        Locale('de'),
+        Locale('fr'),
+        Locale('es'),
+        Locale('it'),
+      ],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: const MyApp(),
+    ),
   );
 
   // runApp(const MyApp());
@@ -62,6 +68,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SubscriptionState()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProvider(create: (_) => VoucherProvider()),
+        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
       ],
       child: MaterialApp(
         localizationsDelegates: context.localizationDelegates,
