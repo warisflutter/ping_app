@@ -296,6 +296,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     }
 
     final model = PingUserModel(
+      type: "user",
       teamName: teamName.text,
       initials: initials.text,
       fullName: fullName.text,
