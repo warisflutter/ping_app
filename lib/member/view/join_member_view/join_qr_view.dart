@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -35,7 +36,7 @@ class _QRViewExampleState extends State<JoinQrView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:  Text('t_joinByQr'.tr())),
+      appBar: AppBar(title: Text('t_joinByQr'.tr())),
       body: SafeArea(
         child: Column(
           children: [
@@ -51,7 +52,7 @@ class _QRViewExampleState extends State<JoinQrView> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () => replace(const JoinIdView()),
-                child:  Text('t_joinById'.tr()),
+                child: Text('t_joinById'.tr()),
               ),
             ),
           ],
@@ -85,7 +86,7 @@ class _QRViewExampleState extends State<JoinQrView> {
     setState(() => loading = true);
     try {
       await memberState.setMemberId(memberId);
-      pop();
+      replaceAll(const MemberDashboard());
     } catch (e) {
       setState(() => loading = false);
       snack(e);
