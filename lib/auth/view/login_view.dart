@@ -1,15 +1,18 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/view/apple_sign_in_button.dart';
 import 'package:ping_app/auth/view/google_sign_in_button.dart';
+import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/util/validator.dart';
+import 'package:ping_app/view/admin/admin_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -23,11 +26,11 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
 
   final email = TextEditingController(
-    text: kDebugMode ? "kamran.bashir.arain+sb@gmail.com" : "",
+    text: kDebugMode ? "apptweak.hafiz@gmail.com" : "",
   );
 
   final password = TextEditingController(
-    text: kDebugMode ? "Lahore123@" : "",
+    text: kDebugMode ? "Ping123456" : "",
   );
 
   @override
@@ -78,7 +81,7 @@ class _LoginViewState extends State<LoginView> {
                         const SizedBox(height: 40),
                         GoogleSignInButton(onSignedIn: () => pop()),
                         const SizedBox(height: 16),
-                        AppleSignInButton(onSignedIn: () => pop()),
+                        (Platform.isIOS) ? AppleSignInButton(onSignedIn: () => pop()) : const SizedBox.shrink(),
                       ],
                     ),
                   ],
@@ -140,7 +143,7 @@ class _LoginViewState extends State<LoginView> {
             key: const Key("inputEmail"),
             decoration: InputDecoration(
               hintText: 't_email'.tr(),
-              prefixIcon: Icon(Icons.email),
+              prefixIcon: const Icon(Icons.email),
             ),
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -153,7 +156,7 @@ class _LoginViewState extends State<LoginView> {
             key: const Key("inputPassword"),
             decoration: InputDecoration(
               hintText: 't_password'.tr(),
-              prefixIcon: Icon(Icons.lock),
+              prefixIcon: const Icon(Icons.lock),
             ),
             keyboardType: TextInputType.text,
             obscureText: true,
@@ -185,18 +188,23 @@ class _LoginViewState extends State<LoginView> {
         password: password,
       );
       final uid = ref.user?.uid;
-      // final res = await FirebaseFirestore.instance.collection("users").doc(uid).get();
-      // print("$res");
-      if (uid != null) {
-        final pingUser = await AuthRepo.instance.getUserById(uid);
-        if (pingUser != null) {
-          if (pingUser.isDeleted) {
-            await FirebaseAuth.instance.signOut();
-            snack('t_errorAccountTheUser'.tr());
-          }
-        }
+      final res = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      debugPrint("-----------------response:${res.data()}");
+      if (uid == null) {
+        debugPrint("-----if------uid == null------");
+        // final pingUser = await AuthRepo.instance.getUserById(uid!);
+        // if (pingUser != null) {
+        //   if (pingUser.isDeleted) {
+        //     await FirebaseAuth.instance.signOut();
+        //     snack('t_errorAccountTheUser'.tr());
+        //   }
+        // }
+        snack('t_errorAccountTheUser'.tr());
+      } else if (res["type"] == "admin") {
+        replace(const AdminView());
+      } else {
+        popToDashboard();
       }
-      pop();
     } catch (e) {
       snack(e);
     }
