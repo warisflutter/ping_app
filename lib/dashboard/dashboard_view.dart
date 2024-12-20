@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
-import 'package:ping_app/admin/admin_provider.dart';
 import 'package:ping_app/member/view/member_list_view.dart';
 import 'package:ping_app/notification/view/notification_view.dart';
 import 'package:ping_app/settings/view/setting_view.dart';
