@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:ping_app/auth/repo/ping_auth_state.dart';
+import 'package:ping_app/auth/view/create_account_view.dart';
+import 'package:ping_app/dashboard/dashboard_view.dart';
+import 'package:ping_app/dashboard/member_dashboard.dart';
+import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/util/messenger.dart';
+import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
+import 'package:ping_app/view/admin/admin_provider.dart';
+import 'package:ping_app/view/admin/admin_view.dart';
+import 'package:provider/provider.dart';
 
 class LoadingScreen extends StatefulWidget {
   final dynamic error;
@@ -22,7 +31,39 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     updateCounter();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await init();
+    });
     super.initState();
+  }
+
+  Future<void> init() async {
+    // final firebaseUser = Provider.of<PingAuthState>(context, listen: false).currentFirebaseUser;
+    final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+    final state = Provider.of<PingAuthState>(context, listen: false);
+    // final pingUser = state.currentPingUser;
+    final memberState = Provider.of<MemberState>(context, listen: false);
+
+    await adminProvider.getAdmin();
+    debugPrint("type: ${adminProvider.type}");
+    if (adminProvider.type == "admin") {
+      debugPrint("===============adminProvider.type == admin");
+      replace(const AdminView());
+    } else if (adminProvider.type == "user") {
+      debugPrint("===============firebaseUser == null || pingUser == null && adminProvider.type == null---------");
+      replace(const DashboardView());
+    } else {
+      await memberState.loadMemberIdFromPrefs();
+      final member = memberState.member;
+      if (member != null) {
+        debugPrint("---------if--------------member != null");
+        replace(const MemberDashboard());
+      } else {
+        debugPrint("---------else--------------member != null");
+        replace(const CreateAccountView());
+      }
+      debugPrint("--------------------loading screen else--------------------------");
+    }
   }
 
   void updateCounter() {
@@ -40,9 +81,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
         body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Stack(children: [
-        // Center(
-        //   child: Image.asset("assets/images/logo.png", width: mobileWidth),
-        // ),
+        Center(
+          child: Image.asset("assets/images/logo.png", width: mobileWidth),
+        ),
         Positioned(
           bottom: 32,
           left: 0,
