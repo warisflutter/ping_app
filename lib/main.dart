@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:ping_app/admin/admin_provider.dart';
-import 'package:ping_app/admin/admin_view.dart';
 import 'package:ping_app/util/loading_screen.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
@@ -24,7 +22,9 @@ import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/voucher/voucher_provider.dart';
+import 'package:ping_app/view/admin/admin_provider.dart';
+import 'package:ping_app/view/admin/admin_view.dart';
+import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/watch_os/watch_repo.dart';
 import 'package:provider/provider.dart';
 
@@ -83,20 +83,24 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: Builder(
-          builder: (context) {
-            return PopScope(
-              canPop: false,
-              onPopInvoked: (didPop) {
-                if (didPop) {
-                  return;
-                }
-                _onPopInvoked(context);
-              },
-              child: homeWidget(context),
-            );
-          },
-        ),
+        // home: Builder(
+        //   builder: (context) {
+        //     return PopScope(
+        //         canPop: false,
+        //         onPopInvoked: (didPop) {
+        //           if (didPop) {
+        //             return;
+        //           }
+        //           _onPopInvoked(context);
+        //         },
+        //         child: const LoadingScreen(
+        //           message: "Please wait...",
+        //         )
+        //         // homeWidget(context),
+        //         );
+        //   },
+        // ),
+        home: const LoadingScreen(message: "Please wait..."),
       ),
     );
   }
@@ -144,11 +148,11 @@ enum UserState {
 }
 
 Widget homeWidget(BuildContext context) {
+  final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser;
   final adminProvider = context.watch<AdminProvider>();
   final state = context.watch<PingAuthState>();
   AppLifecycleService().reset();
   final pingUser = state.currentPingUser;
-  final firebaseUser = state.currentFirebaseUser;
 
   UserState userState;
 
@@ -193,6 +197,10 @@ Widget homeWidget(BuildContext context) {
     case UserState.loading:
       return LoadingScreen(message: 't_authenticating'.tr());
     case UserState.admin:
+      AppLifecycleService().initialize(
+        isMember: false,
+        userId: firebaseUser!.uid,
+      );
       return const AdminView();
     case UserState.completeProfile:
       return CompleteProfileView(firebaseUser: firebaseUser!);
@@ -228,14 +236,13 @@ Widget homeWidget(BuildContext context) {
         message: 't_checkingSubscriptionPleaseWait'.tr(),
       );
     case UserState.dashboard:
-      final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser!;
       final subscriptionState = context.watch<SubscriptionState>();
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        subscriptionState.updateUser(firebaseUser.uid);
+        subscriptionState.updateUser(firebaseUser!.uid);
       });
 
-      NotificationService.instance.setNotificationListener(context, firebaseUser.uid, 1);
+      NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
       AppLifecycleService().initialize(
         isMember: false,
@@ -339,3 +346,10 @@ Widget homeWidget(BuildContext context) {
 //     }
 //   }
 // }
+
+/*
+funzoftapple786@gmail.com
+Fun112233
+for admin
+Ping123456
+*/
