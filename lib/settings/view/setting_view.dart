@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
+import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/broadcast/view/broadcast_list_view.dart';
 import 'package:ping_app/settings/view/linked_profile_view.dart';
 import 'package:ping_app/settings/view/sub_view/activity_report.dart';
@@ -18,7 +19,7 @@ import 'package:ping_app/util/dialogs.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
-import 'package:ping_app/voucher/voucher_provider.dart';
+import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -155,6 +156,7 @@ class _SettingViewState extends State<SettingView> {
                 onTap: () async {
                   try {
                     await FirebaseAuth.instance.signOut();
+                    replaceAll(const CreateAccountView());
                   } catch (e) {
                     snack(e);
                   }
