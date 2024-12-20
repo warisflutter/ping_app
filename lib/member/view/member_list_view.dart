@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
+import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
@@ -84,7 +85,10 @@ class _MemberListViewState extends State<MemberListView> {
             ),
           if (mode.isMember)
             TextButton.icon(
-              onPressed: () => memberState.leaveTeam(),
+              onPressed: () {
+                memberState.leaveTeam();
+                replaceAll(const CreateAccountView());
+              },
               label: Text('t_leaveTeam'.tr()),
               icon: const Icon(Icons.exit_to_app),
             ),
