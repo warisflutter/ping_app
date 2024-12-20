@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 class AdminProvider extends ChangeNotifier {
   String? type;
   bool loader = false;
-  int approveOrReject = 0;
 
   AdminProvider() {
     getAdmin();
@@ -37,10 +36,5 @@ class AdminProvider extends ChangeNotifier {
       loader = false;
       notifyListeners();
     }
-  }
-
-  void setApproveOrReject(int value) {
-    approveOrReject = value;
-    notifyListeners();
   }
 }

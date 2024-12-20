@@ -8,6 +8,7 @@ import 'package:ping_app/view/voucher/voucher_model.dart';
 
 class VoucherProvider extends ChangeNotifier {
   List<VoucherModel> userVouchers = [];
+  int approveOrReject = 0;
   final voucher = FirebaseFirestore.instance.collection("vouchers");
   List<String> voucherStatus = [
     "Pending",
@@ -19,6 +20,11 @@ class VoucherProvider extends ChangeNotifier {
     "ping_export_subscription",
     "ping_pro_subscription",
   ];
+  void setApproveOrReject(int value) {
+    approveOrReject = value;
+    notifyListeners();
+  }
+
   Future<void> applyForVoucher(BuildContext context) async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     QuerySnapshot querySnapshot = await voucher.where("userId", isEqualTo: userId).get();

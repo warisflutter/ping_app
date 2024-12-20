@@ -4,6 +4,7 @@ import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
+import 'package:ping_app/widgets/selection_widget.dart';
 import 'package:provider/provider.dart';
 // voucher status
 //0 pending
@@ -48,18 +49,12 @@ class _AdminViewState extends State<AdminView> {
       ),
       body: Consumer2<VoucherProvider, AdminProvider>(
         builder: (context, value, value2, child) {
-          final pendingVouchers = value.userVouchers
-              .where((voucher) => voucher.status == "0")
-              .toList();
-          final rejectedVouchers = value.userVouchers
-              .where((voucher) => voucher.status == "1")
-              .toList();
-          final approvedVouchers = value.userVouchers
-              .where((voucher) => voucher.status == "2")
-              .toList();
-          final displayedVouchers = (value2.approveOrReject == 0)
+          final pendingVouchers = value.userVouchers.where((voucher) => voucher.status == "0").toList();
+          final rejectedVouchers = value.userVouchers.where((voucher) => voucher.status == "1").toList();
+          final approvedVouchers = value.userVouchers.where((voucher) => voucher.status == "2").toList();
+          final displayedVouchers = (value.approveOrReject == 0)
               ? pendingVouchers
-              : (value2.approveOrReject == 1)
+              : (value.approveOrReject == 1)
                   ? approvedVouchers
                   : rejectedVouchers;
           return Column(
@@ -75,29 +70,37 @@ class _AdminViewState extends State<AdminView> {
                   children: [
                     ...List.generate(value.voucherStatus.length, (index) {
                       return Expanded(
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(40.0),
+                        // child: InkWell(
+                        //   borderRadius: BorderRadius.circular(40.0),
+                        //   onTap: () {
+                        //     value2.setApproveOrReject(index);
+                        //   },
+                        //   child: Container(
+                        //     padding: const EdgeInsets.all(6.0),
+                        //     decoration: BoxDecoration(
+                        //       borderRadius: BorderRadius.circular(40.0),
+                        //       color: (value2.approveOrReject == index)
+                        //           ? Colors.white
+                        //           : Colors.transparent,
+                        //     ),
+                        //     alignment: Alignment.center,
+                        //     child: Text(
+                        //       value.voucherStatus[index],
+                        //       style: TextStyle(
+                        //         color: (value2.approveOrReject == index)
+                        //             ? Colors.black
+                        //             : Colors.white,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        child: SelectionWidget(
                           onTap: () {
-                            value2.setApproveOrReject(index);
+                            value.setApproveOrReject(index);
                           },
-                          child: Container(
-                            padding: const EdgeInsets.all(6.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40.0),
-                              color: (value2.approveOrReject == index)
-                                  ? Colors.white
-                                  : Colors.transparent,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              value.voucherStatus[index],
-                              style: TextStyle(
-                                color: (value2.approveOrReject == index)
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
-                            ),
-                          ),
+                          type: value.approveOrReject,
+                          index: index,
+                          text: value.voucherStatus[index],
                         ),
                       );
                     }),
@@ -110,8 +113,7 @@ class _AdminViewState extends State<AdminView> {
                   padding: const EdgeInsets.all(12.0),
                   itemCount: displayedVouchers.length,
                   itemBuilder: (context, index) {
-                    String title =
-                        displayedVouchers[index].pingUserModel.fullName;
+                    String title = displayedVouchers[index].pingUserModel.fullName;
                     Map<String, String> statusMap = {
                       'Pending': '0',
                       'Rejected': '1',
@@ -134,9 +136,7 @@ class _AdminViewState extends State<AdminView> {
                           if (newStatus != null) {
                             // Update the voucher status
                             Provider.of<VoucherProvider>(context, listen: false)
-                                .updateVoucherStatus(
-                                    displayedVouchers[index].voucherId,
-                                    newStatus);
+                                .updateVoucherStatus(displayedVouchers[index].voucherId, newStatus);
                           }
                         },
                       ),

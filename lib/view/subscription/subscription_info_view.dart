@@ -5,11 +5,31 @@ import 'package:ping_app/subscription/model/subscription_model.dart';
 import 'package:ping_app/util/loading_screen.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/parsers.dart';
+import 'package:ping_app/view/subscription/subscription_provider.dart';
+import 'package:ping_app/widgets/selection_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/models/entitlement_info_wrapper.dart';
 
-class SubscriptionInfoView extends StatelessWidget {
+class SubscriptionInfoView extends StatefulWidget {
   const SubscriptionInfoView({super.key});
+
+  @override
+  State<SubscriptionInfoView> createState() => _SubscriptionInfoViewState();
+}
+
+class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
+  late SubscriptionProvider subscriptionProvider;
+  @override
+  void initState() {
+    subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    subscriptionProvider.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +40,7 @@ class SubscriptionInfoView extends StatelessWidget {
       return LoadingScreen(message: 't_loggingOut'.tr());
     }
 
-    final name =
-        ei?.entitlementType.name ?? 't_yearlySubscriptionDemoAccount'.tr();
+    final name = ei?.entitlementType.name ?? 't_yearlySubscriptionDemoAccount'.tr();
 
     final daysLeft = ei != null ? getDaysLeft(ei) : "";
     final purchaseDate = ei != null ? getSubscriptionDate(ei) : "July 01, 2024";
@@ -29,29 +48,40 @@ class SubscriptionInfoView extends StatelessWidget {
     return Scaffold(
       key: const Key("viewSubscriptionInfo"),
       appBar: AppBar(
-        title:  Text('t_subscriptionInfo'.tr()),
+        title: Text('t_subscriptionInfo'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white.withOpacity(0.1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: Text(name),
-                    subtitle: Text(purchaseDate),
-                    trailing: Text(daysLeft),
-                  ),
-                ],
-              ),
-            ),
+            ...List.generate(subscriptionProvider.subscriptions.length, (index) {
+              String text = subscriptionProvider.subscriptions[index].type;
+
+              return Expanded(
+                child: SelectionWidget(
+                  type: subscriptionProvider.selectType,
+                  index: index,
+                  text: text,
+                ),
+              );
+            }),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.circular(8),
+            //     color: Colors.white.withOpacity(0.1),
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       ListTile(
+            //         title: Text(name),
+            //         subtitle: Text(purchaseDate),
+            //         trailing: Text(daysLeft),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             // const SizedBox(height: 16),
             // if (!kIsWeb)
             //   ElevatedButton(
