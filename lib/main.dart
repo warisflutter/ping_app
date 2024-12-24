@@ -1,25 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:ping_app/util/loading_screen.dart';
-import 'package:ping_app/dashboard/dashboard_view.dart';
-import 'package:ping_app/auth/repo/ping_auth_state.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:ping_app/auth/view/verify_email_view.dart';
-import 'package:ping_app/auth/view/create_account_view.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
+import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/complete_profile_view.dart';
+import 'package:ping_app/auth/view/create_account_view.dart';
+import 'package:ping_app/auth/view/verify_email_view.dart';
 import 'package:ping_app/auth/view/verify_subscription_view.dart';
-import 'package:ping_app/subscription/model/subscription_model.dart';
-import 'package:ping_app/subscription/view/subscription_pay_wall.dart';
+import 'package:ping_app/dashboard/dashboard_view.dart';
+import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/firebase_options.dart';
 import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/subscription/model/subscription_model.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
+import 'package:ping_app/subscription/view/subscription_pay_wall.dart';
 import 'package:ping_app/util/fcm_repo.dart';
+import 'package:ping_app/util/loading_screen.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
@@ -50,8 +50,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-
-  // runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -62,7 +60,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges()),
+          create: (_) =>
+              PingAuthState(userStream: FirebaseAuth.instance.userChanges()),
         ),
         ChangeNotifierProvider(create: (_) => MemberState()),
         ChangeNotifierProvider(create: (_) => SubscriptionState()),
@@ -167,13 +166,19 @@ Widget homeWidget(BuildContext context) {
     debugPrint("---------if--------------state.loading");
     userState = UserState.loading;
   } else if (adminProvider.type != null && adminProvider.type == "admin") {
-    debugPrint("---------else if--------------adminProvider.type != null && adminProvider.type == admin");
+    debugPrint(
+        "---------else if--------------adminProvider.type != null && adminProvider.type == admin");
     userState = UserState.admin;
-  } else if (firebaseUser != null && pingUser == null && adminProvider.type == null) {
-    debugPrint("---------else if--------------firebaseUser != null && pingUser == null");
+  } else if (firebaseUser != null &&
+      pingUser == null &&
+      adminProvider.type == null) {
+    debugPrint(
+        "---------else if--------------firebaseUser != null && pingUser == null");
     userState = UserState.completeProfile;
-  } else if (firebaseUser == null || pingUser == null && adminProvider.type == null) {
-    debugPrint("---------else if--------------firebaseUser == null || pingUser == null");
+  } else if (firebaseUser == null ||
+      pingUser == null && adminProvider.type == null) {
+    debugPrint(
+        "---------else if--------------firebaseUser == null || pingUser == null");
     final memberState = context.watch<MemberState>();
     final member = memberState.member;
 
@@ -196,7 +201,9 @@ Widget homeWidget(BuildContext context) {
     } else {
       userState = subscriptionState.subscriptionType != EntitlementType.none
           ? UserState.dashboard
-          : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
+          : (kIsWeb
+              ? UserState.verifySubscription
+              : UserState.subscriptionPayWall);
     }
   }
 
@@ -249,7 +256,8 @@ Widget homeWidget(BuildContext context) {
         subscriptionState.updateUser(firebaseUser!.uid);
       });
 
-      NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
+      NotificationService.instance
+          .setNotificationListener(context, firebaseUser!.uid, 1);
       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
       AppLifecycleService().initialize(
         isMember: false,

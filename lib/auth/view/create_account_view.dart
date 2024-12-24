@@ -6,16 +6,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
+import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/apple_sign_in_button.dart';
 import 'package:ping_app/auth/view/captcha_view.dart';
+import 'package:ping_app/auth/view/complete_profile_view.dart';
 import 'package:ping_app/auth/view/google_sign_in_button.dart';
 import 'package:ping_app/auth/view/login_view.dart';
+import 'package:ping_app/auth/view/verify_email_view.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
 import 'package:ping_app/member/view/join_member_view/join_qr_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/util/validator.dart';
+import 'package:provider/provider.dart';
 
 class CreateAccountView extends StatefulWidget {
   const CreateAccountView({super.key});
@@ -305,13 +309,13 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     setState(() => loading = true);
     try {
       await AuthRepo.instance.createAccount(model, password.text);
-      FirebaseAuth.instance.signOut();
+      final firebaseUser = Provider.of<PingAuthState>(context, listen: false).currentFirebaseUser;
       snack(
         't_accountCreatedAndLogin'.tr(),
         info: true,
         key: const Key("successMessage"),
       );
-      push(const LoginView());
+      push(VerifyEmailView(user: firebaseUser!));
     } catch (e) {
       snack(e);
     }

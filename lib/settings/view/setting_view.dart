@@ -155,8 +155,8 @@ class _SettingViewState extends State<SettingView> {
                 leading: const Icon(Icons.logout),
                 onTap: () async {
                   try {
-                    await FirebaseAuth.instance.signOut();
                     replaceAll(const CreateAccountView());
+                    await FirebaseAuth.instance.signOut();
                   } catch (e) {
                     snack(e);
                   }
@@ -196,13 +196,15 @@ class _SettingViewState extends State<SettingView> {
     return Builder(
       builder: (context) => Align(
         alignment: Alignment.center,
-        child: Column(children: [
-          const CircleAvatar(radius: 32, child: Icon(Icons.person, size: 40)),
-          const SizedBox(height: 8),
-          Text(pingUser.fullName, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 4),
-          Text(pingUser.email, style: Theme.of(context).textTheme.bodySmall),
-        ]),
+        child: Column(
+          children: [
+            const CircleAvatar(radius: 32, child: Icon(Icons.person, size: 40)),
+            const SizedBox(height: 8),
+            Text(pingUser.fullName, style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 4),
+            Text(pingUser.email, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
       ),
     );
   }

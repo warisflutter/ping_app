@@ -1,4 +1,4 @@
-package com.martin.pingapp.ping_app
+package com.team.pingapp.ping_app
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*

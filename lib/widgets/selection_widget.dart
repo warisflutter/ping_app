@@ -26,6 +26,7 @@ class SelectionWidget extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           text,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: (type == index) ? Colors.black : Colors.white,
           ),

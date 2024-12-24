@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
+import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/util/messenger.dart';
+import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/validator.dart';
 
 class CompleteProfileView extends StatefulWidget {
@@ -60,16 +63,18 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                 Row(
                   children: [
                     const Icon(Icons.person),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 't_initials'.tr(),
-                        counterText: "",
+                    Expanded(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          hintText: 't_initials'.tr(),
+                          counterText: "",
+                        ),
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
+                        controller: initials,
+                        maxLength: 3,
                       ),
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.next,
-                      validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
-                      controller: initials,
-                      maxLength: 3,
                     ),
                     Expanded(
                       child: TextFormField(
@@ -114,6 +119,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
           updatedUser,
         );
         widget.firebaseUser.reload();
+        replaceAll(const DashboardView());
       } catch (e) {
         snack('${'t_failedToUpdateProfile'.tr()}: $e');
       } finally {

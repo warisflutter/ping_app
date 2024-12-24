@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/auth/view/login_view.dart';
 import 'package:ping_app/util/messenger.dart';
+import 'package:ping_app/util/navigator.dart';
 
 class VerifyEmailView extends StatefulWidget {
   final User user;
@@ -64,8 +66,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                               data: Theme.of(context).copyWith(
                                 outlinedButtonTheme: OutlinedButtonThemeData(
                                   style: ButtonStyle(
-                                    foregroundColor:
-                                        WidgetStateProperty.all(Colors.red),
+                                    foregroundColor: WidgetStateProperty.all(Colors.red),
                                     side: WidgetStateProperty.all(
                                       const BorderSide(color: Colors.red),
                                     ),
@@ -113,6 +114,13 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
     setState(() => loading = true);
     try {
       await user.reload();
+      if (FirebaseAuth.instance.currentUser?.emailVerified ?? false) {
+        // Navigate to login view if email is verified
+        replace(const LoginView());
+      } else {
+        // Show a message if the email is not verified
+        snack("Your email is not verified yet. Please verify your email.");
+      }
     } catch (e) {
       snack(e);
     }

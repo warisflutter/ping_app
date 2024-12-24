@@ -9,6 +9,7 @@ import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
+import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -32,6 +33,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
   void initState() {
     updateCounter();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      final subsProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      await subsProvider.fetchSubscriptionDetails();
+      await subsProvider.showSubscriptions();
       await init();
     });
     super.initState();

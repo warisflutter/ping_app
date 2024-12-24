@@ -1,4 +1,4 @@
-package com.martin.pingapp.ping_app
+package com.team.pingapp.ping_app
 
 import android.app.PendingIntent
 import android.content.Intent

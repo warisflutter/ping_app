@@ -8,8 +8,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.Manifest
-import com.martin.pingapp.ping_app.AudioRecordingViewModel
-import com.martin.pingapp.ping_app.WearViewModelFactory
+import com.team.pingapp.ping_app.AudioRecordingViewModel
+import com.team.pingapp.ping_app.WearViewModelFactory
 
 @Composable
 fun AudioRecordingScreen(

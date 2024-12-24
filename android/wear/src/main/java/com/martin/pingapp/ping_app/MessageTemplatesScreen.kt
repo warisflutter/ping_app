@@ -1,5 +1,5 @@
 import android.util.Log
-import com.martin.pingapp.ping_app.MemberActionViewModel
+import com.team.pingapp.ping_app.MemberActionViewModel
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -10,8 +10,8 @@ import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
-import com.martin.pingapp.ping_app.MessageTemplatesViewModel
-import com.martin.pingapp.ping_app.WearViewModelFactory
+import com.team.pingapp.ping_app.MessageTemplatesViewModel
+import com.team.pingapp.ping_app.WearViewModelFactory
 
 @Composable
 fun MessageTemplatesScreen(
