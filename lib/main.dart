@@ -60,8 +60,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) =>
-              PingAuthState(userStream: FirebaseAuth.instance.userChanges()),
+          create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges()),
         ),
         ChangeNotifierProvider(create: (_) => MemberState()),
         ChangeNotifierProvider(create: (_) => SubscriptionState()),
@@ -166,19 +165,13 @@ Widget homeWidget(BuildContext context) {
     debugPrint("---------if--------------state.loading");
     userState = UserState.loading;
   } else if (adminProvider.type != null && adminProvider.type == "admin") {
-    debugPrint(
-        "---------else if--------------adminProvider.type != null && adminProvider.type == admin");
+    debugPrint("---------else if--------------adminProvider.type != null && adminProvider.type == admin");
     userState = UserState.admin;
-  } else if (firebaseUser != null &&
-      pingUser == null &&
-      adminProvider.type == null) {
-    debugPrint(
-        "---------else if--------------firebaseUser != null && pingUser == null");
+  } else if (firebaseUser != null && pingUser == null && adminProvider.type == null) {
+    debugPrint("---------else if--------------firebaseUser != null && pingUser == null");
     userState = UserState.completeProfile;
-  } else if (firebaseUser == null ||
-      pingUser == null && adminProvider.type == null) {
-    debugPrint(
-        "---------else if--------------firebaseUser == null || pingUser == null");
+  } else if (firebaseUser == null || pingUser == null && adminProvider.type == null) {
+    debugPrint("---------else if--------------firebaseUser == null || pingUser == null");
     final memberState = context.watch<MemberState>();
     final member = memberState.member;
 
@@ -201,9 +194,7 @@ Widget homeWidget(BuildContext context) {
     } else {
       userState = subscriptionState.subscriptionType != EntitlementType.none
           ? UserState.dashboard
-          : (kIsWeb
-              ? UserState.verifySubscription
-              : UserState.subscriptionPayWall);
+          : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
     }
   }
 
@@ -256,8 +247,7 @@ Widget homeWidget(BuildContext context) {
         subscriptionState.updateUser(firebaseUser!.uid);
       });
 
-      NotificationService.instance
-          .setNotificationListener(context, firebaseUser!.uid, 1);
+      NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
       AppLifecycleService().initialize(
         isMember: false,

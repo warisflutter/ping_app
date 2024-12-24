@@ -257,8 +257,8 @@ class SubscriptionProvider extends ChangeNotifier {
   Future<void> purchaseSubscription(ProductDetails productDetails) async {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
     try {
-      await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam).then((value) {
-        pop();
+      await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam).then((value) async {
+        await init();
       });
     } catch (e, s) {
       debugPrint("Error: $e");

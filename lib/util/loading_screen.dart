@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
@@ -28,12 +29,13 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   int count = 1;
+  late SubscriptionProvider subsProvider;
 
   @override
   void initState() {
     updateCounter();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      final subsProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      subsProvider = Provider.of<SubscriptionProvider>(context, listen: false);
       await subsProvider.fetchSubscriptionDetails();
       await subsProvider.showSubscriptions();
       await subsProvider.restorePurchases();

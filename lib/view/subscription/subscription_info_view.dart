@@ -21,9 +21,21 @@ class SubscriptionInfoView extends StatefulWidget {
 }
 
 class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
+  late SubscriptionProvider subscriptionProvider;
   @override
   void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      await subscriptionProvider.init();
+      await subscriptionProvider.fetchSubscriptionDetails();
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    subscriptionProvider.dispose();
+    super.dispose();
   }
 
   @override
