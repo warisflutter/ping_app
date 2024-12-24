@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
@@ -13,12 +14,15 @@ import 'package:ping_app/settings/view/sub_view/change_name_view.dart';
 import 'package:ping_app/settings/view/sub_view/contact_support.dart';
 import 'package:ping_app/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:ping_app/settings/view/sub_view/update_password_view.dart';
+import 'package:ping_app/util/ping_utils.dart';
+import 'package:ping_app/view/subscription/purchased_view.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/dialogs.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
+import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -31,8 +35,14 @@ class SettingView extends StatefulWidget {
 }
 
 class _SettingViewState extends State<SettingView> {
+  late SubscriptionProvider subscriptionProvider;
   @override
   void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      await subscriptionProvider.init();
+      await subscriptionProvider.fetchSubscriptionDetails();
+    });
     super.initState();
   }
 
@@ -99,7 +109,13 @@ class _SettingViewState extends State<SettingView> {
               ListTile(
                 title: Text('t_subscriptions'.tr()),
                 leading: const Icon(Icons.payment),
-                onTap: () => push(const SubscriptionInfoView()),
+                onTap: () {
+                  if (subscriptionProvider.purchases.isEmpty) {
+                    push(const SubscriptionInfoView());
+                  } else {
+                    push(const PurchasedView());
+                  }
+                },
               ),
               ListTile(
                 title: Text('t_restorePurchase'.tr()),
@@ -144,6 +160,14 @@ class _SettingViewState extends State<SettingView> {
                 onTap: () => push(const ContactSupport()),
               ),
               ListTile(
+                title: const Text('Privacy Policy'),
+                leading: const Icon(Icons.privacy_tip),
+                onTap: () {
+                  String url = "https://dentacademy.ch/privacy-policy/";
+                  context.launchURL(url);
+                },
+              ),
+              ListTile(
                 title: Text('t_shareApp'.tr()),
                 leading: const Icon(Icons.share),
                 onTap: () => Share.share(
@@ -175,6 +199,7 @@ class _SettingViewState extends State<SettingView> {
                     message: 't_areYouSameEmail'.tr(),
                     onYes: () async {
                       try {
+                        replaceAll(const CreateAccountView());
                         await AuthRepo.instance.deleteUser(FirebaseAuth.instance.currentUser!.uid);
                         snack('t_accountDeletedSuccessfully'.tr());
                         FirebaseAuth.instance.signOut();

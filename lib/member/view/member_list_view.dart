@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
@@ -12,6 +15,7 @@ import 'package:ping_app/subscription/model/subscription_model.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 
 class MemberListView extends StatefulWidget {
@@ -29,6 +33,16 @@ class MemberListView extends StatefulWidget {
 class _MemberListViewState extends State<MemberListView> {
   bool showBlocked = false;
   bool loading = false;
+  late SubscriptionProvider subscriptionProvider;
+  @override
+  void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      await subscriptionProvider.init();
+      await subscriptionProvider.fetchSubscriptionDetails();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,26 +74,19 @@ class _MemberListViewState extends State<MemberListView> {
         actions: [
           if (mode.isTeamLead)
             TextButton.icon(
-              onPressed: loading
-                  ? null
-                  : () async {
-                      setState(() => loading = true);
-                      final subType = subscriptionState.subscriptionType;
-
-                      try {
-                        final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
-                        if (numberOfMembers >= subType.maxMembersAllowed) {
-                          snack(
-                            't_youHaveMembersAllowed'.tr(),
-                          );
-                          return;
-                        }
-                        push(const MemberManageView());
-                      } catch (e) {
-                        snack(e);
-                      }
-                      setState(() => loading = false);
-                    },
+              onPressed: () async {
+                int? perMember = subscriptionProvider.purChasedModel!.perUsersAndMessages;
+                final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
+                if (subscriptionProvider.purChasedModel == null) {
+                  snack('you have buy onr subscription first to continue');
+                } else {
+                  if (numberOfMembers != perMember) {
+                    push(const MemberManageView());
+                  } else {
+                    snack('t_youHaveMembersAllowed'.tr());
+                  }
+                }
+              },
               icon: const Icon(Icons.add),
               label: Text('t_addMembers'.tr()),
             ),

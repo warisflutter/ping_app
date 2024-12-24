@@ -10,7 +10,7 @@ class ContactSupport extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: Key("viewContactSupport"),
-      appBar: AppBar(title:  Text('t_contactSupport'.tr())),
+      appBar: AppBar(title: Text('t_contactSupport'.tr())),
       body: Container(
         margin: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(

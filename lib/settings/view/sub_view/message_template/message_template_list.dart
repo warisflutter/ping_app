@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/settings/repo/setting_repo.dart';
@@ -8,6 +9,7 @@ import 'package:ping_app/subscription/model/subscription_model.dart';
 import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 
 class MessageListView extends StatefulWidget {
@@ -21,6 +23,16 @@ class MessageListView extends StatefulWidget {
 
 class _MessageListViewState extends State<MessageListView> {
   bool loading = false;
+  late SubscriptionProvider subscriptionProvider;
+  @override
+  void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      await subscriptionProvider.init();
+      await subscriptionProvider.fetchSubscriptionDetails();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +77,7 @@ class _MessageListViewState extends State<MessageListView> {
 
                           if (messages.isEmpty) {
                             return Center(
-                              key: Key("emptyMessageList"),
+                              key: const Key("emptyMessageList"),
                               child: Text('t_noMessageTemplates'.tr()),
                             );
                           }
@@ -77,32 +89,20 @@ class _MessageListViewState extends State<MessageListView> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        key: Key("buttonAddMessage"),
-                        onPressed: loading
-                            ? null
-                            : () async {
-                                setState(() => loading = true);
-                                final subState = context
-                                    .read<SubscriptionState>()
-                                    .subscriptionType;
-
-                                try {
-                                  final numberOfMessages = await SettingRepo
-                                      .instance
-                                      .getMessageCount();
-                                  if (numberOfMessages >=
-                                      subState.maxMessageTemplateAllowed) {
-                                    snack(
-                                      't_youHaveMessagesTemplate'.tr(),
-                                    );
-                                  } else {
-                                    push(const MessageAddEditView());
-                                  }
-                                } catch (e) {
-                                  snack(e);
-                                }
-                                setState(() => loading = false);
-                              },
+                        key: const Key("buttonAddMessage"),
+                        onPressed: () async {
+                          if (subscriptionProvider.purChasedModel == null) {
+                            snack('you have buy onr subscription first to continue');
+                          } else {
+                            int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
+                            final numberOfMessages = await SettingRepo.instance.getMessageCount();
+                            if (numberOfMessages == perMessages) {
+                              snack('t_youHaveMessagesTemplate'.tr());
+                            } else {
+                              push(const MessageAddEditView());
+                            }
+                          }
+                        },
                         child: Text('t_addMessage'.tr()),
                       ),
                     ),
@@ -138,16 +138,15 @@ class _MessageListViewState extends State<MessageListView> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          key: Key("editButton"),
+                          key: const Key("editButton"),
                           icon: const Icon(Icons.edit, color: Colors.blue),
                           onPressed: () => push(
                             MessageAddEditView(originalMessage: message),
                           ),
                         ),
                         IconButton(
-                          key: Key("keyDeleteButton"),
-                          icon: const Icon(Icons.delete_outline,
-                              color: Colors.red),
+                          key: const Key("keyDeleteButton"),
+                          icon: const Icon(Icons.delete_outline, color: Colors.red),
                           onPressed: () => sureDialog(
                             title: 't_deleteTemplate'.tr(),
                             message: 't_areYouThisTemplate'.tr(),
@@ -164,8 +163,7 @@ class _MessageListViewState extends State<MessageListView> {
         ? ListView(children: buildMessages())
         : ReorderableListView(
             buildDefaultDragHandles: false,
-            onReorder: (oldIndex, newIndex) =>
-                actionReordering(oldIndex, newIndex),
+            onReorder: (oldIndex, newIndex) => actionReordering(oldIndex, newIndex),
             children: buildMessages(),
           );
   }

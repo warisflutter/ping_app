@@ -36,6 +36,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
       final subsProvider = Provider.of<SubscriptionProvider>(context, listen: false);
       await subsProvider.fetchSubscriptionDetails();
       await subsProvider.showSubscriptions();
+      await subsProvider.restorePurchases();
+      await subsProvider.initLister();
       await init();
     });
     super.initState();

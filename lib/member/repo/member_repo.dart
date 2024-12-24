@@ -78,8 +78,8 @@ class MemberRepo {
         .snapshots()
         .map((snapshot) {
       print("Raw Firestore Data: ${snapshot.docs.map((e) => e['isOnline']).toList()}");
-      print("this is my snapshot 1: ${snapshot.docs[1]["isOnline"]}");
-      print("this is my snapshot 2: ${snapshot.docs[2]["isOnline"]}");
+      // print("this is my snapshot 1: ${snapshot.docs[1]["isOnline"]}");
+      // print("this is my snapshot 2: ${snapshot.docs[2]["isOnline"]}");
       final rawData = snapshot.docs.map((doc) {
         print("Mapping 'isOnline' for ${doc.id}: ${doc.data()[MemberModel.keyMemberOnline]}");
         return MemberModel.fromJson(doc.id, doc.data());
