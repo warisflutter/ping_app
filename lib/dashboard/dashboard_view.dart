@@ -11,6 +11,33 @@ import 'package:ping_app/settings/view/setting_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 
+void onPopInvoked(BuildContext context) async {
+  final bool shouldPop = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('t_areYouSure'.tr()),
+          content: Text('t_closingThisWorkProperly'.tr()),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('t_no'.tr()),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text('t_yes'.tr()),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  if (shouldPop) {
+    SystemNavigator.pop();
+  }
+}
+
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
 
@@ -29,33 +56,6 @@ class _DashboardViewState extends State<DashboardView> {
     super.dispose();
   }
 
-  void _onPopInvoked(BuildContext context) async {
-    final bool shouldPop = await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('t_areYouSure'.tr()),
-            content: Text('t_closingThisWorkProperly'.tr()),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('t_no'.tr()),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: Text('t_yes'.tr()),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (shouldPop) {
-      SystemNavigator.pop();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -64,7 +64,7 @@ class _DashboardViewState extends State<DashboardView> {
         if (didPop) {
           return;
         }
-        _onPopInvoked(context);
+        onPopInvoked(context);
       },
       child: Scaffold(
         key: const Key("dashboardView"),
