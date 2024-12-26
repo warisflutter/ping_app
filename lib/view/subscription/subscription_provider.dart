@@ -101,7 +101,7 @@ class SubscriptionProvider extends ChangeNotifier {
   setSelectedPrice(String value) {
     selectSPrice = value;
     notifyListeners();
-    PingLog.pingLog("This is my value $value and  selected Price: $selectSPrice");
+    // PingLog.pingLog("This is my value $value and  selected Price: $selectSPrice");
   }
 
   Future fetchDetailsAfterPurchase() async {

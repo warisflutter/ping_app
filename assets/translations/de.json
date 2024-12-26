@@ -216,5 +216,19 @@
   "t_authenticating": "Authentifiziere...",
   "t_anErrorTheApp": "Ein Fehler ist aufgetreten. Bitte starten Sie die App neu.",
   "t_checkingSubscriptionPleaseWait": "Überprüfe Abonnement-Status, bitte warten...",
-  "t_failedToUpdateProfile": "Fehler beim Aktualisieren des Profils"
+  "t_failedToUpdateProfile": "Fehler beim Aktualisieren des Profils",
+  "t_youWillBeChange": "Sie werden geändert",
+  "t_onEvery": "jeden",
+  "t_month": "Monat",
+  "t_year": "Jahr",
+  "t_afterSubscribingThisCancelAtAnyTime": "nach dem Abonnieren können Sie jederzeit kündigen",
+  "t_annually": "Jährlich",
+  "t_status": "Status",
+  "t_continue": "Fortfahren",
+  "t_applyVoucher": "Gutschein anwenden",
+  "t_addRequestForVoucher": "Anfrage für Gutschein hinzufügen",
+  "t_apply": "Anwenden",
+  "t_cancelSubscription": "Abonnement kündigen",
+  "t_upgradeDowngradeSubscription": "Abonnement upgraden/downgraden",
+  "t_subscription": "Abonnement"
 }

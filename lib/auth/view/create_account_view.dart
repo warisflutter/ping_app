@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
@@ -9,7 +7,6 @@ import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/apple_sign_in_button.dart';
 import 'package:ping_app/auth/view/captcha_view.dart';
-import 'package:ping_app/auth/view/complete_profile_view.dart';
 import 'package:ping_app/auth/view/google_sign_in_button.dart';
 import 'package:ping_app/auth/view/login_view.dart';
 import 'package:ping_app/auth/view/verify_email_view.dart';
@@ -188,7 +185,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
           TextFormField(
             decoration: InputDecoration(
               hintText: 't_teamName'.tr(),
-              prefixIcon: Icon(Icons.group),
+              prefixIcon: const Icon(Icons.group),
             ),
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
@@ -233,7 +230,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
           TextFormField(
             decoration: InputDecoration(
               hintText: 't_email'.tr(),
-              prefixIcon: Icon(Icons.email),
+              prefixIcon: const Icon(Icons.email),
             ),
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -245,7 +242,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
           TextFormField(
             decoration: InputDecoration(
               hintText: 't_password'.tr(),
-              prefixIcon: Icon(Icons.lock),
+              prefixIcon: const Icon(Icons.lock),
             ),
             keyboardType: TextInputType.text,
             obscureText: true,
@@ -258,7 +255,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
           TextFormField(
             decoration: InputDecoration(
               hintText: 't_confirmPassword'.tr(),
-              prefixIcon: Icon(Icons.lock),
+              prefixIcon: const Icon(Icons.lock),
             ),
             obscureText: true,
             keyboardType: TextInputType.text,

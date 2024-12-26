@@ -142,12 +142,13 @@ class _MemberListViewState extends State<MemberListView> {
             return getErrorMessage(context, 't_noMembersFound'.tr());
           }
           // final operationsBlocked = (subscriptionState.subscriptionType.maxMembersAllowed) <= data.length;
-          final operationsBlocked = (3) <= data.length;
+          final operationsBlocked = (20) <= data.length;
 
           final members = data.where((member) => !member.isBlocked).toList();
           print("This is members: ${members.map((e) => e.isOnline).toList()}");
 
           int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
+          PingLog.pingLog("This is the member $isMember");
           if (isMember) {
             if (myTeamLead.isOnline == true) {
               numberOfOnlineMembers++;
@@ -176,36 +177,38 @@ class _MemberListViewState extends State<MemberListView> {
               getTeamCard(myTeamLead.teamName, numberOfOnlineMembers),
               Expanded(
                 child: Column(children: [
-                  if (isTeamLead)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ChoiceChip(
-                            label: Text("${'t_members'.tr()} (${members.length})"),
-                            selected: !showBlocked,
-                            onSelected: (selected) => setState(() => showBlocked = false),
+                  (isTeamLead)
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ChoiceChip(
+                                label: Text("${'t_members'.tr()} (${members.length})"),
+                                selected: !showBlocked,
+                                onSelected: (selected) => setState(() => showBlocked = false),
+                              ),
+                              const SizedBox(width: 16),
+                              ChoiceChip(
+                                label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
+                                selected: showBlocked,
+                                onSelected: (selected) => setState(() => showBlocked = true),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          ChoiceChip(
-                            label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
-                            selected: showBlocked,
-                            onSelected: (selected) => setState(() => showBlocked = true),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (isMember)
-                    MemberListItem(
-                      operationsBlocked: operationsBlocked,
-                      isLoggedInAsMember: isMember,
-                      currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                      listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
-                    ),
+                        )
+                      : const SizedBox.shrink(),
+                  (isMember)
+                      ? MemberListItem(
+                          operationsBlocked: operationsBlocked,
+                          isLoggedInAsMember: isMember,
+                          currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                          listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
+                        )
+                      : const SizedBox.shrink(),
                   const Divider(),
                   Expanded(
-                    child: showBlocked
+                    child: (showBlocked)
                         ? ListView(
                             children: blockedMembers
                                 .map((member) => MemberListItem(
@@ -225,7 +228,7 @@ class _MemberListViewState extends State<MemberListView> {
                             },
                             children: members.map(
                               (member) {
-                                print("team lead members: name ${member.name} status ${member.isOnline}");
+                                PingLog.pingLog("team lead members: name ${member.name} status ${member.isOnline}");
                                 return MemberListItem(
                                   operationsBlocked: operationsBlocked,
                                   key: ValueKey(member.id),

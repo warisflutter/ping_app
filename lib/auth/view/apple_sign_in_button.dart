@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -27,8 +26,7 @@ class AppleSignInButton extends StatelessWidget {
         ],
         webAuthenticationOptions: Platform.isAndroid
             ? WebAuthenticationOptions(
-                clientId:
-                    'com.googleusercontent.apps.29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo',
+                clientId: 'com.googleusercontent.apps.29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo',
                 redirectUri: Uri.parse(
                   'https://pingapp-17ef7.firebaseapp.com/__/auth/handler',
                 ),

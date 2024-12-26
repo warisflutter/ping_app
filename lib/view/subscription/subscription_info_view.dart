@@ -19,7 +19,6 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      subscriptionProvider.init();
     });
     super.initState();
   }
@@ -204,10 +203,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                             _subscribeButton(subscriptionProvider: subscriptionProvider),
                             Text(
                               (subscriptionProvider.selectType == 0)
-                                  ? "You will be change ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time"
+                                  ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()}"
                                   : (subscriptionProvider.selectType == 1)
-                                      ? "You will be change ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time"
-                                      : "You will be change ${(subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[4].price : subscriptionProvider.productsDetails[5].price} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time",
+                                      ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "${"t_month".tr}" : "${"t_year".tr()}" "${"t_afterSubscribingThisCancelAtAnyTime".tr()}"}"
+                                      : "${"t_youWillBeChange".tr()} ${(subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[4].price : subscriptionProvider.productsDetails[5].price} on every ${subscriptionProvider.subscriptionType ? "${"t_month".tr}" : "${"t_year".tr()}" "${"t_afterSubscribingThisCancelAtAnyTime".tr()}"}",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.black,
@@ -259,10 +258,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                         color: (subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
                       ),
                     ),
-                    const Text(
-                      "Annually",
+                    Text(
+                      "t_annually".tr(),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -308,10 +307,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                         color: (!subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
                       ),
                     ),
-                    const Text(
-                      "Monthly",
+                    Text(
+                      "t_monthly".tr(),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

@@ -216,5 +216,19 @@
   "t_authenticating": "Autenticando...",
   "t_anErrorTheApp": "Se produjo un error. Por favor, reinicie la aplicación.",
   "t_checkingSubscriptionPleaseWait": "Comprobando el estado de la suscripción, por favor espere...",
-  "t_failedToUpdateProfile": "Error al actualizar el perfil"
+  "t_failedToUpdateProfile": "Error al actualizar el perfil",
+  "t_youWillBeChange": "Serás cambiado",
+  "t_onEvery": "cada",
+  "t_month": "mes",
+  "t_year": "año",
+  "t_afterSubscribingThisCancelAtAnyTime": "después de suscribirte, cancela en cualquier momento",
+  "t_annually": "Anualmente",
+  "t_status": "Estado",
+  "t_continue": "Continuar",
+  "t_applyVoucher": "Aplicar cupón",
+  "t_addRequestForVoucher": "Agregar solicitud para cupón",
+  "t_apply": "Aplicar",
+  "t_cancelSubscription": "Cancelar suscripción",
+  "t_upgradeDowngradeSubscription": "Actualizar/Downgradear suscripción",
+  "t_subscription": "Suscripción"
 }

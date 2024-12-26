@@ -216,5 +216,19 @@
   "t_authenticating": "Authenticating...",
   "t_anErrorTheApp": "An error occurred. Please restart the app.",
   "t_checkingSubscriptionPleaseWait": "Checking subscription status, please wait...",
-  "t_failedToUpdateProfile": "Failed to update profile"
+  "t_failedToUpdateProfile": "Failed to update profile",
+  "t_youWillBeChange": "You will be change",
+  "t_onEvery": "on every",
+  "t_month": "month",
+  "t_year": "year",
+  "t_afterSubscribingThisCancelAtAnyTime": "after subscribing this cancel at any time",
+  "t_annually": "Annually",
+  "t_status": "Status",
+  "t_continue": "continue",
+  "t_applyVoucher": "Apply Voucher",
+  "t_addRequestForVoucher": "Add Request for Voucher",
+  "t_apply": "Apply",
+  "t_cancelSubscription": "Cancel Subscription",
+  "t_upgradeDowngradeSubscription": "Upgrade/Downgrade Subscription",
+  "t_subscription": "Subscription"
 }

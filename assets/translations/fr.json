@@ -216,5 +216,19 @@
   "t_authenticating": "Authentification en cours...",
   "t_anErrorTheApp": "Une erreur s'est produite. Veuillez redémarrer l'application.",
   "t_checkingSubscriptionPleaseWait": "Vérification du statut de l'abonnement, veuillez patienter...",
-  "t_failedToUpdateProfile": "Échec de la mise à jour du profil"
+  "t_failedToUpdateProfile": "Échec de la mise à jour du profil",
+  "t_youWillBeChange": "Vous serez changé",
+  "t_onEvery": "à chaque",
+  "t_month": "mois",
+  "t_year": "année",
+  "t_afterSubscribingThisCancelAtAnyTime": "après vous être abonné, annulez à tout moment",
+  "t_annually": "Annuellement",
+  "t_status": "Statut",
+  "t_continue": "Continuer",
+  "t_applyVoucher": "Appliquer un bon",
+  "t_addRequestForVoucher": "Ajouter une demande pour un bon",
+  "t_apply": "Appliquer",
+  "t_cancelSubscription": "Annuler l'abonnement",
+  "t_upgradeDowngradeSubscription": "Mettre à niveau/Rétrograder l'abonnement",
+  "t_subscription": "Abonnement"
 }

@@ -47,7 +47,8 @@ class _MemberListItemState extends State<MemberListItem> {
 
   @override
   void initState() {
-    context.read<MemberState>().loadMemberIdFromPrefs();
+    Provider.of<MemberState>(context, listen: false).loadMemberIdFromPrefs();
+    // context.read<MemberState>().loadMemberIdFromPrefs();
     loadRecentNotification();
     super.initState();
   }
@@ -192,13 +193,23 @@ class _MemberListItemState extends State<MemberListItem> {
                         leading: const Icon(Icons.phonelink_ring),
                         title: const Text("Ping"),
                         onTap: () {
-                          log("ping button");
+                          // log("ping button");
+                          // log("ping button $member");
+                          // log("ping button ${member?.isBlocked}");
                           pop();
-                          if (member != null && !member.isBlocked) {
-                            NotificationRepo.instance.sendPingNotification(me, selected);
-                          } else {
-                            snack("Block member can`t send ping", info: true);
+                          if (member != null) {
+                            if (member.isBlocked) {
+                              snack("Block member can`t send ping", info: true);
+                            } else {
+                              NotificationRepo.instance.sendPingNotification(me, selected);
+                            }
                           }
+
+                          // if (member != null && !member.isBlocked) {
+                          //   NotificationRepo.instance.sendPingNotification(me, selected);
+                          // } else {
+                          //   snack("Block member can`t send ping", info: true);
+                          // }
                         },
                       ),
                   if (!widget.operationsBlocked)
@@ -211,7 +222,7 @@ class _MemberListItemState extends State<MemberListItem> {
                           if (message != null) {
                             pop();
                             try {
-                              if (member != null && !member.isBlocked) {
+                              if (member != null) {
                                 await NotificationRepo.instance.sendMessageNotification(me, selected, message);
                                 snack("Message sent successfully", info: false);
                               } else {

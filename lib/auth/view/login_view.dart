@@ -9,6 +9,7 @@ import 'package:ping_app/auth/view/google_sign_in_button.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/util/validator.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
@@ -34,8 +35,8 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final mainSpacing = MediaQuery.of(context).size.height * 0.05;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final mainSpacing = context.screenHeight * 0.05;
+    final screenHeight = context.screenHeight;
     bool addTopPadding = screenHeight > maxDesktopHeight;
 
     return Scaffold(

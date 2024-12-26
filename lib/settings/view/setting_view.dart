@@ -26,8 +26,6 @@ import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../util/ping_log.dart';
-
 class SettingView extends StatefulWidget {
   const SettingView({super.key});
 

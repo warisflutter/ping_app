@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
@@ -123,7 +124,7 @@ class _AdminViewState extends State<AdminView> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text("Status"),
+                                        Text("t_status".tr()),
                                         DropdownButton<String>(
                                           value: value.selectedVoucherStatus[index],
                                           items: value.voucherStatus.map((entry) {
@@ -150,7 +151,7 @@ class _AdminViewState extends State<AdminView> {
                                       Provider.of<VoucherProvider>(context, listen: false)
                                           .updateVoucher(value.displayedVouchers[index].voucherId, index);
                                     },
-                                    child: const Text("continue"),
+                                    child: Text("t_continue".tr()),
                                   ),
                                 ),
                               ],

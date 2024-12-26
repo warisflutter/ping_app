@@ -73,7 +73,8 @@ class VoucherProvider extends ChangeNotifier {
       await voucher.add({
         "status": "Pending",
         "userId": userId,
-        "approvedAt": "Basic",
+        "approvedAt": "",
+        "type": "Basic",
         "createdAt": DateTime.now().toString(),
       });
       if (context.mounted) {
@@ -126,7 +127,6 @@ class VoucherProvider extends ChangeNotifier {
         final data = doc.data() as Map<String, dynamic>;
         final userId = data['userId'] ?? "";
         final pingUser = await AuthRepo.instance.getUserById(userId);
-
         return VoucherModel(
           type: data['type'] ?? "",
           voucherId: doc.id,

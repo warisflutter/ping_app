@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class PingDialogs {
@@ -9,17 +10,17 @@ class PingDialogs {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Apply Voucher"),
-          content: const Column(
+          title: Text("t_applyVoucher".tr()),
+          content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Add Request for Voucher",
+                "t_addRequestForVoucher".tr(),
                 textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             ],
           ),
           actions: [
@@ -27,13 +28,13 @@ class PingDialogs {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text("Cancel"),
+              child: Text("t_cancel".tr()),
             ),
             ElevatedButton(
               onPressed: () {
                 applyVoucher();
               },
-              child: const Text("Apply"),
+              child: Text("t_apply".tr()),
             ),
           ],
         );

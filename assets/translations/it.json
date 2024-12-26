@@ -216,5 +216,19 @@
   "t_authenticating": "Autenticazione in corso...",
   "t_anErrorTheApp": "Si è verificato un errore. Riavvia l'app.",
   "t_checkingSubscriptionPleaseWait": "Verifica dello stato dell'abbonamento in corso, attendere prego...",
-  "t_failedToUpdateProfile": "Impossibile aggiornare il profilo"
+  "t_failedToUpdateProfile": "Impossibile aggiornare il profilo",
+  "t_youWillBeChange": "Sarai cambiato",
+  "t_onEvery": "ogni",
+  "t_month": "mese",
+  "t_year": "anno",
+  "t_afterSubscribingThisCancelAtAnyTime": "dopo esserti abbonato, puoi annullare in qualsiasi momento",
+  "t_annually": "Annualmente",
+  "t_status": "Stato",
+  "t_continue": "Continua",
+  "t_applyVoucher": "Applica Voucher",
+  "t_addRequestForVoucher": "Aggiungi richiesta per un voucher",
+  "t_apply": "Applica",
+  "t_cancelSubscription": "Annulla abbonamento",
+  "t_upgradeDowngradeSubscription": "Aggiorna/Downgrade abbonamento",
+  "t_subscription": "Abbonamento"
 }

@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
@@ -42,10 +47,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   Future<void> initLoadingScreen() async {
-    // final firebaseUser = Provider.of<PingAuthState>(context, listen: false).currentFirebaseUser;
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-    final state = Provider.of<PingAuthState>(context, listen: false);
-    // final pingUser = state.currentPingUser;
     final memberState = Provider.of<MemberState>(context, listen: false);
 
     await adminProvider.getAdmin();
@@ -54,12 +56,30 @@ class _LoadingScreenState extends State<LoadingScreen> {
       debugPrint("===============adminProvider.type == admin");
       replace(const AdminView());
     } else if (adminProvider.type == "user") {
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
+      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+      AppLifecycleService().initialize(
+        isMember: false,
+        userId: firebaseUser.uid,
+      );
       debugPrint("===============firebaseUser == null || pingUser == null && adminProvider.type == null---------");
       replace(const DashboardView());
     } else {
       await memberState.loadMemberIdFromPrefs();
       final member = memberState.member;
       if (member != null) {
+        final memberState = Provider.of<MemberState>(context, listen: false);
+        final member = memberState.member;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          NotificationService.instance.setNotificationListener(
+            context,
+            member!.id,
+            -1,
+          );
+          FcmRepo.instance.updateMemberFcmToken(member.id);
+          AppLifecycleService().initialize(isMember: true, userId: member.id);
+        });
         debugPrint("---------if--------------member != null");
         replace(const MemberDashboard());
       } else {

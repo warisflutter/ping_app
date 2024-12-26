@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:ping_app/util/navigator.dart';
@@ -20,7 +21,7 @@ class _PurchasedViewState extends State<PurchasedView> {
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text("${subscriptionProvider.purChasedModel?.title} Subscription"),
+          title: Text("${subscriptionProvider.purChasedModel?.title} ${"t_subscription".tr()}"),
         ),
         body: Center(
           child: Padding(
@@ -39,7 +40,7 @@ class _PurchasedViewState extends State<PurchasedView> {
                   onPressed: () {
                     replace(const SubscriptionInfoView());
                   },
-                  child: const Text("Upgrade/Downgrade Subscription"),
+                  child: Text("t_upgradeDowngradeSubscription".tr()),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
@@ -47,7 +48,7 @@ class _PurchasedViewState extends State<PurchasedView> {
                     String url = "https://play.google.com/store/account/subscriptions";
                     context.launchURL(url);
                   },
-                  child: const Text("Cancel Subscription"),
+                  child: Text("t_cancelSubscription".tr()),
                 ),
               ],
             ),
