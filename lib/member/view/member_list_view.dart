@@ -11,11 +11,12 @@ import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/view/member_list_item.dart';
-import 'package:ping_app/subscription/model/subscription_model.dart';
-import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
+import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:provider/provider.dart';
 
 class MemberListView extends StatefulWidget {
@@ -38,8 +39,6 @@ class _MemberListViewState extends State<MemberListView> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      await subscriptionProvider.init();
-      await subscriptionProvider.fetchSubscriptionDetails();
     });
     super.initState();
   }
@@ -48,7 +47,7 @@ class _MemberListViewState extends State<MemberListView> {
   Widget build(BuildContext context) {
     final authState = context.watch<PingAuthState>();
     final memberState = context.watch<MemberState>();
-    final subscriptionState = context.watch<SubscriptionState>();
+    // final subscriptionState = context.watch<SubscriptionState>();
 
     final mode = widget.mode;
     final isTeamLead = mode.isTeamLead;
@@ -75,11 +74,33 @@ class _MemberListViewState extends State<MemberListView> {
           if (mode.isTeamLead)
             TextButton.icon(
               onPressed: () async {
-                int? perMember = subscriptionProvider.purChasedModel!.perUsersAndMessages;
                 final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
                 if (subscriptionProvider.purChasedModel == null) {
-                  snack('you have buy onr subscription first to continue');
+                  final voucherP = Provider.of<VoucherProvider>(context, listen: false);
+                  String data = await voucherP.fetchVoucher();
+                  if (data.isEmpty) {
+                    push(const SubscriptionInfoView());
+                  } else {
+                    PingLog.pingLog("This is my fetchVoucher: $data");
+                    String type = data.split("|")[1];
+                    PingLog.pingLog("This is my type: $type");
+                    if (type == "Basic") {
+                      PingLog.pingLog("if (type == Basic) { $numberOfMembers");
+                      if (numberOfMembers != 3) {
+                        push(const MemberManageView());
+                      }
+                    } else if (type == "Export") {
+                      if (numberOfMembers != 5) {
+                        push(const MemberManageView());
+                      }
+                    } else if (type == "Pro") {
+                      if (numberOfMembers != 20) {
+                        push(const MemberManageView());
+                      }
+                    }
+                  }
                 } else {
+                  int? perMember = subscriptionProvider.purChasedModel!.perUsersAndMessages;
                   if (numberOfMembers != perMember) {
                     push(const MemberManageView());
                   } else {
@@ -120,7 +141,8 @@ class _MemberListViewState extends State<MemberListView> {
           if (data.isEmpty && !isMember) {
             return getErrorMessage(context, 't_noMembersFound'.tr());
           }
-          final operationsBlocked = (subscriptionState.subscriptionType.maxMembersAllowed) <= data.length;
+          // final operationsBlocked = (subscriptionState.subscriptionType.maxMembersAllowed) <= data.length;
+          final operationsBlocked = (3) <= data.length;
 
           final members = data.where((member) => !member.isBlocked).toList();
           print("This is members: ${members.map((e) => e.isOnline).toList()}");

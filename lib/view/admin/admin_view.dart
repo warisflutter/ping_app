@@ -23,7 +23,7 @@ class _AdminViewState extends State<AdminView> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AdminProvider>(context, listen: false).getAdmin();
-      Provider.of<VoucherProvider>(context, listen: false).fetchVoucher();
+      Provider.of<VoucherProvider>(context, listen: false).initAdmin();
     });
     super.initState();
   }
@@ -49,14 +49,6 @@ class _AdminViewState extends State<AdminView> {
       ),
       body: Consumer2<VoucherProvider, AdminProvider>(
         builder: (context, value, value2, child) {
-          final pendingVouchers = value.userVouchers.where((voucher) => voucher.status == "0").toList();
-          final rejectedVouchers = value.userVouchers.where((voucher) => voucher.status == "1").toList();
-          final approvedVouchers = value.userVouchers.where((voucher) => voucher.status == "2").toList();
-          final displayedVouchers = (value.approveOrReject == 0)
-              ? pendingVouchers
-              : (value.approveOrReject == 1)
-                  ? approvedVouchers
-                  : rejectedVouchers;
           return Column(
             children: [
               Container(
@@ -70,30 +62,6 @@ class _AdminViewState extends State<AdminView> {
                   children: [
                     ...List.generate(value.voucherStatus.length, (index) {
                       return Expanded(
-                        // child: InkWell(
-                        //   borderRadius: BorderRadius.circular(40.0),
-                        //   onTap: () {
-                        //     value2.setApproveOrReject(index);
-                        //   },
-                        //   child: Container(
-                        //     padding: const EdgeInsets.all(6.0),
-                        //     decoration: BoxDecoration(
-                        //       borderRadius: BorderRadius.circular(40.0),
-                        //       color: (value2.approveOrReject == index)
-                        //           ? Colors.white
-                        //           : Colors.transparent,
-                        //     ),
-                        //     alignment: Alignment.center,
-                        //     child: Text(
-                        //       value.voucherStatus[index],
-                        //       style: TextStyle(
-                        //         color: (value2.approveOrReject == index)
-                        //             ? Colors.black
-                        //             : Colors.white,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         child: SelectionWidget(
                           onTap: () {
                             value.setApproveOrReject(index);
@@ -109,40 +77,87 @@ class _AdminViewState extends State<AdminView> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(12.0),
-                  itemCount: displayedVouchers.length,
-                  itemBuilder: (context, index) {
-                    String title = displayedVouchers[index].pingUserModel.fullName;
-                    Map<String, String> statusMap = {
-                      'Pending': '0',
-                      'Rejected': '1',
-                      'Approved': '2',
-                    };
-
-                    return ListTile(
-                      onTap: () {},
-                      title: Text(title),
-                      tileColor: Colors.white.withOpacity(0.3),
-                      trailing: DropdownButton<String>(
-                        value: displayedVouchers[index].status,
-                        items: statusMap.entries.map((entry) {
-                          return DropdownMenuItem<String>(
-                            value: entry.value,
-                            child: Text(entry.key),
+                child: (value.loader)
+                    ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(12.0),
+                        itemCount: value.displayedVouchers.length,
+                        itemBuilder: (context, index) {
+                          String title = value.displayedVouchers[index].pingUserModel.fullName;
+                          List<String> statusTypeMap = ['Basic', 'Expert', 'Pro'];
+                          return Container(
+                            margin: const EdgeInsets.all(12.0),
+                            padding: const EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: Colors.white.withOpacity(0.3),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(title),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text("Type"),
+                                        DropdownButton<String>(
+                                          value: value.selectedVoucherType[index],
+                                          items: statusTypeMap.map((entry) {
+                                            return DropdownMenuItem<String>(
+                                              value: entry,
+                                              child: Text(entry),
+                                            );
+                                          }).toList(),
+                                          onChanged: (newStatus) {
+                                            if (newStatus != null) {
+                                              value.setVoucherType(newStatus, index);
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text("Status"),
+                                        DropdownButton<String>(
+                                          value: value.selectedVoucherStatus[index],
+                                          items: value.voucherStatus.map((entry) {
+                                            return DropdownMenuItem<String>(
+                                              value: entry,
+                                              child: Text(entry),
+                                            );
+                                          }).toList(),
+                                          onChanged: (newStatus) {
+                                            if (newStatus != null) {
+                                              value.setVoucherStatus(newStatus, index);
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Provider.of<VoucherProvider>(context, listen: false)
+                                          .updateVoucher(value.displayedVouchers[index].voucherId, index);
+                                    },
+                                    child: const Text("continue"),
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
-                        }).toList(),
-                        onChanged: (newStatus) {
-                          if (newStatus != null) {
-                            // Update the voucher status
-                            Provider.of<VoucherProvider>(context, listen: false)
-                                .updateVoucherStatus(displayedVouchers[index].voucherId, newStatus);
-                          }
                         },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           );

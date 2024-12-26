@@ -36,16 +36,12 @@ class _LoadingScreenState extends State<LoadingScreen> {
     updateCounter();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       subsProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      await subsProvider.fetchSubscriptionDetails();
-      await subsProvider.showSubscriptions();
-      await subsProvider.restorePurchases();
-      await subsProvider.initLister();
-      await init();
+      await initLoadingScreen();
     });
     super.initState();
   }
 
-  Future<void> init() async {
+  Future<void> initLoadingScreen() async {
     // final firebaseUser = Provider.of<PingAuthState>(context, listen: false).currentFirebaseUser;
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     final state = Provider.of<PingAuthState>(context, listen: false);

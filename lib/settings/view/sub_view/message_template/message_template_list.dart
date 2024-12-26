@@ -5,11 +5,12 @@ import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/settings/repo/setting_repo.dart';
 import 'package:ping_app/settings/view/sub_view/message_template/message_add_edit_view.dart';
-import 'package:ping_app/subscription/model/subscription_model.dart';
-import 'package:ping_app/subscription/repo/subscription_state.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
+import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:provider/provider.dart';
 
 class MessageListView extends StatefulWidget {
@@ -28,8 +29,6 @@ class _MessageListViewState extends State<MessageListView> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      await subscriptionProvider.init();
-      await subscriptionProvider.fetchSubscriptionDetails();
     });
     super.initState();
   }
@@ -91,11 +90,35 @@ class _MessageListViewState extends State<MessageListView> {
                       child: ElevatedButton(
                         key: const Key("buttonAddMessage"),
                         onPressed: () async {
+                          final numberOfMessages = await SettingRepo.instance.getMessageCount();
                           if (subscriptionProvider.purChasedModel == null) {
-                            snack('you have buy onr subscription first to continue');
+                            final voucherP = Provider.of<VoucherProvider>(context, listen: false);
+                            String data = await voucherP.fetchVoucher();
+                            if (data.isEmpty) {
+                              push(const SubscriptionInfoView());
+                              snack('you have buy onr subscription first to continue');
+                            } else {
+                              PingLog.pingLog("This is my fetchVoucher: $data");
+                              String type = data.split("|")[1];
+                              PingLog.pingLog("This is my type: $type");
+                              if (type == "Basic") {
+                                PingLog.pingLog("if (type == Basic) { $numberOfMessages");
+                                if (numberOfMessages != 3) {
+                                  push(const MessageAddEditView());
+                                }
+                              } else if (type == "Export") {
+                                if (numberOfMessages != 5) {
+                                  push(const MessageAddEditView());
+                                }
+                              } else if (type == "Pro") {
+                                if (numberOfMessages != 20) {
+                                  push(const MessageAddEditView());
+                                }
+                              }
+                            }
                           } else {
                             int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
-                            final numberOfMessages = await SettingRepo.instance.getMessageCount();
+
                             if (numberOfMessages == perMessages) {
                               snack('t_youHaveMessagesTemplate'.tr());
                             } else {

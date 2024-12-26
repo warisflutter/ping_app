@@ -1,17 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:lottie/lottie.dart';
-import 'package:ping_app/subscription/model/subscription_model.dart';
-import 'package:ping_app/subscription/repo/subscription_state.dart';
-import 'package:ping_app/util/loading_screen.dart';
-import 'package:ping_app/util/parsers.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/widgets/selection_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:purchases_flutter/models/entitlement_info_wrapper.dart';
 
 class SubscriptionInfoView extends StatefulWidget {
   const SubscriptionInfoView({super.key});
@@ -26,32 +19,13 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      await subscriptionProvider.init();
-      await subscriptionProvider.fetchSubscriptionDetails();
+      subscriptionProvider.init();
     });
     super.initState();
   }
 
   @override
-  void dispose() {
-    subscriptionProvider.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // final subState = context.watch<SubscriptionState>();
-    // final ei = subState.entitlementInfo;
-    // if (ei == null && !subState.isDemoAccount) {
-    //   FirebaseAuth.instance.signOut();
-    //   return LoadingScreen(message: 't_loggingOut'.tr());
-    // }
-    //
-    // final name = ei?.entitlementType.name ?? 't_yearlySubscriptionDemoAccount'.tr();
-    //
-    // final daysLeft = ei != null ? getDaysLeft(ei) : "";
-    // final purchaseDate = ei != null ? getSubscriptionDate(ei) : "July 01, 2024";
-
     return Scaffold(
       key: const Key("viewSubscriptionInfo"),
       appBar: AppBar(
@@ -233,7 +207,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   ? "You will be change ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time"
                                   : (subscriptionProvider.selectType == 1)
                                       ? "You will be change ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time"
-                                      : "You will be change ${(subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[4].price : subscriptionProvider.subscriptions[2].monthlyPrice} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time",
+                                      : "You will be change ${(subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[4].price : subscriptionProvider.productsDetails[5].price} on every ${subscriptionProvider.subscriptionType ? "month" : "year"} after subscribing this cancel at any time",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.black,
@@ -253,77 +227,6 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
         },
       ),
     );
-  }
-
-  // Container(
-  //   decoration: BoxDecoration(
-  //     borderRadius: BorderRadius.circular(8),
-  //     color: Colors.white.withOpacity(0.1),
-  //   ),
-  //   child: Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     mainAxisSize: MainAxisSize.min,
-  //     children: [
-  //       ListTile(
-  //         title: Text(name),
-  //         subtitle: Text(purchaseDate),
-  //         trailing: Text(daysLeft),
-  //       ),
-  //     ],
-  //   ),
-  // ),
-  // const SizedBox(height: 16),
-  // if (!kIsWeb)
-  //   ElevatedButton(
-  //     onPressed: () {
-  //       push(const SubscriptionPayWall());
-  //     },
-  //     child: const Text("Change Plan"),
-  //   ),
-  String getDaysLeft(EntitlementInfo info) {
-    final expiryDateString = info.expirationDate;
-    if (expiryDateString == null) {
-      return '';
-    }
-
-    final expiryDate = DateTime.parse(expiryDateString).toLocal();
-    var daysLeft = expiryDate.difference(DateTime.now()).inDays;
-    if (daysLeft <= 0) {
-      daysLeft = expiryDate.difference(DateTime.now()).inHours;
-      if (daysLeft <= 0) {
-        daysLeft = expiryDate.difference(DateTime.now()).inMinutes;
-        if (daysLeft <= 0) {
-          daysLeft = expiryDate.difference(DateTime.now()).inSeconds;
-          if (daysLeft <= 0) {
-            return 't_subscriptionExpired'.tr();
-          } else {
-            return '$daysLeft ${'t_secondLeft'.tr()}';
-          }
-        } else {
-          return '$daysLeft ${'t_minuteLeft'.tr()}';
-        }
-      } else {
-        return '$daysLeft ${'t_hourLeft'.tr()}';
-      }
-    } else {
-      return '$daysLeft ${'t_dayLeft'.tr()}';
-    }
-  }
-
-  String getSubscriptionDate(EntitlementInfo info) {
-    final purchaseDateString = info.latestPurchaseDate;
-
-    final purchaseDate = DateTime.parse(purchaseDateString).toLocal();
-    return parseDateTime(purchaseDate);
-  }
-
-  String getExpiryDate(EntitlementInfo info) {
-    final eDate = info.expirationDate;
-    if (eDate == null) {
-      return "null";
-    }
-    final purchaseDate = DateTime.parse(eDate).toLocal();
-    return parseDateTime(purchaseDate);
   }
 
   _selectMOrY({
@@ -467,9 +370,9 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
           }
           await subscriptionProvider.setProductDetails(data);
         },
-        child: const Text(
-          "Subscribe",
-          style: TextStyle(color: Colors.white),
+        child: Text(
+          subscriptionProvider.subscribeBtnText,
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );

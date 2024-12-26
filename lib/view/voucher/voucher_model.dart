@@ -5,8 +5,10 @@ class VoucherModel {
   final String userId;
   final String createdAt;
   final String status;
+  final String type;
   final PingUserModel pingUserModel;
   VoucherModel({
+    required this.type,
     required this.voucherId,
     required this.userId,
     required this.createdAt,

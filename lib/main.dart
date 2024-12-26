@@ -1,29 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
-import 'package:ping_app/auth/view/complete_profile_view.dart';
-import 'package:ping_app/auth/view/create_account_view.dart';
-import 'package:ping_app/auth/view/verify_email_view.dart';
-import 'package:ping_app/auth/view/verify_subscription_view.dart';
-import 'package:ping_app/dashboard/dashboard_view.dart';
-import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/firebase_options.dart';
 import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
-import 'package:ping_app/subscription/model/subscription_model.dart';
-import 'package:ping_app/subscription/repo/subscription_state.dart';
-import 'package:ping_app/subscription/view/subscription_pay_wall.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/loading_screen.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
-import 'package:ping_app/view/admin/admin_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/watch_os/watch_repo.dart';
@@ -63,7 +49,6 @@ class MyApp extends StatelessWidget {
           create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges()),
         ),
         ChangeNotifierProvider(create: (_) => MemberState()),
-        ChangeNotifierProvider(create: (_) => SubscriptionState()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProvider(create: (_) => VoucherProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
@@ -88,267 +73,159 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        // home: Builder(
-        //   builder: (context) {
-        //     return PopScope(
-        //         canPop: false,
-        //         onPopInvoked: (didPop) {
-        //           if (didPop) {
-        //             return;
-        //           }
-        //           _onPopInvoked(context);
-        //         },
-        //         child: const LoadingScreen(
-        //           message: "Please wait...",
-        //         )
-        //         // homeWidget(context),
-        //         );
-        //   },
-        // ),
         home: const LoadingScreen(message: "Please wait..."),
       ),
     );
   }
 
-  void _onPopInvoked(BuildContext context) async {
-    final bool shouldPop = await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('t_areYouSure'.tr()),
-            content: Text('t_closingThisWorkProperly'.tr()),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('t_no'.tr()),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: Text('t_yes'.tr()),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (shouldPop) {
-      SystemNavigator.pop(); // This will close the app
-    }
-  }
+  // void _onPopInvoked(BuildContext context) async {
+  //   final bool shouldPop = await showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: Text('t_areYouSure'.tr()),
+  //           content: Text('t_closingThisWorkProperly'.tr()),
+  //           actions: <Widget>[
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(false),
+  //               child: Text('t_no'.tr()),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(true);
+  //               },
+  //               child: Text('t_yes'.tr()),
+  //             ),
+  //           ],
+  //         ),
+  //       ) ??
+  //       false;
+  //
+  //   if (shouldPop) {
+  //     SystemNavigator.pop();
+  //   }
+  // }
 }
 
-enum UserState {
-  loading,
-  completeProfile,
-  member,
-  createAccount,
-  verifyEmail,
-  subscriptionError,
-  subscriptionLoading,
-  dashboard,
-  subscriptionPayWall,
-  verifySubscription,
-  admin,
-}
+// enum UserState {
+//   loading,
+//   completeProfile,
+//   member,
+//   createAccount,
+//   verifyEmail,
+//   subscriptionError,
+//   subscriptionLoading,
+//   dashboard,
+//   subscriptionPayWall,
+//   verifySubscription,
+//   admin,
+// }
 
-Widget homeWidget(BuildContext context) {
-  final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser;
-  final adminProvider = context.watch<AdminProvider>();
-  final state = context.watch<PingAuthState>();
-  AppLifecycleService().reset();
-  final pingUser = state.currentPingUser;
-
-  UserState userState;
-
-  if (state.loading) {
-    debugPrint("---------if--------------state.loading");
-    userState = UserState.loading;
-  } else if (adminProvider.type != null && adminProvider.type == "admin") {
-    debugPrint("---------else if--------------adminProvider.type != null && adminProvider.type == admin");
-    userState = UserState.admin;
-  } else if (firebaseUser != null && pingUser == null && adminProvider.type == null) {
-    debugPrint("---------else if--------------firebaseUser != null && pingUser == null");
-    userState = UserState.completeProfile;
-  } else if (firebaseUser == null || pingUser == null && adminProvider.type == null) {
-    debugPrint("---------else if--------------firebaseUser == null || pingUser == null");
-    final memberState = context.watch<MemberState>();
-    final member = memberState.member;
-
-    if (member != null) {
-      debugPrint("---------if--------------member != null");
-      userState = UserState.member;
-    } else {
-      debugPrint("---------else--------------member != null");
-      userState = UserState.createAccount;
-    }
-  } else if (!firebaseUser.emailVerified) {
-    userState = UserState.verifyEmail;
-  } else {
-    final subscriptionState = context.watch<SubscriptionState>();
-
-    if (subscriptionState.error != null) {
-      userState = UserState.subscriptionError;
-    } else if (subscriptionState.loading) {
-      userState = UserState.subscriptionLoading;
-    } else {
-      userState = subscriptionState.subscriptionType != EntitlementType.none
-          ? UserState.dashboard
-          : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
-    }
-  }
-
-  switch (userState) {
-    case UserState.loading:
-      return LoadingScreen(message: 't_authenticating'.tr());
-    case UserState.admin:
-      AppLifecycleService().initialize(
-        isMember: false,
-        userId: firebaseUser!.uid,
-      );
-      return const AdminView();
-    case UserState.completeProfile:
-      return CompleteProfileView(firebaseUser: firebaseUser!);
-    case UserState.member:
-      final memberState = context.watch<MemberState>();
-      final member = memberState.member;
-      final subscriptionState = context.watch<SubscriptionState>();
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        NotificationService.instance.setNotificationListener(
-          context,
-          member!.id,
-          -1,
-        );
-        subscriptionState.updateUser(member.teamLeadId);
-        FcmRepo.instance.updateMemberFcmToken(member.id);
-        AppLifecycleService().initialize(isMember: true, userId: member.id);
-      });
-
-      return const MemberDashboard();
-    case UserState.createAccount:
-      return const CreateAccountView();
-    case UserState.verifyEmail:
-      return VerifyEmailView(user: firebaseUser!);
-    case UserState.subscriptionError:
-      final subscriptionState = context.watch<SubscriptionState>();
-      return LoadingScreen(
-        message: 't_anErrorTheApp'.tr(),
-        error: subscriptionState.error,
-      );
-    case UserState.subscriptionLoading:
-      return LoadingScreen(
-        message: 't_checkingSubscriptionPleaseWait'.tr(),
-      );
-    case UserState.dashboard:
-      final subscriptionState = context.watch<SubscriptionState>();
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        subscriptionState.updateUser(firebaseUser!.uid);
-      });
-
-      NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
-      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
-      AppLifecycleService().initialize(
-        isMember: false,
-        userId: firebaseUser.uid,
-      );
-      return const DashboardView();
-    case UserState.subscriptionPayWall:
-      return const SubscriptionPayWall();
-    case UserState.verifySubscription:
-      return const VerifySubscriptionView();
-  }
-}
-
-// class HomeWidget extends StatelessWidget {
-//   const HomeWidget({super.key});
+// Widget homeWidget(BuildContext context) {
+//   final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser;
+//   final adminProvider = context.watch<AdminProvider>();
+//   final state = context.watch<PingAuthState>();
+//   AppLifecycleService().reset();
+//   final pingUser = state.currentPingUser;
 //
-//   @override
-//   Widget build(BuildContext context) {
-//     final state = context.watch<PingAuthState>();
-//     AppLifecycleService().reset();
-//     print("state loading: ${state.loading}");
+//   UserState userState;
 //
-//     if (state.loading) {
+//   if (state.loading) {
+//     debugPrint("---------if--------------state.loading");
+//     userState = UserState.loading;
+//   } else if (adminProvider.type != null && adminProvider.type == "admin") {
+//     debugPrint("---------else if--------------adminProvider.type != null && adminProvider.type == admin");
+//     userState = UserState.admin;
+//   } else if (firebaseUser != null && pingUser == null && adminProvider.type == null) {
+//     debugPrint("---------else if--------------firebaseUser != null && pingUser == null");
+//     userState = UserState.completeProfile;
+//   } else if (firebaseUser == null || pingUser == null && adminProvider.type == null) {
+//     debugPrint("---------else if--------------firebaseUser == null || pingUser == null");
+//     final memberState = context.watch<MemberState>();
+//     final member = memberState.member;
+//
+//     if (member != null) {
+//       debugPrint("---------if--------------member != null");
+//       userState = UserState.member;
+//     } else {
+//       debugPrint("---------else--------------member != null");
+//       userState = UserState.createAccount;
+//     }
+//   } else if (!firebaseUser.emailVerified) {
+//     userState = UserState.verifyEmail;
+//   } else {
+//     final subscriptionState = context.watch<SubscriptionState>();
+//
+//     if (subscriptionState.error != null) {
+//       userState = UserState.subscriptionError;
+//     } else if (subscriptionState.loading) {
+//       userState = UserState.subscriptionLoading;
+//     } else {
+//       userState = subscriptionState.subscriptionType != EntitlementType.none
+//           ? UserState.dashboard
+//           : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
+//     }
+//   }
+//
+//   switch (userState) {
+//     case UserState.loading:
 //       return LoadingScreen(message: 't_authenticating'.tr());
-//     }
-//
-//     final pingUser = state.currentPingUser;
-//     final firebaseUser = state.currentFirebaseUser;
-//
-//     if (firebaseUser != null && pingUser == null) {
-//       return CompleteProfileView(firebaseUser: firebaseUser);
-//     }
-//
-//     if (firebaseUser == null || pingUser == null) {
+//     case UserState.admin:
+//       AppLifecycleService().initialize(
+//         isMember: false,
+//         userId: firebaseUser!.uid,
+//       );
+//       return const AdminView();
+//     case UserState.completeProfile:
+//       return CompleteProfileView(firebaseUser: firebaseUser!);
+//     case UserState.member:
 //       final memberState = context.watch<MemberState>();
 //       final member = memberState.member;
+//       final subscriptionState = context.watch<SubscriptionState>();
 //
-//       if (member != null) {
-//         final subscriptionState = context.watch<SubscriptionState>();
-//         if (subscriptionState.error != null) {
-//           return LoadingScreen(
-//             message: 't_anErrorTheApp'.tr(),
-//             error: subscriptionState.error,
-//           );
-//         }
-//
-//         if (subscriptionState.loading) {
-//           return LoadingScreen(
-//             message: 't_checkingSubscriptionPleaseWait'.tr(),
-//           );
-//         }
+//       WidgetsBinding.instance.addPostFrameCallback((_) {
 //         NotificationService.instance.setNotificationListener(
 //           context,
-//           member.id,
+//           member!.id,
 //           -1,
 //         );
 //         subscriptionState.updateUser(member.teamLeadId);
 //         FcmRepo.instance.updateMemberFcmToken(member.id);
 //         AppLifecycleService().initialize(isMember: true, userId: member.id);
+//       });
 //
-//         return const MemberDashboard();
-//       } else {
-//         return const CreateAccountView();
-//       }
-//     }
-//     if (!firebaseUser.emailVerified) {
-//       return VerifyEmailView(user: firebaseUser);
-//     }
-//
-//     final subscriptionState = context.watch<SubscriptionState>();
-//     if (subscriptionState.error != null) {
+//       return const MemberDashboard();
+//     case UserState.createAccount:
+//       return const CreateAccountView();
+//     case UserState.verifyEmail:
+//       return VerifyEmailView(user: firebaseUser!);
+//     case UserState.subscriptionError:
+//       final subscriptionState = context.watch<SubscriptionState>();
 //       return LoadingScreen(
 //         message: 't_anErrorTheApp'.tr(),
 //         error: subscriptionState.error,
 //       );
-//     }
-//
-//     if (subscriptionState.loading) {
+//     case UserState.subscriptionLoading:
 //       return LoadingScreen(
 //         message: 't_checkingSubscriptionPleaseWait'.tr(),
 //       );
-//     }
+//     case UserState.dashboard:
+//       final subscriptionState = context.watch<SubscriptionState>();
 //
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       subscriptionState.updateUser(firebaseUser.uid);
-//     });
+//       WidgetsBinding.instance.addPostFrameCallback((_) {
+//         subscriptionState.updateUser(firebaseUser!.uid);
+//       });
 //
-//     if (subscriptionState.subscriptionType != EntitlementType.none) {
-//       NotificationService.instance.setNotificationListener(context, firebaseUser.uid, 1);
+//       NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
 //       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
 //       AppLifecycleService().initialize(
 //         isMember: false,
 //         userId: firebaseUser.uid,
 //       );
 //       return const DashboardView();
-//     } else {
-//       if (kIsWeb) {
-//         return const VerifySubscriptionView();
-//       }
+//     case UserState.subscriptionPayWall:
 //       return const SubscriptionPayWall();
-//     }
+//     case UserState.verifySubscription:
+//       return const VerifySubscriptionView();
 //   }
 // }
 
