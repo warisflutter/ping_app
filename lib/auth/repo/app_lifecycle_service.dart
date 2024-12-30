@@ -18,11 +18,11 @@ class AppLifecycleService with WidgetsBindingObserver {
   void initialize({required bool isMember, required String userId}) {
     _userId = userId;
     _isMember = isMember;
-    _setUserOnline();
+    setUserOnline();
   }
 
   void reset() {
-    _setUserOffline();
+    setUserOffline();
     _userId = null;
     _isMember = null;
   }
@@ -33,24 +33,22 @@ class AppLifecycleService with WidgetsBindingObserver {
     if (_userId == null) {
       return;
     }
-
     switch (state) {
       case AppLifecycleState.resumed:
-        _setUserOnline();
+        setUserOnline();
         break;
       case AppLifecycleState.detached:
-        _setUserOffline();
+        setUserOffline();
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        _setUserOffline();
-        break;
       case AppLifecycleState.hidden:
+        setUserOffline();
         break;
     }
   }
 
-  void _setUserOnline() {
+  void setUserOnline() {
     final userId = _userId;
     final isMember = _isMember;
     if (userId == null || isMember == null) {
@@ -64,7 +62,7 @@ class AppLifecycleService with WidgetsBindingObserver {
     }
   }
 
-  void _setUserOffline() {
+  void setUserOffline() {
     final userId = _userId;
     final isMember = _isMember;
     if (userId == null || isMember == null) {
@@ -80,7 +78,7 @@ class AppLifecycleService with WidgetsBindingObserver {
 
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    print("app life cycle service call");
-    _setUserOffline();
+    print("app life cycle dispose service call");
+    setUserOffline();
   }
 }
