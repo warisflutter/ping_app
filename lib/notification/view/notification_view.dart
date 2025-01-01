@@ -80,7 +80,7 @@ class NotificationView extends StatelessWidget {
                             : notification.sentAt != null
                                 ? const Icon(Icons.done)
                                 : const Icon(Icons.pending_actions),
-                    onTap: notification.isResponded
+                    onTap: (notification.isResponded)
                         ? null
                         : () => showDialog(
                               context: context,
