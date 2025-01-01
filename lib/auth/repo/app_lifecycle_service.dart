@@ -41,7 +41,7 @@ class AppLifecycleService with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
-        setUserOnline();
+        setUserOffline();
         break;
       case AppLifecycleState.detached:
         setUserOffline();
