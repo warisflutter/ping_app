@@ -18,21 +18,6 @@ import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:provider/provider.dart';
 
 class FirebaseNotificationService {
-  int userType = 0;
-  bool alreadyRan = false;
-  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? subscription;
-
-  void setNotificationListener(BuildContext context, String memberId, int userType) {
-    if (alreadyRan && this.userType == userType) {
-      return;
-    }
-    alreadyRan = true;
-    this.userType = userType;
-    subscription?.cancel();
-    subscription == null;
-    listenToNewNotifications(context, memberId);
-  }
-
   void _showNotificationAndDeliver(BuildContext context, PingNotificationModel notification) async {
     await showDialog(
       context: navigatorKey.currentState!.context,
@@ -40,25 +25,6 @@ class FirebaseNotificationService {
     );
 
     NotificationRepo.instance.markNotificationDelivered(notification.id);
-  }
-
-  void listenToNewNotifications(BuildContext context, String memberId) {
-    NotificationRepo.instance.notificationCollection.where('toId', isEqualTo: memberId).snapshots().listen(
-      (event) {
-        log('This event => ${event.docs.length}');
-        final newNotificationEvents =
-            event.docChanges.where((element) => element.type == DocumentChangeType.added).map((e) => e.doc).toList();
-
-        final newNotifications =
-            newNotificationEvents.map((doc) => PingNotificationModel.fromJson(doc.id, doc.data()!)).toList();
-
-        for (final notification in newNotifications) {
-          if (!notification.isDelivered) {
-            _showNotificationAndDeliver(context, notification);
-          }
-        }
-      },
-    );
   }
 
   Future<String> getAccessToken() async {
@@ -121,7 +87,7 @@ class FirebaseNotificationService {
           },
         }
       };
-      var response = await http.post(
+      http.Response response = await http.post(
         Uri.parse(endPoint),
         headers: {
           'Content-Type': 'application/json',
@@ -152,28 +118,6 @@ class FirebaseNotificationService {
       message: message.notification?.body ?? "",
     );
     _showNotificationAndDeliver(context, notification);
-    // final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-    // await adminProvider.getAdmin();
-    // if (adminProvider.type == "admin") {
-    // } else if (adminProvider.type == "user") {
-    //   final firebaseUser = FirebaseAuth.instance.currentUser;
-    //   // setNotificationListener(context, firebaseUser!.uid, 1);
-    //   final notification = PingNotificationModel(
-    //     type: message.data["type"],
-    //     toId: message.data["toId"],
-    //     fromId: message.data["fromId"],
-    //     message: message.notification?.body ?? "",
-    //   );
-    //   _showNotificationAndDeliver(context, notification);
-    // } else {
-    //   final memberState = Provider.of<MemberState>(context, listen: false);
-    //   final member = memberState.member;
-    //   // setNotificationListener(
-    //   //   context,
-    //   //   member!.id,
-    //   //   -1,
-    //   // );
-    // }
   }
 
   Future forGroundMessage() async {
