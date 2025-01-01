@@ -1,17 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
+import 'package:ping_app/main.dart';
 import 'package:ping_app/member/view/member_list_view.dart';
 import 'package:ping_app/notification/view/notification_view.dart';
 import 'package:ping_app/settings/view/setting_view.dart';
-import 'package:ping_app/view/subscription/subscription_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:ping_app/util/ping_log.dart';
 
-void onPopInvoked(BuildContext context) async {
+import '../notification/repo/notification_service.dart';
+
+Future<void> onPopInvoked(BuildContext context) async {
   final bool shouldPop = await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -32,7 +31,6 @@ void onPopInvoked(BuildContext context) async {
         ),
       ) ??
       false;
-
   if (shouldPop) {
     SystemNavigator.pop();
   }
@@ -48,11 +46,13 @@ class DashboardView extends StatefulWidget {
 class _DashboardViewState extends State<DashboardView> {
   @override
   void initState() {
+    PingLog.pingLog("Dashboard initState");
     super.initState();
   }
 
   @override
   void dispose() {
+    PingLog.pingLog("Dashboard dispose");
     super.dispose();
   }
 
@@ -60,11 +60,11 @@ class _DashboardViewState extends State<DashboardView> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvoked: (didPop) async {
         if (didPop) {
           return;
         }
-        onPopInvoked(context);
+        await onPopInvoked(context);
       },
       child: Scaffold(
         key: const Key("dashboardView"),

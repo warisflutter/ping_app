@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
@@ -49,7 +50,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Future<void> initLoadingScreen() async {
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     final memberState = Provider.of<MemberState>(context, listen: false);
-
+    AppLifecycleService().reset();
     await adminProvider.getAdmin();
     debugPrint("type: ${adminProvider.type}");
     if (adminProvider.type == "admin") {
@@ -57,8 +58,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       replace(const AdminView());
     } else if (adminProvider.type == "user") {
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
-      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser!.uid);
       AppLifecycleService().initialize(
         isMember: false,
         userId: firebaseUser.uid,
@@ -72,16 +72,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
         final memberState = Provider.of<MemberState>(context, listen: false);
         final member = memberState.member;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          NotificationService.instance.setNotificationListener(
-            context,
-            member!.id,
-            -1,
-          );
-          FcmRepo.instance.updateMemberFcmToken(member.id);
+          FcmRepo.instance.updateMemberFcmToken(member!.id);
           AppLifecycleService().initialize(isMember: true, userId: member.id);
+          replace(const MemberDashboard());
         });
         debugPrint("---------if--------------member != null");
-        replace(const MemberDashboard());
       } else {
         debugPrint("---------else--------------member != null");
         replace(const CreateAccountView());

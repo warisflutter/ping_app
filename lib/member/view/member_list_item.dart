@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/repo/member_state.dart';
@@ -11,11 +14,14 @@ import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
 import 'package:ping_app/member/view/add_member_view/member_qr_code.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
+import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:ping_app/util/audio/ping_audio_record.dart';
 import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/record_web/audio_main.dart';
 import 'package:provider/provider.dart';
 
@@ -47,29 +53,38 @@ class _MemberListItemState extends State<MemberListItem> {
 
   @override
   void initState() {
-    Provider.of<MemberState>(context, listen: false).loadMemberIdFromPrefs();
-    // context.read<MemberState>().loadMemberIdFromPrefs();
-    loadRecentNotification();
     super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      Provider.of<MemberState>(context, listen: false).loadMemberIdFromPrefs();
+      await loadRecentNotification();
+    });
   }
 
   Future<void> loadRecentNotification() async {
     if (notificationSubscription != null) {
       await notificationSubscription?.cancel();
     }
+
     notificationSubscription = NotificationRepo.instance
         .getMostRecentNotificationFromMeToId(widget.currentUserModel.id, widget.listTimeMemberModel.id)
         .listen((notification) {
       final nextTick = notification?.nextTick();
+      // PingLog.pingLog("nextTick: $nextTick");
       if (nextTick != null) {
         Future.delayed(nextTick, () => loadRecentNotification());
       }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() => recentNotification = notification);
-        }
-      });
+      if (mounted) {
+        setState(() {
+          recentNotification = notification;
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    notificationSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -80,7 +95,7 @@ class _MemberListItemState extends State<MemberListItem> {
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
-        color: recentNotification?.toId == widget.listTimeMemberModel.id
+        color: (recentNotification?.toId == widget.listTimeMemberModel.id)
             ? recentNotification?.color ?? Colors.transparent
             : Colors.transparent,
       ),
@@ -133,12 +148,14 @@ class _MemberListItemState extends State<MemberListItem> {
                       ),
                       if (!widget.viewOnly)
                         IconButton(
-                          onPressed: () => showMemberOptions(
-                            context,
-                            widget.isLoggedInAsMember,
-                            widget.currentUserModel,
-                            widget.listTimeMemberModel,
-                          ),
+                          onPressed: () {
+                            showMemberOptions(
+                              context,
+                              widget.isLoggedInAsMember,
+                              widget.currentUserModel,
+                              widget.listTimeMemberModel,
+                            );
+                          },
                           icon: const Icon(Icons.more_horiz),
                         )
                       else
@@ -162,7 +179,9 @@ class _MemberListItemState extends State<MemberListItem> {
         enableDrag: false,
         elevation: 8,
         constraints: const BoxConstraints(maxHeight: 450),
-        onClosing: () {},
+        onClosing: () {
+          PingLog.pingLog("on closing");
+        },
         builder: (context) {
           return Consumer<MemberState>(
             builder: (context, memberState, _) {
@@ -174,42 +193,53 @@ class _MemberListItemState extends State<MemberListItem> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: IconButton(
-                        onPressed: () => pop(),
+                        onPressed: () {
+                          pop();
+                        },
                         icon: const Icon(Icons.close),
                       ),
                     ),
                   ),
-                  if (widget.operationsBlocked)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: getErrorMessage(
-                        context,
-                        "You have more members than allowed. Please upgrade your plan or delete some members.",
-                      ),
-                    ),
+                  // if (widget.operationsBlocked)
+                  //   Padding(
+                  //     padding: const EdgeInsets.all(16.0),
+                  //     child: getErrorMessage(
+                  //       context,
+                  //       "You have more members than allowed. Please upgrade your plan or delete some members.",
+                  //     ),
+                  //   ),
                   if (!widget.operationsBlocked)
                     if (!selected.isBlocked)
                       ListTile(
                         leading: const Icon(Icons.phonelink_ring),
                         title: const Text("Ping"),
-                        onTap: () {
-                          // log("ping button");
-                          // log("ping button $member");
-                          // log("ping button ${member?.isBlocked}");
+                        onTap: () async {
+                          final res = await isMemberBlocked(widget.currentUserModel.id);
                           pop();
-                          if (member != null) {
-                            if (member.isBlocked) {
-                              snack("Block member can`t send ping", info: true);
+                          if (res) {
+                            snack("Block member can`t send ping", info: false);
+                          } else {
+                            bool confirmation = await context.showConfirmationDialog(
+                                  type: "Ping",
+                                ) ??
+                                false;
+                            if (confirmation) {
+                              final data = await NotificationRepo.instance.sendPingNotification(me, selected);
+                              snack("Ping sent successfully!", info: true);
+                              await FirebaseNotificationService().sendNotification(
+                                messageData: data.data ?? "",
+                                type: "0",
+                                id: data.id,
+                                title: "Ping",
+                                body: "${me.name} ${'t_sentAPing'.tr()}",
+                                token: selected.fcm,
+                                fromId: me.id,
+                                toId: selected.id,
+                              );
                             } else {
-                              NotificationRepo.instance.sendPingNotification(me, selected);
+                              snack("Ping sending cancelled.");
                             }
                           }
-
-                          // if (member != null && !member.isBlocked) {
-                          //   NotificationRepo.instance.sendPingNotification(me, selected);
-                          // } else {
-                          //   snack("Block member can`t send ping", info: true);
-                          // }
                         },
                       ),
                   if (!widget.operationsBlocked)
@@ -218,18 +248,36 @@ class _MemberListItemState extends State<MemberListItem> {
                         leading: const Icon(Icons.message),
                         title: const Text("Message"),
                         onTap: () async {
-                          final message = await push<String>(const MessageListView(pickMessageMode: true));
-                          if (message != null) {
-                            pop();
-                            try {
-                              if (member != null) {
-                                await NotificationRepo.instance.sendMessageNotification(me, selected, message);
-                                snack("Message sent successfully", info: false);
+                          final res = await isMemberBlocked(widget.currentUserModel.id);
+                          pop();
+                          if (res) {
+                            snack("Block member can`t send ping", info: false);
+                          } else {
+                            String? message = await push<String>(const MessageListView(pickMessageMode: true));
+
+                            if (message != null) {
+                              bool confirmation = await context.showConfirmationDialog(
+                                    message: message,
+                                    type: "Message",
+                                  ) ??
+                                  false;
+                              if (confirmation) {
+                                final data =
+                                    await NotificationRepo.instance.sendMessageNotification(me, selected, message);
+                                snack("Message sent successfully!", info: true);
+                                await FirebaseNotificationService().sendNotification(
+                                  messageData: data.data ?? "",
+                                  type: "1",
+                                  id: data.id,
+                                  title: "Message",
+                                  body: "${me.name} ${'t_sentYouAMessage'.tr()}",
+                                  token: selected.fcm,
+                                  fromId: me.id,
+                                  toId: selected.id,
+                                );
                               } else {
-                                snack("Block member can`t send ping", info: false);
+                                snack("Message sending cancelled.");
                               }
-                            } catch (e) {
-                              snack(e);
                             }
                           }
                         },
@@ -315,5 +363,24 @@ class _MemberListItemState extends State<MemberListItem> {
         },
       ),
     );
+  }
+}
+
+Future<bool> isMemberBlocked(String memberId) async {
+  try {
+    // Get the document for the specific member
+    final memberDoc = await FirebaseFirestore.instance.collection("members").doc(memberId).get();
+
+    // Check if the document exists and return the value of `isBlocked`
+    if (memberDoc.exists) {
+      return memberDoc.data()?['isBlocked'] ?? false;
+    } else {
+      // Return false if the document doesn't exist
+      return false;
+    }
+  } catch (e) {
+    // Handle any errors and return false by default
+    print("Error checking member block status: $e");
+    return false;
   }
 }

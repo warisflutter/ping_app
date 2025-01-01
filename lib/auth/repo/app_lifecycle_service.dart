@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
+import 'package:ping_app/util/ping_log.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {
   static final AppLifecycleService _instance = AppLifecycleService._internal();
@@ -29,7 +30,7 @@ class AppLifecycleService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("AppLifecycleState: $state");
+    PingLog.pingLog("AppLifecycleState: $state");
     if (_userId == null) {
       return;
     }
@@ -37,12 +38,12 @@ class AppLifecycleService with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         setUserOnline();
         break;
-      case AppLifecycleState.detached:
-        setUserOffline();
-        break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
+        setUserOnline();
+        break;
+      case AppLifecycleState.detached:
         setUserOffline();
         break;
     }

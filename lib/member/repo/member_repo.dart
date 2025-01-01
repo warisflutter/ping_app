@@ -68,8 +68,6 @@ class MemberRepo {
     required PingUserModel ofTeamLead,
     required String? ifMemberId,
   }) {
-    print("ifMemberId: ${ifMemberId}");
-    print("keyTeamLeadId: ${MemberModel.keyTeamLeadId.toString()}");
     return _memberCollection
         .where(
           MemberModel.keyTeamLeadId,
@@ -77,18 +75,9 @@ class MemberRepo {
         )
         .snapshots()
         .map((snapshot) {
-      print("Raw Firestore Data: ${snapshot.docs.map((e) => e['isOnline']).toList()}");
-      // print("this is my snapshot 1: ${snapshot.docs[1]["isOnline"]}");
-      // print("this is my snapshot 2: ${snapshot.docs[2]["isOnline"]}");
       final rawData = snapshot.docs.map((doc) {
-        print("Mapping 'isOnline' for ${doc.id}: ${doc.data()[MemberModel.keyMemberOnline]}");
         return MemberModel.fromJson(doc.id, doc.data());
       }).toList();
-      // final rawData = snapshot.docs.map((doc) => MemberModel.fromJson(doc.id, doc.data())).toList();
-      print("rawData1: ${rawData.length}");
-      print("rawData2: ${rawData.map((e) => e.isOnline).toList()}");
-      // final members = (ifMemberId == null) ? rawData : [...rawData.where((element) => element.id != ifMemberId)];
-      // return members;
       return rawData;
     });
   }

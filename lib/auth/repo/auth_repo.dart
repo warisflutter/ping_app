@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
+import 'package:ping_app/util/ping_log.dart';
 
 class AuthRepo {
   static final instance = AuthRepo._();
@@ -11,8 +12,7 @@ class AuthRepo {
   final usersCollection = FirebaseFirestore.instance.collection('users');
 
   Future<void> createAccount(PingUserModel pingUser, String password) async {
-    final userCredential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: pingUser.email,
       password: password,
     );
@@ -24,17 +24,25 @@ class AuthRepo {
     await usersCollection.doc(firebaseUser.uid).set(pingUser.toJson());
   }
 
-  Future<void> createAccountWithoutPassword(
-      String userId, PingUserModel user) async {
+  Future<void> createAccountWithoutPassword(String userId, PingUserModel user) async {
     await usersCollection.doc(userId).set(user.toJson());
   }
 
   Future<void> updateOnlineStatus(String id, bool isOnline) async {
-    print("updating team lead online status $isOnline");
-    await usersCollection.doc(id).update({
-      PingUserModel.keyOnlineStatus: isOnline,
-      PingUserModel.keyLastSeen: FieldValue.serverTimestamp(),
-    });
+    try {
+      PingLog.pingLog("keyOnlineStatus: $isOnline");
+      PingLog.pingLog("keyLastSeen: ${FieldValue.serverTimestamp()}");
+      PingLog.pingLog("id: ${id}");
+
+      await usersCollection.doc(id).update({
+        PingUserModel.keyOnlineStatus: isOnline,
+        PingUserModel.keyLastSeen: FieldValue.serverTimestamp(),
+      }).then((value) {
+        PingLog.pingLog("updating team lead online status $isOnline");
+      });
+    } catch (e, s) {
+      PingLog.pingLog("error: $e $s");
+    }
   }
 
   Future<PingUserModel?> getUserById(String id) async {
@@ -57,9 +65,7 @@ class AuthRepo {
   }
 
   Future<void> updateName(String id, String key, String name) async {
-    if (key != PingUserModel.keyFullName &&
-        key != PingUserModel.keyTeamName &&
-        key != PingUserModel.keyInitials) {
+    if (key != PingUserModel.keyFullName && key != PingUserModel.keyTeamName && key != PingUserModel.keyInitials) {
       throw Exception('t_invalidKey'.tr());
     }
     await usersCollection.doc(id).update({key: name});

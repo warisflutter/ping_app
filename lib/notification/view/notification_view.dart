@@ -61,8 +61,7 @@ class NotificationView extends StatelessWidget {
                 return getErrorMessage(context, "No Notifications Found");
               }
 
-              data.sort((a, b) => (b.sentAt ?? DateTime.now())
-                  .compareTo(a.sentAt ?? DateTime.now()));
+              data.sort((a, b) => (b.sentAt ?? DateTime.now()).compareTo(a.sentAt ?? DateTime.now()));
 
               return ListView.builder(
                 itemCount: data.length,
@@ -74,8 +73,7 @@ class NotificationView extends StatelessWidget {
                     subtitle: Text(notification.message),
                     trailing: notification.isResponded
                         ? notification.response!
-                            ? const Icon(Icons.check_circle,
-                                color: Colors.green)
+                            ? const Icon(Icons.check_circle, color: Colors.green)
                             : const Icon(Icons.cancel, color: Colors.red)
                         : notification.isDelivered
                             ? const Icon(Icons.done_all)

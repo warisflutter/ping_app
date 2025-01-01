@@ -4,14 +4,19 @@ import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/util/audio/ping_audio_player.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
 
 class NotificationResponseDialog extends StatelessWidget {
   final PingNotificationModel notification;
 
-  const NotificationResponseDialog({super.key, required this.notification});
+  const NotificationResponseDialog({
+    super.key,
+    required this.notification,
+  });
 
   @override
   Widget build(BuildContext context) {
+    PingLog.pingLog("This is my notification: ${notification.type}");
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -25,7 +30,10 @@ class NotificationResponseDialog extends StatelessWidget {
           children: [
             Text(
               notification.type.title,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 4),
             Text(

@@ -28,33 +28,85 @@ void showLoader(BuildContext context) {
   );
 }
 
-void snack(dynamic message, {bool info = false, Key? key}) {
+void snack(
+  dynamic message, {
+  bool info = false,
+  Key? key,
+  bool showNotification = false,
+  SnackBarBehavior behavior = SnackBarBehavior.fixed,
+  Color? backgroundColor,
+}) {
   scaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(
       key: key,
-      backgroundColor: info ? Colors.green : Colors.red,
+      backgroundColor: (backgroundColor != null)
+          ? backgroundColor
+          : (info)
+              ? Colors.green
+              : Colors.red,
       content: Text(
         _dynamicToMessage(message),
         style: const TextStyle(color: Colors.white),
       ),
+      // behavior: behavior,
+      // duration: (showNotification) ? const Duration(seconds: 10000) : const Duration(seconds: 2),
+      // action: (!showNotification)
+      //     ? null
+      //     : SnackBarAction(
+      //         label: 'Dismiss',
+      //         textColor: Colors.white,
+      //         onPressed: () {
+      //           scaffoldMessengerKey.currentState?.hideCurrentSnackBar(); // Dismiss manually
+      //         },
+      //       ),
     ),
   );
 }
 
-void snackSync(ScaffoldMessengerState state, dynamic message,
-        {bool info = false}) =>
-    state.showSnackBar(
+void snackSync(ScaffoldMessengerState state, dynamic message, {bool info = false}) => state.showSnackBar(
       SnackBar(
         backgroundColor: info ? Colors.green : Colors.red,
         content: Text(
           _dynamicToMessage(message),
-          style: Theme.of(state.context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.white),
+          style: Theme.of(state.context).textTheme.bodyLarge?.copyWith(color: Colors.white),
         ),
       ),
     );
+
+void notificationAlert({
+  required String message,
+  required String title,
+  required BuildContext context,
+  void Function()? onTap,
+}) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      alignment: Alignment.topLeft,
+      contentPadding: const EdgeInsets.all(20.0),
+      content: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
 void alert(BuildContext context, dynamic message, {bool info = false}) {
   if (kDebugMode) {
@@ -65,8 +117,7 @@ void alert(BuildContext context, dynamic message, {bool info = false}) {
     builder: (context) => AlertDialog(
       alignment: Alignment.bottomRight,
       titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16) +
-          const EdgeInsets.only(bottom: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16) + const EdgeInsets.only(bottom: 16),
       title: SizedBox(
         width: 270,
         child: Column(
@@ -87,9 +138,10 @@ void alert(BuildContext context, dynamic message, {bool info = false}) {
                 const SizedBox(width: 8),
                 Text(
                   "Ping App",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: info ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: info ? Colors.green : Colors.red, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -116,13 +168,12 @@ Widget getLoader({double size = 32, String message = ""}) => Center(
       ),
     );
 
-Widget getErrorMessage(BuildContext context, dynamic error, {info = false}) =>
-    Center(
+Widget getErrorMessage(BuildContext context, dynamic error, {info = false}) => Center(
       child: Text(
         _dynamicToMessage(error),
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: info ? Theme.of(context).primaryColor : Colors.red),
+        style:
+            Theme.of(context).textTheme.bodyLarge?.copyWith(color: info ? Theme.of(context).primaryColor : Colors.red),
       ),
     );
 
@@ -139,11 +190,11 @@ void sureDialog({
         content: Text(message),
         actions: [
           TextButton(
-            child:  Text('t_no'.tr()),
+            child: Text('t_no'.tr()),
             onPressed: () => pop(),
           ),
           TextButton(
-            key: Key("sureDialogYes"),
+            key: const Key("sureDialogYes"),
             onPressed: () {
               pop();
               onYes();

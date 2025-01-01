@@ -49,16 +49,14 @@ class PingNotificationModel {
   final DateTime? deliveredAt;
   final bool? response;
 
-  bool get is30SecAgo =>
-      (DateTime.now().difference(sentAt ?? DateTime.now()).inSeconds) > 30;
+  bool get is30SecAgo => (DateTime.now().difference(sentAt ?? DateTime.now()).inSeconds) > 30;
 
   Duration? nextTick() {
     if (is30SecAgo) {
       return null;
     }
     final notification = this;
-    final expiryTime =
-        (notification.sentAt ?? DateTime.now()).add(durationExpire);
+    final expiryTime = (notification.sentAt ?? DateTime.now()).add(durationExpire);
     if (expiryTime.isAfter(DateTime.now())) {
       return expiryTime.difference(DateTime.now());
     } else {
@@ -79,8 +77,7 @@ class PingNotificationModel {
       return Colors.transparent;
     }
 
-    final expiryTime =
-        (notification.sentAt ?? DateTime.now()).add(durationExpire);
+    final expiryTime = (notification.sentAt ?? DateTime.now()).add(durationExpire);
     if (expiryTime.isAfter(DateTime.now())) {
       return response != null
           ? response
@@ -110,11 +107,11 @@ class PingNotificationModel {
     required this.toId,
     required this.type,
     required this.message,
+    this.id = "",
     this.data,
   })  : sentAt = null,
         deliveredAt = null,
-        response = null,
-        id = "";
+        response = null;
 
   bool get isDelivered => deliveredAt != null || response != null;
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -14,6 +12,7 @@ import 'package:ping_app/member/view/member_list_item.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
@@ -47,14 +46,10 @@ class _MemberListViewState extends State<MemberListView> {
   Widget build(BuildContext context) {
     final authState = context.watch<PingAuthState>();
     final memberState = context.watch<MemberState>();
-    // final subscriptionState = context.watch<SubscriptionState>();
-
     final mode = widget.mode;
     final isTeamLead = mode.isTeamLead;
     final isMember = mode.isMember;
-
     final myTeamLead = isTeamLead ? authState.currentPingUser : memberState.teamLead;
-
     final ifMember = memberState.member;
     if (isMember && ifMember == null) {
       return getErrorMessage(
@@ -62,50 +57,50 @@ class _MemberListViewState extends State<MemberListView> {
         't_memberNotTheApp'.tr(),
       );
     }
-
     if (myTeamLead == null) {
       return getErrorMessage(context, 't_teamLeadTheApp'.tr());
     }
-    print("..............${ifMember?.isBlocked}");
     return Scaffold(
       appBar: AppBar(
-        title: Text(isMember ? ifMember!.name : 't_myTeam'.tr()),
+        title: Text(isMember ? ifMember?.name ?? "" : 't_myTeam'.tr()),
         actions: [
           if (mode.isTeamLead)
             TextButton.icon(
               onPressed: () async {
-                final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
-                if (subscriptionProvider.purChasedModel == null) {
-                  final voucherP = Provider.of<VoucherProvider>(context, listen: false);
-                  String data = await voucherP.fetchVoucher();
-                  if (data.isEmpty) {
-                    push(const SubscriptionInfoView());
-                  } else {
-                    PingLog.pingLog("This is my fetchVoucher: $data");
-                    String type = data.split("|")[1];
-                    PingLog.pingLog("This is my type: $type");
-                    if (type == "Basic") {
-                      PingLog.pingLog("if (type == Basic) { $numberOfMembers");
-                      if (numberOfMembers != 3) {
-                        push(const MemberManageView());
+                try {
+                  final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
+
+                  if (subscriptionProvider.purChasedModel == null) {
+                    PingLog.pingLog("purChasedModel is null");
+                    final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
+                    final voucherData = await voucherProvider.fetchVoucher();
+
+                    if (voucherData.isEmpty) {
+                      if (context.mounted) {
+                        final isConnected = await context.isNetworkAvailable();
+                        if (isConnected) {
+                          push(const SubscriptionInfoView());
+                        } else {
+                          snack("No internet. Please connect to the internet to view subscription plans.");
+                        }
                       }
-                    } else if (type == "Export") {
-                      if (numberOfMembers != 5) {
-                        push(const MemberManageView());
-                      }
-                    } else if (type == "Pro") {
-                      if (numberOfMembers != 20) {
-                        push(const MemberManageView());
-                      }
+                    } else {
+                      subscriptionProvider.handleVoucherType(
+                        voucherData: voucherData,
+                        numberOfMembers: numberOfMembers,
+                        type: "member",
+                      );
                     }
-                  }
-                } else {
-                  int? perMember = subscriptionProvider.purChasedModel!.perUsersAndMessages;
-                  if (numberOfMembers != perMember) {
-                    push(const MemberManageView());
                   } else {
-                    snack('t_youHaveMembersAllowed'.tr());
+                    PingLog.pingLog("purChasedModel is not null");
+                    subscriptionProvider.handleSubscription(
+                      numberOfMembers: numberOfMembers,
+                      type: "members",
+                    );
                   }
+                } catch (e) {
+                  PingLog.pingLog("Error: $e");
+                  snack("Something went wrong. Please try again.");
                 }
               },
               icon: const Icon(Icons.add),
@@ -131,24 +126,18 @@ class _MemberListViewState extends State<MemberListView> {
           if (snap.hasError) {
             return getErrorMessage(context, snap.error);
           }
-
           final data = snap.data;
-
           if (data == null) {
             return getLoader();
           }
-
           if (data.isEmpty && !isMember) {
             return getErrorMessage(context, 't_noMembersFound'.tr());
           }
           // final operationsBlocked = (subscriptionState.subscriptionType.maxMembersAllowed) <= data.length;
           final operationsBlocked = (20) <= data.length;
-
           final members = data.where((member) => !member.isBlocked).toList();
-          print("This is members: ${members.map((e) => e.isOnline).toList()}");
-
           int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
-          PingLog.pingLog("This is the member $isMember");
+          // PingLog.pingLog("This is the member $isMember");
           if (isMember) {
             if (myTeamLead.isOnline == true) {
               numberOfOnlineMembers++;
@@ -162,7 +151,6 @@ class _MemberListViewState extends State<MemberListView> {
             members.sort(
               (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
             );
-            //send members with id not in sortIds to end
             members.sort(
               (a, b) => availIds.contains(a.id)
                   ? -1
@@ -176,71 +164,94 @@ class _MemberListViewState extends State<MemberListView> {
             children: [
               getTeamCard(myTeamLead.teamName, numberOfOnlineMembers),
               Expanded(
-                child: Column(children: [
-                  (isTeamLead)
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ChoiceChip(
-                                label: Text("${'t_members'.tr()} (${members.length})"),
-                                selected: !showBlocked,
-                                onSelected: (selected) => setState(() => showBlocked = false),
-                              ),
-                              const SizedBox(width: 16),
-                              ChoiceChip(
-                                label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
-                                selected: showBlocked,
-                                onSelected: (selected) => setState(() => showBlocked = true),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                  (isMember)
-                      ? MemberListItem(
-                          operationsBlocked: operationsBlocked,
-                          isLoggedInAsMember: isMember,
-                          currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                          listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
-                        )
-                      : const SizedBox.shrink(),
-                  const Divider(),
-                  Expanded(
-                    child: (showBlocked)
-                        ? ListView(
-                            children: blockedMembers
-                                .map((member) => MemberListItem(
+                child: Column(
+                  children: [
+                    (isTeamLead)
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ChoiceChip(
+                                  label: Text("${'t_members'.tr()} (${members.length})"),
+                                  selected: !showBlocked,
+                                  onSelected: (selected) => setState(() => showBlocked = false),
+                                ),
+                                const SizedBox(width: 16),
+                                ChoiceChip(
+                                  label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
+                                  selected: showBlocked,
+                                  onSelected: (selected) => setState(() => showBlocked = true),
+                                ),
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    (isMember)
+                        ? MemberListItem(
+                            operationsBlocked: operationsBlocked,
+                            isLoggedInAsMember: isMember,
+                            currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                            listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
+                          )
+                        : const SizedBox.shrink(),
+                    const Divider(),
+                    Expanded(
+                      child: (showBlocked)
+                          ? ListView(
+                              children: blockedMembers
+                                  .map((member) => MemberListItem(
+                                        operationsBlocked: operationsBlocked,
+                                        key: ValueKey(member.id),
+                                        isLoggedInAsMember: isMember,
+                                        currentUserModel:
+                                            isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                        listTimeMemberModel: member,
+                                      ))
+                                  .toList(),
+                            )
+                          : ReorderableListView(
+                              onReorder: (oldIndex, newIndex) {
+                                final currentIds = members.map((e) => e.id).toList();
+                                memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
+                              },
+                              children: members.map(
+                                (member) {
+                                  // PingLog.pingLog("team lead members: name ${member.name} status ${member.isOnline}");
+                                  // PingLog.pingLog("isMember $isMember");
+                                  if (isMember) {
+                                    if (ifMember?.name == member.name) {
+                                      return KeyedSubtree(
+                                        key: ValueKey("SizedBox-${member.id}"),
+                                        child: const SizedBox.shrink(),
+                                      );
+                                    } else {
+                                      return MemberListItem(
+                                        operationsBlocked: operationsBlocked,
+                                        key: ValueKey(member.id),
+                                        reOrderAble: true,
+                                        isLoggedInAsMember: isMember,
+                                        currentUserModel:
+                                            (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                        listTimeMemberModel: member,
+                                      );
+                                    }
+                                  } else {
+                                    return MemberListItem(
                                       operationsBlocked: operationsBlocked,
                                       key: ValueKey(member.id),
+                                      reOrderAble: true,
                                       isLoggedInAsMember: isMember,
                                       currentUserModel:
-                                          isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                          (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
                                       listTimeMemberModel: member,
-                                    ))
-                                .toList(),
-                          )
-                        : ReorderableListView(
-                            onReorder: (oldIndex, newIndex) {
-                              final currentIds = members.map((e) => e.id).toList();
-                              memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
-                            },
-                            children: members.map(
-                              (member) {
-                                PingLog.pingLog("team lead members: name ${member.name} status ${member.isOnline}");
-                                return MemberListItem(
-                                  operationsBlocked: operationsBlocked,
-                                  key: ValueKey(member.id),
-                                  reOrderAble: true,
-                                  isLoggedInAsMember: isMember,
-                                  currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                  listTimeMemberModel: member,
-                                );
-                              },
-                            ).toList()),
-                  ),
-                ]),
+                                    );
+                                  }
+                                },
+                              ).toList()),
+                    ),
+                  ],
+                ),
               ),
             ],
           );
@@ -268,3 +279,45 @@ class _MemberListViewState extends State<MemberListView> {
     );
   }
 }
+// onPressed: () async {
+//   final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
+//   if (subscriptionProvider.purChasedModel == null) {
+//     final voucherP = Provider.of<VoucherProvider>(context, listen: false);
+//     String data = await voucherP.fetchVoucher();
+//     if (data.isEmpty) {
+//       if (context.mounted) {
+//         final net = await context.isNetworkAvailable();
+//         if (net) {
+//           push(const SubscriptionInfoView());
+//         } else {
+//           snack("No internet, Please connect to internet to see Subscription plans");
+//         }
+//       }
+//     } else {
+//       PingLog.pingLog("This is my fetchVoucher: $data");
+//       String type = data.split("|")[1];
+//       PingLog.pingLog("This is my type: $type");
+//       if (type == "Basic") {
+//         PingLog.pingLog("if (type == Basic) { $numberOfMembers");
+//         if (numberOfMembers <= 3) {
+//           push(const MemberManageView());
+//         }
+//       } else if (type == "Export") {
+//         if (numberOfMembers <= 5) {
+//           push(const MemberManageView());
+//         }
+//       } else if (type == "Pro") {
+//         if (numberOfMembers <= 20) {
+//           push(const MemberManageView());
+//         }
+//       }
+//     }
+//   } else {
+//     int? perMember = subscriptionProvider.purChasedModel!.perUsersAndMessages;
+//     if (numberOfMembers != perMember) {
+//       push(const MemberManageView());
+//     } else {
+//       snack('t_youHaveMembersAllowed'.tr());
+//     }
+//   }
+// },

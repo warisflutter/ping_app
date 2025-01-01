@@ -1,25 +1,65 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/firebase_options.dart';
 import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/loading_screen.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
+import 'package:ping_app/view/admin/admin_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/watch_os/watch_repo.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FcmRepo.instance.initialise();
+  final notification = FirebaseNotificationService();
+  notification.forGroundMessage();
+  FirebaseMessaging.onMessage.listen(
+    (message) {
+      notificationAlert(
+        onTap: () {
+          pop();
+          notification.handleMessage(message);
+        },
+        context: navigatorKey.currentState!.context,
+        title: message.notification?.title ?? "",
+        message: message.notification?.body ?? "",
+      );
+    },
+  );
+  //when app ins background
+  FirebaseMessaging.onMessageOpenedApp.listen(
+    (event) {
+      notification.handleMessage(event);
+    },
+  );
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+  if (initialMessage != null) {
+    notification.handleMessage(initialMessage);
+  } else {
+    PingLog.pingLog('No message data');
+  }
+
   WatchConnectivity.instance.setupMethodChannel();
 
   runApp(
@@ -77,157 +117,7 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-
-  // void _onPopInvoked(BuildContext context) async {
-  //   final bool shouldPop = await showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           title: Text('t_areYouSure'.tr()),
-  //           content: Text('t_closingThisWorkProperly'.tr()),
-  //           actions: <Widget>[
-  //             TextButton(
-  //               onPressed: () => Navigator.of(context).pop(false),
-  //               child: Text('t_no'.tr()),
-  //             ),
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop(true);
-  //               },
-  //               child: Text('t_yes'.tr()),
-  //             ),
-  //           ],
-  //         ),
-  //       ) ??
-  //       false;
-  //
-  //   if (shouldPop) {
-  //     SystemNavigator.pop();
-  //   }
-  // }
 }
-
-// enum UserState {
-//   loading,
-//   completeProfile,
-//   member,
-//   createAccount,
-//   verifyEmail,
-//   subscriptionError,
-//   subscriptionLoading,
-//   dashboard,
-//   subscriptionPayWall,
-//   verifySubscription,
-//   admin,
-// }
-
-// Widget homeWidget(BuildContext context) {
-//   final firebaseUser = context.watch<PingAuthState>().currentFirebaseUser;
-//   final adminProvider = context.watch<AdminProvider>();
-//   final state = context.watch<PingAuthState>();
-//   AppLifecycleService().reset();
-//   final pingUser = state.currentPingUser;
-//
-//   UserState userState;
-//
-//   if (state.loading) {
-//     debugPrint("---------if--------------state.loading");
-//     userState = UserState.loading;
-//   } else if (adminProvider.type != null && adminProvider.type == "admin") {
-//     debugPrint("---------else if--------------adminProvider.type != null && adminProvider.type == admin");
-//     userState = UserState.admin;
-//   } else if (firebaseUser != null && pingUser == null && adminProvider.type == null) {
-//     debugPrint("---------else if--------------firebaseUser != null && pingUser == null");
-//     userState = UserState.completeProfile;
-//   } else if (firebaseUser == null || pingUser == null && adminProvider.type == null) {
-//     debugPrint("---------else if--------------firebaseUser == null || pingUser == null");
-//     final memberState = context.watch<MemberState>();
-//     final member = memberState.member;
-//
-//     if (member != null) {
-//       debugPrint("---------if--------------member != null");
-//       userState = UserState.member;
-//     } else {
-//       debugPrint("---------else--------------member != null");
-//       userState = UserState.createAccount;
-//     }
-//   } else if (!firebaseUser.emailVerified) {
-//     userState = UserState.verifyEmail;
-//   } else {
-//     final subscriptionState = context.watch<SubscriptionState>();
-//
-//     if (subscriptionState.error != null) {
-//       userState = UserState.subscriptionError;
-//     } else if (subscriptionState.loading) {
-//       userState = UserState.subscriptionLoading;
-//     } else {
-//       userState = subscriptionState.subscriptionType != EntitlementType.none
-//           ? UserState.dashboard
-//           : (kIsWeb ? UserState.verifySubscription : UserState.subscriptionPayWall);
-//     }
-//   }
-//
-//   switch (userState) {
-//     case UserState.loading:
-//       return LoadingScreen(message: 't_authenticating'.tr());
-//     case UserState.admin:
-//       AppLifecycleService().initialize(
-//         isMember: false,
-//         userId: firebaseUser!.uid,
-//       );
-//       return const AdminView();
-//     case UserState.completeProfile:
-//       return CompleteProfileView(firebaseUser: firebaseUser!);
-//     case UserState.member:
-//       final memberState = context.watch<MemberState>();
-//       final member = memberState.member;
-//       final subscriptionState = context.watch<SubscriptionState>();
-//
-//       WidgetsBinding.instance.addPostFrameCallback((_) {
-//         NotificationService.instance.setNotificationListener(
-//           context,
-//           member!.id,
-//           -1,
-//         );
-//         subscriptionState.updateUser(member.teamLeadId);
-//         FcmRepo.instance.updateMemberFcmToken(member.id);
-//         AppLifecycleService().initialize(isMember: true, userId: member.id);
-//       });
-//
-//       return const MemberDashboard();
-//     case UserState.createAccount:
-//       return const CreateAccountView();
-//     case UserState.verifyEmail:
-//       return VerifyEmailView(user: firebaseUser!);
-//     case UserState.subscriptionError:
-//       final subscriptionState = context.watch<SubscriptionState>();
-//       return LoadingScreen(
-//         message: 't_anErrorTheApp'.tr(),
-//         error: subscriptionState.error,
-//       );
-//     case UserState.subscriptionLoading:
-//       return LoadingScreen(
-//         message: 't_checkingSubscriptionPleaseWait'.tr(),
-//       );
-//     case UserState.dashboard:
-//       final subscriptionState = context.watch<SubscriptionState>();
-//
-//       WidgetsBinding.instance.addPostFrameCallback((_) {
-//         subscriptionState.updateUser(firebaseUser!.uid);
-//       });
-//
-//       NotificationService.instance.setNotificationListener(context, firebaseUser!.uid, 1);
-//       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
-//       AppLifecycleService().initialize(
-//         isMember: false,
-//         userId: firebaseUser.uid,
-//       );
-//       return const DashboardView();
-//     case UserState.subscriptionPayWall:
-//       return const SubscriptionPayWall();
-//     case UserState.verifySubscription:
-//       return const VerifySubscriptionView();
-//   }
-// }
 
 /*
 funzoftapple786@gmail.com

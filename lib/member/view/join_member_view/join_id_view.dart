@@ -1,6 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
+import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +22,7 @@ class _JoinIdViewState extends State<JoinIdView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:  Text('t_joinById'.tr())),
+      appBar: AppBar(title: Text('t_joinById'.tr())),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -27,14 +30,14 @@ class _JoinIdViewState extends State<JoinIdView> {
           children: [
             TextField(
               controller: memberIdController,
-              decoration:  InputDecoration(
+              decoration: InputDecoration(
                 labelText: 't_memberId'.tr(),
               ),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => actionJoinByQr(memberIdController.text),
-              child:  Text('t_join'.tr()),
+              child: Text('t_join'.tr()),
             ),
           ],
         ),
@@ -51,7 +54,15 @@ class _JoinIdViewState extends State<JoinIdView> {
     setState(() => loading = true);
     try {
       await memberState.setMemberId(memberId);
-      pop();
+      final member = memberState.member;
+      AppLifecycleService().reset();
+      // NotificationService.instance.setNotificationListener(
+      //   context,
+      //   member!.id,
+      //   -1,
+      // );
+      AppLifecycleService().initialize(isMember: true, userId: member!.id);
+      replaceAll(const MemberDashboard());
     } catch (e) {
       setState(() => loading = false);
       snack(e);

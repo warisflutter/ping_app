@@ -8,6 +8,7 @@ import 'package:ping_app/settings/view/sub_view/message_template/message_add_edi
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
@@ -92,38 +93,60 @@ class _MessageListViewState extends State<MessageListView> {
                         onPressed: () async {
                           final numberOfMessages = await SettingRepo.instance.getMessageCount();
                           if (subscriptionProvider.purChasedModel == null) {
-                            final voucherP = Provider.of<VoucherProvider>(context, listen: false);
-                            String data = await voucherP.fetchVoucher();
-                            if (data.isEmpty) {
-                              push(const SubscriptionInfoView());
-                              snack('you have buy onr subscription first to continue');
-                            } else {
-                              PingLog.pingLog("This is my fetchVoucher: $data");
-                              String type = data.split("|")[1];
-                              PingLog.pingLog("This is my type: $type");
-                              if (type == "Basic") {
-                                PingLog.pingLog("if (type == Basic) { $numberOfMessages");
-                                if (numberOfMessages != 3) {
-                                  push(const MessageAddEditView());
-                                }
-                              } else if (type == "Export") {
-                                if (numberOfMessages != 5) {
-                                  push(const MessageAddEditView());
-                                }
-                              } else if (type == "Pro") {
-                                if (numberOfMessages != 20) {
-                                  push(const MessageAddEditView());
+                            final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
+                            final voucherData = await voucherProvider.fetchVoucher();
+
+                            if (voucherData.isEmpty) {
+                              if (context.mounted) {
+                                final isConnected = await context.isNetworkAvailable();
+                                if (isConnected) {
+                                  push(const SubscriptionInfoView());
+                                } else {
+                                  snack("No internet. Please connect to the internet to view subscription plans.");
                                 }
                               }
-                            }
-                          } else {
-                            int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
-
-                            if (numberOfMessages == perMessages) {
-                              snack('t_youHaveMessagesTemplate'.tr());
                             } else {
-                              push(const MessageAddEditView());
+                              subscriptionProvider.handleVoucherType(
+                                voucherData: voucherData,
+                                numberOfMembers: numberOfMessages,
+                                type: "message",
+                              );
                             }
+                            // final voucherP = Provider.of<VoucherProvider>(context, listen: false);
+                            // String data = await voucherP.fetchVoucher();
+                            // if (data.isEmpty) {
+                            //   push(const SubscriptionInfoView());
+                            //   snack('you have buy onr subscription first to continue');
+                            // } else {
+                            //   PingLog.pingLog("This is my fetchVoucher: $data");
+                            //   String type = data.split("|")[1];
+                            //   PingLog.pingLog("This is my type: $type");
+                            //   if (type == "Basic") {
+                            //     PingLog.pingLog("if (type == Basic) { $numberOfMessages");
+                            //     if (numberOfMessages != 3) {
+                            //       push(const MessageAddEditView());
+                            //     }
+                            //   } else if (type == "Export") {
+                            //     if (numberOfMessages != 5) {
+                            //       push(const MessageAddEditView());
+                            //     }
+                            //   } else if (type == "Pro") {
+                            //     if (numberOfMessages != 20) {
+                            //       push(const MessageAddEditView());
+                            //     }
+                            //   }
+                            // }
+                          } else {
+                            // int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
+                            subscriptionProvider.handleSubscription(
+                              numberOfMembers: numberOfMessages,
+                              type: "message",
+                            );
+                            // if (numberOfMessages == perMessages) {
+                            //   snack('t_youHaveMessagesTemplate'.tr());
+                            // } else {
+                            //   push(const MessageAddEditView());
+                            // }
                           }
                         },
                         child: Text('t_addMessage'.tr()),

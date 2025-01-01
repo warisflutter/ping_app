@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
+import 'package:ping_app/settings/view/sub_view/message_template/message_add_edit_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
@@ -90,8 +93,20 @@ class SubscriptionProvider extends ChangeNotifier {
       PingLog.pingLog(".........transactionDate.......${purchases.first.transactionDate}...");
       PingLog.pingLog(".........productID.......${purchases.first.productID}...");
       PingLog.pingLog(".........status.......${purchases.first.status}...");
+      switch (purChasedModel?.id ?? "") {
+        case "basicmonthly" || "basicyearly":
+          setSelectType(0);
+          break;
+        case "expertmonthly" || "expertyearly":
+          setSelectType(1);
+          break;
+        default:
+          setSelectType(2);
+          break;
+      }
+    } else {
+      setSelectType(2);
     }
-    setSelectType(0);
     setSubscriptionType(false);
     setSelectedPrice(productsDetails[0].price);
     setSubscribeButton();
@@ -246,7 +261,7 @@ class SubscriptionProvider extends ChangeNotifier {
     }
   }
 
-  setSubscribeButton() {
+  void setSubscribeButton() {
     if (selectType == 2) {
       subscribeBtnText = "Get 90 Days Free Trail";
     } else if (purChasedModel != null) {
@@ -364,6 +379,50 @@ class SubscriptionProvider extends ChangeNotifier {
     } catch (e, s) {
       debugPrint("Error: $e");
       debugPrint("st: $s");
+    }
+  }
+
+  void handleVoucherType({
+    required String voucherData,
+    required int numberOfMembers,
+    required String type,
+  }) {
+    String _type = voucherData.split("|")[1];
+    Map<String, int> typeLimits = {
+      "Basic": 3,
+      "Export": 5,
+      "Pro": 20,
+    };
+    PingLog.pingLog("Fetched Voucher: $voucherData");
+    PingLog.pingLog("_type: $_type");
+    PingLog.pingLog("numberOfMembers: $numberOfMembers");
+    PingLog.pingLog("typeLimits: ${typeLimits[_type]}");
+    PingLog.pingLog("typeLimits.containsKey(type): ${typeLimits.containsKey(_type)}");
+    if (numberOfMembers == typeLimits[_type]) {
+      snack("You have reached the member limit for your plan.");
+    } else {
+      if (type == "message") {
+        push(const MessageAddEditView());
+      } else {
+        push(const MemberManageView());
+      }
+    }
+  }
+
+  void handleSubscription({
+    required int numberOfMembers,
+    required String type,
+  }) {
+    int perMemberLimit = purChasedModel?.perUsersAndMessages ?? 0;
+
+    if (numberOfMembers <= perMemberLimit) {
+      if (type == "message") {
+        push(const MessageAddEditView());
+      } else {
+        push(const MemberManageView());
+      }
+    } else {
+      snack('t_youHaveMembersAllowed'.tr());
     }
   }
 }

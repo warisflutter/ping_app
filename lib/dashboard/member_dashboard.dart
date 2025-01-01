@@ -25,10 +25,12 @@ class MemberDashboard extends StatelessWidget {
             child: Column(
               children: [
                 const Expanded(
-                  child: TabBarView(children: [
-                    MemberListView(mode: DashboardMode.member),
-                    NotificationView(mode: DashboardMode.member),
-                  ]),
+                  child: TabBarView(
+                    children: [
+                      MemberListView(mode: DashboardMode.member),
+                      NotificationView(mode: DashboardMode.member),
+                    ],
+                  ),
                 ),
                 TabBar(
                   indicator: const BoxDecoration(),

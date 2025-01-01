@@ -18,7 +18,7 @@ class NotificationRepo {
 
   final audioStorage = FirebaseStorage.instance.ref('audio');
 
-  Future<void> sendPingNotification(
+  Future<PingNotificationModel> sendPingNotification(
     MemberModel fromMember,
     MemberModel toMember,
   ) async {
@@ -27,12 +27,25 @@ class NotificationRepo {
         fromId: fromMember.id,
         toId: toMember.id,
         type: NotificationType.ping,
-        message: "${fromMember.name} ${'t_sentAPing'.tr()}",
+        message: "${fromMember.name} ${'t_sentAPing'.tr()}", // Translation example
       );
-      await notificationCollection.add(n.toJson());
+
+      // Add notification to the collection
+      final data = await notificationCollection.add(n.toJson());
+
+      // Get the document by ID to retrieve the complete data
+      final doc = await notificationCollection.doc(data.id).get();
+
+      // Return the model object with the data retrieved
+      return PingNotificationModel.fromJson(data.id, doc.data()!);
     } catch (e, st) {
-      log("error: $e");
-      log("st: $st");
+      // Log error and stack trace
+      log("Error: $e");
+      log("Stack trace: $st");
+
+      // Optionally, return a default value or throw a specific exception
+      rethrow; // Or you can return a default model with empty values, e.g.,
+      // return PingNotificationModel(fromId: '', toId: '', type: NotificationType.ping, message: '');
     }
   }
 
@@ -56,16 +69,49 @@ class NotificationRepo {
     await notificationCollection.add(n);
   }
 
-  Future<void> sendMessageNotification(MemberModel fromMember, MemberModel toMember, String message) async {
-    final n = PingNotificationModel(
-      fromId: fromMember.id,
-      toId: toMember.id,
-      type: NotificationType.message,
-      message: "${fromMember.name} ${'t_sentYouAMessage'.tr()}",
-      data: message,
-    );
+  // Future<void> sendMessageNotification(MemberModel fromMember, MemberModel toMember, String message) async {
+  //   final n = PingNotificationModel(
+  //     fromId: fromMember.id,
+  //     toId: toMember.id,
+  //     type: NotificationType.message,
+  //     message: "${fromMember.name} ${'t_sentYouAMessage'.tr()}",
+  //     data: message,
+  //   );
+  //
+  //   await notificationCollection.add(n.toJson());
+  // }
+  Future<PingNotificationModel> sendMessageNotification(
+    MemberModel fromMember,
+    MemberModel toMember,
+    String message,
+  ) async {
+    try {
+      // Create the notification model for a message
+      final n = PingNotificationModel(
+        fromId: fromMember.id,
+        toId: toMember.id,
+        type: NotificationType.message,
+        message: "${fromMember.name} ${'t_sentYouAMessage'.tr()}", // Translation example
+        data: message,
+      );
 
-    await notificationCollection.add(n.toJson());
+      // Add notification to the collection
+      final data = await notificationCollection.add(n.toJson());
+
+      // Get the document by ID to retrieve the complete data
+      final doc = await notificationCollection.doc(data.id).get();
+
+      // Return the model object with the data retrieved
+      return PingNotificationModel.fromJson(data.id, doc.data()!);
+    } catch (e, st) {
+      // Log error and stack trace
+      log("Error: $e");
+      log("Stack trace: $st");
+
+      // Optionally, return a default value or throw a specific exception
+      rethrow; // Or you can return a default model with empty values, e.g.,
+      // return PingNotificationModel(fromId: '', toId: '', type: NotificationType.message, message: '', data: '');
+    }
   }
 
   Future<void> sendAudioNotification(MemberModel fromMember, MemberModel toMember, File audio) async {

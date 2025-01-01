@@ -128,18 +128,6 @@ class _SettingViewState extends State<SettingView> {
                 },
               ),
               ListTile(
-                title: Text('t_generateActivityReport'.tr()),
-                leading: const Icon(Icons.newspaper),
-                onTap: () async {
-                  final teamLead = context.read<PingAuthState>().currentPingUser;
-                  if (teamLead == null) {
-                    snack('t_teamLeadTheApp'.tr());
-                    return;
-                  }
-                  push(ActivityReportProgress(teamLeadId: teamLead.userId));
-                },
-              ),
-              ListTile(
                 title: const Text('Voucher'),
                 leading: const Icon(Icons.gif_box),
                 onTap: () {
@@ -149,6 +137,18 @@ class _SettingViewState extends State<SettingView> {
                       await Provider.of<VoucherProvider>(context, listen: false).applyForVoucher(context);
                     },
                   );
+                },
+              ),
+              ListTile(
+                title: Text('t_generateActivityReport'.tr()),
+                leading: const Icon(Icons.newspaper),
+                onTap: () async {
+                  final teamLead = context.read<PingAuthState>().currentPingUser;
+                  if (teamLead == null) {
+                    snack('t_teamLeadTheApp'.tr());
+                    return;
+                  }
+                  push(ActivityReportProgress(teamLeadId: teamLead.userId));
                 },
               ),
               PingHeadingCard(title: 't_help'.tr()),
@@ -161,7 +161,7 @@ class _SettingViewState extends State<SettingView> {
                 title: const Text('Privacy Policy'),
                 leading: const Icon(Icons.privacy_tip),
                 onTap: () {
-                  String url = "https://dentacademy.ch/privacy-policy/";
+                  String url = "https://sites.google.com/view/pingsapp/privacy-policy";
                   context.launchURL(url);
                 },
               ),
