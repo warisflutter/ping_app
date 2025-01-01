@@ -2,13 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
-import 'package:ping_app/main.dart';
 import 'package:ping_app/member/view/member_list_view.dart';
 import 'package:ping_app/notification/view/notification_view.dart';
-import 'package:ping_app/settings/view/setting_view.dart';
+import 'package:ping_app/view/settings/view/setting_view.dart';
 import 'package:ping_app/util/ping_log.dart';
-
-import '../notification/repo/notification_service.dart';
 
 Future<void> onPopInvoked(BuildContext context) async {
   final bool shouldPop = await showDialog(

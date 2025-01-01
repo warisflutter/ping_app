@@ -230,5 +230,18 @@
   "t_apply": "Apply",
   "t_cancelSubscription": "Cancel Subscription",
   "t_upgradeDowngradeSubscription": "Upgrade/Downgrade Subscription",
-  "t_subscription": "Subscription"
+  "t_subscription": "Subscription",
+  "t_noInternetPleaseConnectToTheInternet": "No internet. Please connect to the internet",
+  "t_blockMemberCantSendPing": "Block member can`t send ping",
+  "t_pingSendingCancelled": "Ping sending cancelled.",
+  "t_pingSentSuccessfully": "Ping sent successfully!",
+  "t_blockMemberCantSendMessage": "Block member can`t send message",
+  "t_messageSendingCancelled": "Message sending cancelled.",
+  "t_viewQRCode": "View QR Code",
+  "t_unblockMember": "Unblock Member",
+  "t_blockMember": "Block Member",
+  "t_removeMember": "Remove Member",
+  "t_areYouSureYouWantToRemove": "Are you sure you want to remove",
+  "t_voucher": "Voucher",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "No internet. Please connect to the internet to view subscription plans."
 }

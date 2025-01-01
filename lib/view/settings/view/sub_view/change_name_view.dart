@@ -5,6 +5,7 @@ import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:provider/provider.dart';
 
 enum ChangeNameMode {
@@ -55,9 +56,7 @@ class _ChangeNameViewState extends State<ChangeNameView> {
   void loadName() {
     final user = context.read<PingAuthState>().currentPingUser;
     if (user != null) {
-      name.text = widget.mode == ChangeNameMode.fullName
-          ? user.fullName
-          : user.teamName;
+      name.text = widget.mode == ChangeNameMode.fullName ? user.fullName : user.teamName;
       initials.text = user.initials;
     }
   }
@@ -71,49 +70,59 @@ class _ChangeNameViewState extends State<ChangeNameView> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (widget.mode == ChangeNameMode.fullName)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: TextFormField(
-                      key: const Key("inputInitials"),
-                      decoration:  InputDecoration(
-                        hintText: 't_initials'.tr(),
-                        counterText: "",
-                      ),
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.next,
-                      validator: (s) =>
-                          s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
-                      maxLength: 3,
-                      controller: initials,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.mode == ChangeNameMode.fullName)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: TextFormField(
+                    key: const Key("inputInitials"),
+                    decoration: InputDecoration(
+                      hintText: 't_initials'.tr(),
+                      counterText: "",
                     ),
-                  ),
-                TextField(
-                  key: const Key("inputName"),
-                  controller: name,
-                  readOnly: loading,
-                  decoration: InputDecoration(
-                    hintText: "${'t_enterYour'.tr()} ${widget.mode.title}",
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                    validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
+                    maxLength: 3,
+                    controller: initials,
                   ),
                 ),
-                const SizedBox(height: 24),
-                Builder(
-                    key: const Key("buttonUpdate"),
-                    builder: (context) {
-                      return loading
-                          ? getLoader()
-                          : ElevatedButton(
-                              onPressed: () {
+              TextField(
+                key: const Key("inputName"),
+                controller: name,
+                readOnly: loading,
+                decoration: InputDecoration(
+                  hintText: "${'t_enterYour'.tr()} ${widget.mode.title}",
+                ),
+              ),
+              const SizedBox(height: 24),
+              Builder(
+                key: const Key("buttonUpdate"),
+                builder: (context) {
+                  return loading
+                      ? getLoader()
+                      : ElevatedButton(
+                          onPressed: () async {
+                            bool isInternet = await context.isInternetAvailable();
+                            if (isInternet) {
+                              if (context.mounted) {
                                 final authState = context.read<PingAuthState>();
                                 updateName(authState);
-                              },
-                              child:  Text('t_update'.tr()),
-                            );
-                    }),
-              ]),
+                              }
+                            } else {
+                              if (context.mounted) {
+                                snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
+                              }
+                            }
+                          },
+                          child: Text('t_update'.tr()),
+                        );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

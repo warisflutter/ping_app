@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +70,9 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                         ),
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
-                        validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
+                        validator: (s) => s?.length == 3
+                            ? null
+                            : 't_provide3CharacterInitial'.tr(),
                         controller: initials,
                         maxLength: 3,
                       ),

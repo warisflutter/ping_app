@@ -49,7 +49,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   Future<void> initLoadingScreen() async {
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-    final memberState = Provider.of<MemberState>(context, listen: false);
+
     AppLifecycleService().reset();
     await adminProvider.getAdmin();
     debugPrint("type: ${adminProvider.type}");
@@ -66,20 +66,26 @@ class _LoadingScreenState extends State<LoadingScreen> {
       debugPrint("===============firebaseUser == null || pingUser == null && adminProvider.type == null---------");
       replace(const DashboardView());
     } else {
-      await memberState.loadMemberIdFromPrefs();
-      final member = memberState.member;
-      if (member != null) {
+      if (mounted) {
         final memberState = Provider.of<MemberState>(context, listen: false);
-        final member = memberState.member;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          FcmRepo.instance.updateMemberFcmToken(member!.id);
-          AppLifecycleService().initialize(isMember: true, userId: member.id);
-          replace(const MemberDashboard());
-        });
-        debugPrint("---------if--------------member != null");
-      } else {
-        debugPrint("---------else--------------member != null");
-        replace(const CreateAccountView());
+        bool isMember = await memberState.loadMemberIdFromPrefs();
+        if (isMember) {
+          final member = memberState.member;
+          if (member != null) {
+            final member = memberState.member;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              FcmRepo.instance.updateMemberFcmToken(member!.id);
+              AppLifecycleService().initialize(isMember: true, userId: member.id);
+              replace(const MemberDashboard());
+            });
+            debugPrint("---------if--------------member != null");
+          } else {
+            debugPrint("---------else--------------member != null");
+            replace(const CreateAccountView());
+          }
+        } else {
+          replace(const CreateAccountView());
+        }
       }
       debugPrint("--------------------loading screen else--------------------------");
     }

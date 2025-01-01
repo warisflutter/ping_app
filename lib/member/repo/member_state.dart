@@ -54,23 +54,32 @@ class MemberState extends ChangeNotifier {
     loadMemberIdFromPrefs();
   }
 
-  Future<void> loadMemberIdFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getString("memberId");
-    if (id != null) {
-      final memberModel = await MemberRepo.instance.getMemberById(id);
-      final pingUser = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
-
-      _memberModel = memberModel;
-      debugPrint("This is member model:: $_memberModel");
-      _teamLead = pingUser;
-      final teamLeadId = _teamLead?.userId;
-      if (teamLeadId != null) {
-        listenToTeamLeadUpdates(teamLeadId);
+  Future<bool> loadMemberIdFromPrefs() async {
+    Completer<bool> completer = Completer<bool>();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getString("memberId");
+      if (id != null) {
+        final memberModel = await MemberRepo.instance.getMemberById(id);
+        final pingUser = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
+        _memberModel = memberModel;
+        debugPrint("This is member model:: $_memberModel");
+        _teamLead = pingUser;
+        final teamLeadId = _teamLead?.userId;
+        if (teamLeadId != null) {
+          listenToTeamLeadUpdates(teamLeadId);
+        }
+        completer.complete(true);
+      } else {
+        completer.complete(false);
       }
+    } catch (e) {
+      debugPrint("Error in loadMemberIdFromPrefs: $e");
+      completer.complete(false);
+    } finally {
+      notifyListeners();
     }
-
-    notifyListeners();
+    return completer.future;
   }
 
   void listenToTeamLeadUpdates(String teamLeadId) async {

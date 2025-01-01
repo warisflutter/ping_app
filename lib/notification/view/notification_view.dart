@@ -24,24 +24,18 @@ class NotificationView extends StatelessWidget {
       if (user != null) {
         member = MemberModel.fromPingUserModel(user);
       } else {
-        return getErrorMessage(
-          context,
-          't_userIsTheApp'.tr(),
-        );
+        return getErrorMessage(context, '');
       }
     } else {
       final m = context.read<MemberState>().member;
       if (m == null) {
-        return getErrorMessage(
-          context,
-          't_memberNotTheApp'.tr(),
-        );
+        return getErrorMessage(context, '');
       }
       member = m;
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Notifications")),
+      appBar: AppBar(title: Text("t_notifications".tr())),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),

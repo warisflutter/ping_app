@@ -7,13 +7,13 @@ import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/broadcast/view/broadcast_list_view.dart';
-import 'package:ping_app/settings/view/linked_profile_view.dart';
-import 'package:ping_app/settings/view/sub_view/activity_report.dart';
-import 'package:ping_app/settings/view/sub_view/change_language_view.dart';
-import 'package:ping_app/settings/view/sub_view/change_name_view.dart';
-import 'package:ping_app/settings/view/sub_view/contact_support.dart';
-import 'package:ping_app/settings/view/sub_view/message_template/message_template_list.dart';
-import 'package:ping_app/settings/view/sub_view/update_password_view.dart';
+import 'package:ping_app/view/settings/view/linked_profile_view.dart';
+import 'package:ping_app/view/settings/view/sub_view/activity_report.dart';
+import 'package:ping_app/view/settings/view/sub_view/change_language_view.dart';
+import 'package:ping_app/view/settings/view/sub_view/change_name_view.dart';
+import 'package:ping_app/view/settings/view/sub_view/contact_support.dart';
+import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
+import 'package:ping_app/view/settings/view/sub_view/update_password_view.dart';
 import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/subscription/purchased_view.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
@@ -39,7 +39,6 @@ class _SettingViewState extends State<SettingView> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      // await subscriptionProvider.fetchSubscriptionDetails();
     });
     super.initState();
   }
@@ -81,9 +80,7 @@ class _SettingViewState extends State<SettingView> {
               ListTile(
                 title: Text('t_changeTeamName'.tr()),
                 leading: const Icon(Icons.group),
-                onTap: () => push(
-                  const ChangeNameView(mode: ChangeNameMode.teamName),
-                ),
+                onTap: () => push(const ChangeNameView(mode: ChangeNameMode.teamName)),
               ),
               ListTile(
                 title: Text('t_changePassword'.tr()),
@@ -128,7 +125,7 @@ class _SettingViewState extends State<SettingView> {
                 },
               ),
               ListTile(
-                title: const Text('Voucher'),
+                title: Text('t_voucher'.tr()),
                 leading: const Icon(Icons.gif_box),
                 onTap: () {
                   PingDialogs.showVoucherDialog(
@@ -158,7 +155,7 @@ class _SettingViewState extends State<SettingView> {
                 onTap: () => push(const ContactSupport()),
               ),
               ListTile(
-                title: const Text('Privacy Policy'),
+                title: Text('t_privacyPolicy'.tr()),
                 leading: const Icon(Icons.privacy_tip),
                 onTap: () {
                   String url = "https://sites.google.com/view/pingsapp/privacy-policy";

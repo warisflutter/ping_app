@@ -1,21 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:googleapis_auth/auth_io.dart' as auth;
-import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/main.dart';
-import 'package:ping_app/member/repo/member_state.dart';
+import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'package:http/http.dart' as http;
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
-import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/view/admin/admin_provider.dart';
-import 'package:provider/provider.dart';
 
 class FirebaseNotificationService {
   void _showNotificationAndDeliver(

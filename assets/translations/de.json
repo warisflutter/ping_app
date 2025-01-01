@@ -230,5 +230,19 @@
   "t_apply": "Anwenden",
   "t_cancelSubscription": "Abonnement kündigen",
   "t_upgradeDowngradeSubscription": "Abonnement upgraden/downgraden",
-  "t_subscription": "Abonnement"
+  "t_subscription": "Abonnement",
+  "t_noInternetPleaseConnectToTheInternet": "Kein Internet. Bitte verbinden Sie sich mit dem Internet",
+  "t_blockMemberCantSendPing": "Blockierter Benutzer kann keinen Ping senden",
+  "t_pingSendingCancelled": "Ping senden abgebrochen.",
+  "t_pingSentSuccessfully": "Ping erfolgreich gesendet!",
+  "t_blockMemberCantSendMessage": "Blockierter Benutzer kann keine Nachricht senden",
+  "t_messageSendingCancelled": "Nachricht senden abgebrochen.",
+  "t_viewQRCode": "QR-Code anzeigen",
+  "t_unblockMember": "Mitglied entsperren",
+  "t_blockMember": "Mitglied blockieren",
+  "t_removeMember": "Mitglied entfernen",
+  "t_voucher": "Gutschein",
+  "t_areYouSureYouWantToRemove": "Sind Sie sicher, dass Sie entfernen möchten",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Kein Internet. Bitte verbinden Sie sich mit dem Internet, um die Abonnementpläne anzuzeigen."
+
 }

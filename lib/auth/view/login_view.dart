@@ -189,9 +189,9 @@ class _LoginViewState extends State<LoginView> {
       );
       final uid = ref.user?.uid;
       final res = await FirebaseFirestore.instance.collection("users").doc(uid).get();
-      debugPrint("-----------------response:${res.data()}");
+      // debugPrint("-----------------response:${res.data()}");
       if (uid == null) {
-        debugPrint("-----if------uid == null------");
+        // debugPrint("-----if------uid == null------");
         // final pingUser = await AuthRepo.instance.getUserById(uid!);
         // if (pingUser != null) {
         //   if (pingUser.isDeleted) {

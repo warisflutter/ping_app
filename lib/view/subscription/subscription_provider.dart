@@ -4,13 +4,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
-import 'package:ping_app/settings/view/sub_view/message_template/message_add_edit_view.dart';
+import 'package:ping_app/view/settings/view/sub_view/message_template/message_add_edit_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/subscription/subscription_model.dart';
-import 'package:ping_app/view/voucher/voucher_provider.dart';
-import 'package:provider/provider.dart';
 
 class PurChasedModel {
   final String id;
@@ -195,35 +193,35 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> initLister() async {
-    PingLog.pingLog(".............initLister....start................................");
+    // PingLog.pingLog(".............initLister....start................................");
     try {
       _subscription = _inAppPurchase.purchaseStream.listen(
         (List<PurchaseDetails> purchaseDetailsList) async {
-          PingLog.pingLog("purchaseDetailsList length: ${purchaseDetailsList.length}");
-          PingLog.pingLog("purchaseDetailsList $purchaseDetailsList");
+          // PingLog.pingLog("purchaseDetailsList length: ${purchaseDetailsList.length}");
+          // PingLog.pingLog("purchaseDetailsList $purchaseDetailsList");
           if (purchaseDetailsList.isEmpty) {
-            PingLog.pingLog("No purchases in purchaseDetailsList.");
+            // PingLog.pingLog("No purchases in purchaseDetailsList.");
           } else {
             for (var purchaseDetails in purchaseDetailsList) {
-              PingLog.pingLog("purchase status ${purchaseDetails.status}");
+              // PingLog.pingLog("purchase status ${purchaseDetails.status}");
               switch (purchaseDetails.status) {
                 case PurchaseStatus.pending:
-                  PingLog.pingLog('Purchase is pending...');
+                  // PingLog.pingLog('Purchase is pending...');
                   break;
                 case PurchaseStatus.error:
-                  PingLog.pingLog('Purchase Error: ${purchaseDetails.error}');
+                  // PingLog.pingLog('Purchase Error: ${purchaseDetails.error}');
                   break;
                 case PurchaseStatus.restored:
-                  PingLog.pingLog('PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
+                  // PingLog.pingLog('PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
                   if (subscriptionIds.contains(purchaseDetails.productID)) {
-                    PingLog.pingLog("....if (subscriptionIds.contains(purchaseDetails.productID))...");
+                    // PingLog.pingLog("....if (subscriptionIds.contains(purchaseDetails.productID))...");
                     purchases.add(purchaseDetails);
                     await fetchDetailsAfterPurchase();
                   }
                   notifyListeners();
                   break;
                 case PurchaseStatus.purchased:
-                  PingLog.pingLog('PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
+                  // PingLog.pingLog('PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
                   if (subscriptionIds.contains(purchaseDetails.productID)) {
                     purchases.add(purchaseDetails);
                     await fetchDetailsAfterPurchase();
@@ -231,7 +229,7 @@ class SubscriptionProvider extends ChangeNotifier {
                   notifyListeners();
                   break;
                 case PurchaseStatus.canceled:
-                  PingLog.pingLog('Purchase was canceled. Product ID: ${purchaseDetails.productID}');
+                  // PingLog.pingLog('Purchase was canceled. Product ID: ${purchaseDetails.productID}');
                   break;
               }
               // Mark purchase as complete
@@ -337,7 +335,8 @@ class SubscriptionProvider extends ChangeNotifier {
 
   Future<void> showSubscriptions() async {
     productsDetails = await fetchSubscriptionDetails();
-    debugPrint("----showSubscriptions subscription length: ${productsDetails.length}----");
+    // debugPrint("----showSubscriptions subscription length: ${productsDetails.length}----");
+    // debugPrint("----showSubscriptions subscription length: ${productsDetails.map((e) => e.price).toList()}----");
     notifyListeners();
   }
 
@@ -360,7 +359,7 @@ class SubscriptionProvider extends ChangeNotifier {
         setSelectedPrice(productsDetails[5].price);
       }
     }
-    PingLog.pingLog("----Set Subscription Type----");
+    // PingLog.pingLog("----Set Subscription Type----");
     setSubscribeButton();
     notifyListeners();
   }
@@ -369,7 +368,7 @@ class SubscriptionProvider extends ChangeNotifier {
     selectType = value;
     setSubscribeButton();
     notifyListeners();
-    PingLog.pingLog("----Set Select Type----");
+    // PingLog.pingLog("----Set Select Type----");
   }
 
   Future<void> purchaseSubscription(ProductDetails productDetails) async {
@@ -393,11 +392,11 @@ class SubscriptionProvider extends ChangeNotifier {
       "Export": 5,
       "Pro": 20,
     };
-    PingLog.pingLog("Fetched Voucher: $voucherData");
-    PingLog.pingLog("_type: $_type");
-    PingLog.pingLog("numberOfMembers: $numberOfMembers");
-    PingLog.pingLog("typeLimits: ${typeLimits[_type]}");
-    PingLog.pingLog("typeLimits.containsKey(type): ${typeLimits.containsKey(_type)}");
+    // PingLog.pingLog("Fetched Voucher: $voucherData");
+    // PingLog.pingLog("_type: $_type");
+    // PingLog.pingLog("numberOfMembers: $numberOfMembers");
+    // PingLog.pingLog("typeLimits: ${typeLimits[_type]}");
+    // PingLog.pingLog("typeLimits.containsKey(type): ${typeLimits.containsKey(_type)}");
     if (numberOfMembers == typeLimits[_type]) {
       snack("You have reached the member limit for your plan.");
     } else {

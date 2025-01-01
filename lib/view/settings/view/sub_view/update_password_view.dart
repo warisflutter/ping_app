@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/validator.dart';
 
 class UpdatePasswordView extends StatefulWidget {
@@ -66,15 +67,25 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                 ),
                 const SizedBox(height: 24),
                 Builder(
-                    key: const Key("buttonUpdatePassword"),
-                    builder: (context) {
-                      return loading
-                          ? getLoader()
-                          : ElevatedButton(
-                              onPressed: () => updatePassword(),
-                              child: Text('t_updatePassword'.tr()),
-                            );
-                    }),
+                  key: const Key("buttonUpdatePassword"),
+                  builder: (context) {
+                    return loading
+                        ? getLoader()
+                        : ElevatedButton(
+                            onPressed: () async {
+                              bool isInternet = await context.isInternetAvailable();
+                              if (isInternet) {
+                                updatePassword();
+                              } else {
+                                if (context.mounted) {
+                                  snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
+                                }
+                              }
+                            },
+                            child: Text('t_updatePassword'.tr()),
+                          );
+                  },
+                ),
               ],
             ),
           ),

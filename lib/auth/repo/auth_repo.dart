@@ -30,9 +30,9 @@ class AuthRepo {
 
   Future<void> updateOnlineStatus(String id, bool isOnline) async {
     try {
-      PingLog.pingLog("keyOnlineStatus: $isOnline");
-      PingLog.pingLog("keyLastSeen: ${FieldValue.serverTimestamp()}");
-      PingLog.pingLog("id: ${id}");
+      // PingLog.pingLog("keyOnlineStatus: $isOnline");
+      // PingLog.pingLog("keyLastSeen: ${FieldValue.serverTimestamp()}");
+      // PingLog.pingLog("id: ${id}");
 
       await usersCollection.doc(id).update({
         PingUserModel.keyOnlineStatus: isOnline,

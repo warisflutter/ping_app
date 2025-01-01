@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/settings/repo/activity_report_generator.dart';
+import 'package:ping_app/view/settings/repo/activity_report_generator.dart';
 
 class ActivityReportProgress extends StatefulWidget {
   final String teamLeadId;

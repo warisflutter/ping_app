@@ -7,6 +7,7 @@ import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/view/member_color_dialog.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/validator.dart';
 import 'package:provider/provider.dart';
 
@@ -40,10 +41,7 @@ class _MemberManageViewState extends State<MemberManageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: isUpdateView
-              ? Text('t_updateMemberName'.tr())
-              : Text('t_enterMemberName'.tr())),
+      appBar: AppBar(title: isUpdateView ? Text('t_updateMemberName'.tr()) : Text('t_enterMemberName'.tr())),
       body: SafeArea(
         child: Form(
           key: formState,
@@ -64,9 +62,7 @@ class _MemberManageViewState extends State<MemberManageView> {
                           counterText: "",
                         ),
                         validator: (s) {
-                          return s?.length == 3
-                              ? null
-                              : 't_provide3LetterInitials'.tr();
+                          return s?.length == 3 ? null : 't_provide3LetterInitials'.tr();
                         },
                         maxLength: 3,
                       ),
@@ -86,21 +82,29 @@ class _MemberManageViewState extends State<MemberManageView> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: MemberColorSelectorView(
-                    onColorSelected: (color) =>
-                        setState(() => memberColor = color),
+                    onColorSelected: (color) => setState(() => memberColor = color),
                     initialColor: memberColor,
                   ),
                 ),
                 const SizedBox(height: 24),
-                loading
+                (loading)
                     ? getLoader()
                     : ElevatedButton(
-                        onPressed: isUpdateView
-                            ? () => updateMemberAction()
-                            : () => addMemberAction(),
-                        child: isUpdateView
-                            ? Text('t_updateMember'.tr())
-                            : Text('t_addMember'.tr()),
+                        onPressed: () async {
+                          bool isInternet = await context.isInternetAvailable();
+                          if (isInternet) {
+                            if (isUpdateView) {
+                              updateMemberAction();
+                            } else if (!isUpdateView) {
+                              addMemberAction();
+                            }
+                          } else {
+                            if (context.mounted) {
+                              snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
+                            }
+                          }
+                        },
+                        child: (isUpdateView) ? Text('t_updateMember'.tr()) : Text('t_addMember'.tr()),
                       ),
               ],
             ),

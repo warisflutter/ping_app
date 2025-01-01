@@ -230,5 +230,18 @@
   "t_apply": "Aplicar",
   "t_cancelSubscription": "Cancelar suscripción",
   "t_upgradeDowngradeSubscription": "Actualizar/Downgradear suscripción",
-  "t_subscription": "Suscripción"
+  "t_subscription": "Suscripción",
+  "t_noInternetPleaseConnectToTheInternet": "Sin internet. Por favor, conéctese a internet",
+  "t_blockMemberCantSendPing": "El miembro bloqueado no puede enviar ping",
+  "t_pingSendingCancelled": "Envío de ping cancelado.",
+  "t_pingSentSuccessfully": "¡Ping enviado con éxito!",
+  "t_blockMemberCantSendMessage": "El miembro bloqueado no puede enviar mensajes",
+  "t_messageSendingCancelled": "Envío de mensaje cancelado.",
+  "t_viewQRCode": "Ver código QR",
+  "t_unblockMember": "Desbloquear miembro",
+  "t_blockMember": "Bloquear miembro",
+  "t_removeMember": "Eliminar miembro",
+  "t_areYouSureYouWantToRemove": "¿Está seguro de que desea eliminar?",
+  "t_voucher": "Vale",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Sin internet. Por favor, conéctese a internet para ver los planes de suscripción."
 }

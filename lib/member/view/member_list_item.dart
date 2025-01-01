@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -15,7 +13,7 @@ import 'package:ping_app/member/view/add_member_view/member_qr_code.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
-import 'package:ping_app/settings/view/sub_view/message_template/message_template_list.dart';
+import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:ping_app/util/audio/ping_audio_record.dart';
 import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -217,27 +215,29 @@ class _MemberListItemState extends State<MemberListItem> {
                           final res = await isMemberBlocked(widget.currentUserModel.id);
                           pop();
                           if (res) {
-                            snack("Block member can`t send ping", info: false);
+                            snack("t_blockMemberCantSendPing".tr(), info: false);
                           } else {
-                            bool confirmation = await context.showConfirmationDialog(
-                                  type: "Ping",
-                                ) ??
-                                false;
-                            if (confirmation) {
-                              final data = await NotificationRepo.instance.sendPingNotification(me, selected);
-                              snack("Ping sent successfully!", info: true);
-                              await FirebaseNotificationService().sendNotification(
-                                messageData: data.data ?? "",
-                                type: "0",
-                                id: data.id,
-                                title: "Ping",
-                                body: "${me.name} ${'t_sentAPing'.tr()}",
-                                token: selected.fcm,
-                                fromId: me.id,
-                                toId: selected.id,
-                              );
-                            } else {
-                              snack("Ping sending cancelled.");
+                            if (context.mounted) {
+                              bool confirmation = await context.showConfirmationDialog(
+                                    type: "Ping",
+                                  ) ??
+                                  false;
+                              if (confirmation) {
+                                final data = await NotificationRepo.instance.sendPingNotification(me, selected);
+                                snack("t_pingSentSuccessfully".tr(), info: true);
+                                await FirebaseNotificationService().sendNotification(
+                                  messageData: data.data ?? "",
+                                  type: "0",
+                                  id: data.id,
+                                  title: "Ping",
+                                  body: "${me.name} ${'t_sentAPing'.tr()}",
+                                  token: selected.fcm,
+                                  fromId: me.id,
+                                  toId: selected.id,
+                                );
+                              } else {
+                                snack("t_pingSendingCancelled".tr());
+                              }
                             }
                           }
                         },
@@ -246,12 +246,12 @@ class _MemberListItemState extends State<MemberListItem> {
                     if (!selected.isBlocked)
                       ListTile(
                         leading: const Icon(Icons.message),
-                        title: const Text("Message"),
+                        title: Text("t_message".tr()),
                         onTap: () async {
                           final res = await isMemberBlocked(widget.currentUserModel.id);
                           pop();
                           if (res) {
-                            snack("Block member can`t send ping", info: false);
+                            snack("t_blockMemberCantSendMessage".tr(), info: false);
                           } else {
                             String? message = await push<String>(const MessageListView(pickMessageMode: true));
 
@@ -264,7 +264,7 @@ class _MemberListItemState extends State<MemberListItem> {
                               if (confirmation) {
                                 final data =
                                     await NotificationRepo.instance.sendMessageNotification(me, selected, message);
-                                snack("Message sent successfully!", info: true);
+                                snack("t_messageSentSuccessfully".tr(), info: true);
                                 await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
                                   type: "1",
@@ -276,7 +276,7 @@ class _MemberListItemState extends State<MemberListItem> {
                                   toId: selected.id,
                                 );
                               } else {
-                                snack("Message sending cancelled.");
+                                snack("t_messageSendingCancelled".tr());
                               }
                             }
                           }
@@ -286,7 +286,7 @@ class _MemberListItemState extends State<MemberListItem> {
                     if (!selected.isBlocked)
                       ListTile(
                         leading: const Icon(Icons.mic),
-                        title: const Text("Audio Message"),
+                        title: Text("t_audioMessage".tr()),
                         onTap: () async {
                           if (kIsWeb) {
                             final data = await push<Uint8List?>(const AudioRecordWeb());
@@ -311,7 +311,7 @@ class _MemberListItemState extends State<MemberListItem> {
                     if (!isMember)
                       ListTile(
                         leading: const Icon(Icons.edit),
-                        title: const Text("Update Member"),
+                        title: Text("t_updateMember".tr()),
                         onTap: () {
                           pop();
                           push(MemberManageView(member: selected));
@@ -320,7 +320,7 @@ class _MemberListItemState extends State<MemberListItem> {
                   if (!widget.operationsBlocked)
                     ListTile(
                       leading: const Icon(Icons.qr_code),
-                      title: const Text("View QR Code"),
+                      title: Text("t_viewQRCode".tr()),
                       onTap: () {
                         pop();
                         push(MemberQrCode(memberId: selected.id));
@@ -330,29 +330,44 @@ class _MemberListItemState extends State<MemberListItem> {
                     if (!isMember)
                       ListTile(
                         leading: selected.isBlocked ? const Icon(Icons.lock_open) : const Icon(Icons.block),
-                        title: selected.isBlocked ? const Text("Unblock Member") : const Text("Block Member"),
-                        onTap: () {
+                        title: selected.isBlocked ? Text("t_unblockMember".tr()) : Text("t_blockMember".tr()),
+                        onTap: () async {
                           pop();
-                          MemberRepo.instance
-                              .blockUnblockMember(selected.id, !selected.isBlocked)
-                              .catchError((error) => snack(error));
+                          bool checkInternet = await context.isInternetAvailable();
+                          if (checkInternet) {
+                            MemberRepo.instance
+                                .blockUnblockMember(selected.id, !selected.isBlocked)
+                                .catchError((error) => snack(error));
+                          } else {
+                            if (context.mounted) {
+                              snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
+                            }
+                          }
                         },
                       ),
                   if (!isMember)
                     ListTile(
                       leading: const Icon(Icons.remove_circle, color: Colors.red),
-                      title: const Text(
-                        "Remove Member",
-                        style: TextStyle(color: Colors.red),
+                      title: Text(
+                        "t_removeMember".tr(),
+                        style: const TextStyle(color: Colors.red),
                       ),
                       onTap: () {
                         pop();
                         sureDialog(
                           context: context,
-                          title: "Remove Member",
-                          message: "Are you sure you want to remove ${selected.name}",
-                          onYes: () =>
-                              MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error)),
+                          title: "t_removeMember".tr(),
+                          message: "${"t_areYouSureYouWantToRemove".tr()} ${selected.name}",
+                          onYes: () async {
+                            bool isInternet = await context.isInternetAvailable();
+                            if (isInternet) {
+                              MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error));
+                            } else {
+                              if (context.mounted) {
+                                snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
+                              }
+                            }
+                          },
                         );
                       },
                     ),
@@ -368,19 +383,14 @@ class _MemberListItemState extends State<MemberListItem> {
 
 Future<bool> isMemberBlocked(String memberId) async {
   try {
-    // Get the document for the specific member
     final memberDoc = await FirebaseFirestore.instance.collection("members").doc(memberId).get();
-
-    // Check if the document exists and return the value of `isBlocked`
     if (memberDoc.exists) {
       return memberDoc.data()?['isBlocked'] ?? false;
     } else {
-      // Return false if the document doesn't exist
       return false;
     }
   } catch (e) {
-    // Handle any errors and return false by default
-    print("Error checking member block status: $e");
+    PingLog.pingLog("Error checking member block status: $e");
     return false;
   }
 }

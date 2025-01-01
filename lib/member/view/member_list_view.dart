@@ -5,7 +5,6 @@ import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
 import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/view/member_list_item.dart';
@@ -52,14 +51,12 @@ class _MemberListViewState extends State<MemberListView> {
     final myTeamLead = isTeamLead ? authState.currentPingUser : memberState.teamLead;
     final ifMember = memberState.member;
     if (isMember && ifMember == null) {
-      return getErrorMessage(
-        context,
-        't_memberNotTheApp'.tr(),
-      );
-    }
+      return getErrorMessage(context, "");
+    } //'t_memberNotTheApp'.tr(),
     if (myTeamLead == null) {
-      return getErrorMessage(context, 't_teamLeadTheApp'.tr());
+      return getErrorMessage(context, "");
     }
+    // 't_teamLeadTheApp'.tr()
     return Scaffold(
       appBar: AppBar(
         title: Text(isMember ? ifMember?.name ?? "" : 't_myTeam'.tr()),
@@ -67,40 +64,34 @@ class _MemberListViewState extends State<MemberListView> {
           if (mode.isTeamLead)
             TextButton.icon(
               onPressed: () async {
-                try {
+                final isConnected = await context.isInternetAvailable();
+                if (isConnected) {
                   final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
 
                   if (subscriptionProvider.purChasedModel == null) {
                     PingLog.pingLog("purChasedModel is null");
-                    final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
-                    final voucherData = await voucherProvider.fetchVoucher();
-
-                    if (voucherData.isEmpty) {
-                      if (context.mounted) {
-                        final isConnected = await context.isNetworkAvailable();
-                        if (isConnected) {
-                          push(const SubscriptionInfoView());
-                        } else {
-                          snack("No internet. Please connect to the internet to view subscription plans.");
-                        }
+                    if (context.mounted) {
+                      final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
+                      final voucherData = await voucherProvider.fetchVoucher();
+                      if (voucherData.isEmpty) {
+                        push(const SubscriptionInfoView());
+                      } else {
+                        subscriptionProvider.handleVoucherType(
+                          voucherData: voucherData,
+                          numberOfMembers: numberOfMembers,
+                          type: "member",
+                        );
                       }
                     } else {
-                      subscriptionProvider.handleVoucherType(
-                        voucherData: voucherData,
+                      PingLog.pingLog("purChasedModel is not null");
+                      subscriptionProvider.handleSubscription(
                         numberOfMembers: numberOfMembers,
-                        type: "member",
+                        type: "members",
                       );
                     }
-                  } else {
-                    PingLog.pingLog("purChasedModel is not null");
-                    subscriptionProvider.handleSubscription(
-                      numberOfMembers: numberOfMembers,
-                      type: "members",
-                    );
                   }
-                } catch (e) {
-                  PingLog.pingLog("Error: $e");
-                  snack("Something went wrong. Please try again.");
+                } else {
+                  snack("t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans".tr());
                 }
               },
               icon: const Icon(Icons.add),
@@ -133,18 +124,16 @@ class _MemberListViewState extends State<MemberListView> {
           if (data.isEmpty && !isMember) {
             return getErrorMessage(context, 't_noMembersFound'.tr());
           }
-          // final operationsBlocked = (subscriptionState.subscriptionType.maxMembersAllowed) <= data.length;
           final operationsBlocked = (20) <= data.length;
           final members = data.where((member) => !member.isBlocked).toList();
           int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
           // PingLog.pingLog("This is the member $isMember");
-          if (isMember) {
-            if (myTeamLead.isOnline == true) {
-              numberOfOnlineMembers++;
-            }
-          }
+          // if (isMember) {
+          //   if (myTeamLead.isOnline == true) {
+          //     numberOfOnlineMembers++;
+          //   }
+          // }
           final blockedMembers = data.where((member) => member.isBlocked).toList();
-
           final sortIds = memberState.idOrder;
           if (sortIds != null) {
             final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();

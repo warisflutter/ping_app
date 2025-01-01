@@ -27,16 +27,11 @@ class CreateAccountView extends StatefulWidget {
 
 class _CreateAccountViewState extends State<CreateAccountView> {
   bool loading = false;
-
   final _formKey = GlobalKey<FormState>();
-
   final teamName = TextEditingController();
-
   final fullName = TextEditingController();
   final initials = TextEditingController();
-
   final email = TextEditingController();
-
   final password = TextEditingController();
 
   @override

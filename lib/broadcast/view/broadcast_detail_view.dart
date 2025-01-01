@@ -11,13 +11,13 @@ import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/member_list_item.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
-import 'package:ping_app/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:ping_app/util/audio/ping_audio_record.dart';
 import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/parsers.dart';
 import 'package:ping_app/util/record_web/audio_main.dart';
+import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:provider/provider.dart';
 
 class BroadcastDetailView extends StatelessWidget {
@@ -64,7 +64,7 @@ class BroadcastDetailView extends StatelessWidget {
                     }
                     if (snapshot.hasError) {
                       return getErrorMessage(
-                          context, snapshot.error.toString());
+                          context, 't_noMembersThisBroadcast'.tr());
                     }
                     final members = snapshot.data ?? [];
                     if (members.isEmpty) {
@@ -174,7 +174,8 @@ class BroadcastDetailView extends StatelessWidget {
                                                   me, selected, data);
                                         }
                                         snack(
-                                            't_audioMessageSendSuccessfully'.tr(),
+                                            't_audioMessageSendSuccessfully'
+                                                .tr(),
                                             info: true);
                                       }
                                       return;
@@ -311,11 +312,11 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
           child: Text('t_save'.tr()),
           onPressed: () async {
             try {
+              pop();
               await BroadcastRepository.instance.updateBroadcastMembers(
                 widget.broadcast.id,
                 selectedMembers.toList(),
               );
-              pop();
               snack('t_membersUpdatedSuccessfully'.tr(), info: true);
             } catch (e) {
               snack('${'t_errorUpdatingMembers'.tr()}: $e');

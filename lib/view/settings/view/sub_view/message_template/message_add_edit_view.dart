@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/settings/repo/setting_repo.dart';
+import 'package:ping_app/util/ping_utils.dart';
+import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 
@@ -28,7 +29,7 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: Key("messageAddEditView"),
+      key: const Key("messageAddEditView"),
       appBar: AppBar(
         title: Text(
           isEditing ? 't_editMessageTemplate'.tr() : 't_addMessageTemplate'.tr(),
@@ -42,8 +43,8 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                key: Key("textFieldMessage"),
-                decoration:  InputDecoration(
+                key: const Key("textFieldMessage"),
+                decoration: InputDecoration(
                   hintText: 't_enterYourMessageHere'.tr(),
                 ),
                 keyboardType: TextInputType.text,
@@ -55,8 +56,15 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
               loading
                   ? getLoader()
                   : ElevatedButton(
-                      key: Key("buttonAddUpdate"),
-                      onPressed: () => addOrUpdateMessageAction(),
+                      key: const Key("buttonAddUpdate"),
+                      onPressed: () async {
+                        final isConnected = await context.isInternetAvailable();
+                        if (isConnected) {
+                          addOrUpdateMessageAction();
+                        } else {
+                          snack("t_noInternetPleaseConnectToTheInternet".tr());
+                        }
+                      },
                       child: Text(isEditing ? 't_update'.tr() : 't_add'.tr()),
                     ),
             ],
@@ -96,8 +104,7 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
     setState(() => loading = true);
     try {
       if (isEditing) {
-        await SettingRepo.instance
-            .updateMessage(widget.originalMessage!, message.text);
+        await SettingRepo.instance.updateMessage(widget.originalMessage!, message.text);
       } else {
         await SettingRepo.instance.addMessage(message.text);
       }
