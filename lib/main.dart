@@ -59,9 +59,6 @@ void main() async {
   } else {
     PingLog.pingLog('No message data');
   }
-
-  WatchConnectivity.instance.setupMethodChannel();
-
   runApp(
     EasyLocalization(
       supportedLocales: const [
@@ -76,6 +73,7 @@ void main() async {
       child: const MyApp(),
     ),
   );
+  WatchConnectivity.instance.setupMethodChannel();
 }
 
 class MyApp extends StatelessWidget {
