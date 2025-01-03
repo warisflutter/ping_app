@@ -58,6 +58,7 @@
   "t_shareApp": "Condividi App",
   "t_logout": "Disconnetti",
   "t_deleteAccount": "Elimina Account",
+  "t_delete": "Elimina",
   "t_areYouSameEmail": "Sei sicuro di voler eliminare il tuo account? Non potrai creare un nuovo account con la stessa email!",
   "t_accountDeletedSuccessfully": "Account Eliminato con Successo",
   "t_noUserSignedIn": "Nessun utente ha effettuato l'accesso",
@@ -243,5 +244,19 @@
   "t_removeMember": "Rimuovi membro",
   "t_areYouSureYouWantToRemove": "Sei sicuro di voler rimuovere",
   "t_voucher": "Buono",
-  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Nessuna connessione a Internet. Si prega di connettersi a Internet per visualizzare i piani di abbonamento."
+  "t_upTo20MessageTemplates": "Fino a 20 modelli di messaggi",
+  "t_upTo3MessageTemplates": "Fino a 3 modelli di messaggi",
+  "t_upTo5MessageTemplates": "Fino a 5 modelli di messaggi",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Nessuna connessione a Internet. Si prega di connettersi a Internet per visualizzare i piani di abbonamento.",
+  "t_androidIOSAndWebVersion": "Versione Android, iOS e web",
+  "t_unlimitedNumberOfVoiceMessages": "Numero illimitato di messaggi vocali",
+  "t_upTo3UsersPerTeam": "Fino a 3 utenti per team",
+  "t_upTo5UsersPerTeam": "Fino a 5 utenti per team",
+  "t_upTo20UsersPerTeam": "Fino a 20 utenti per team",
+  "t_get90DaysFreeTrail": "Ottieni 90 giorni di prova gratuita",
+  "t_downgrade": "Degradare",
+  "t_upgrade": "Aggiornamento",
+  "t_subscribed": "Abbonato",
+  "t_subscribe": "Iscriviti",
+  "t_areYouSureThisActionWillRemoveAllYourData": "Sei sicuro? Questa azione rimuoverà tutti i tuoi dati."
 }

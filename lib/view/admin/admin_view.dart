@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
+import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/widgets/selection_widget.dart';
@@ -38,8 +40,13 @@ class _AdminViewState extends State<AdminView> {
         actions: [
           IconButton(
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              replace(const CreateAccountView());
+              final isConnected = await context.isInternetAvailable();
+              if (isConnected) {
+                await FirebaseAuth.instance.signOut();
+                replace(const CreateAccountView());
+              } else {
+                snack("t_noInternetPleaseConnectToTheInternet".tr());
+              }
             },
             icon: const Icon(
               Icons.logout,
@@ -79,13 +86,19 @@ class _AdminViewState extends State<AdminView> {
               ),
               Expanded(
                 child: (value.loader)
-                    ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white))
                     : ListView.builder(
                         padding: const EdgeInsets.all(12.0),
                         itemCount: value.displayedVouchers.length,
                         itemBuilder: (context, index) {
-                          String title = value.displayedVouchers[index].pingUserModel.fullName;
-                          List<String> statusTypeMap = ['Basic', 'Expert', 'Pro'];
+                          String title = value
+                              .displayedVouchers[index].pingUserModel.fullName;
+                          List<String> statusTypeMap = [
+                            'Basic',
+                            'Expert',
+                            'Pro'
+                          ];
                           return Container(
                             margin: const EdgeInsets.all(12.0),
                             padding: const EdgeInsets.all(12.0),
@@ -99,14 +112,17 @@ class _AdminViewState extends State<AdminView> {
                                 Text(title),
                                 const SizedBox(height: 10),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const Text("Type"),
                                         DropdownButton<String>(
-                                          value: value.selectedVoucherType[index],
+                                          value:
+                                              value.selectedVoucherType[index],
                                           items: statusTypeMap.map((entry) {
                                             return DropdownMenuItem<String>(
                                               value: entry,
@@ -115,19 +131,23 @@ class _AdminViewState extends State<AdminView> {
                                           }).toList(),
                                           onChanged: (newStatus) {
                                             if (newStatus != null) {
-                                              value.setVoucherType(newStatus, index);
+                                              value.setVoucherType(
+                                                  newStatus, index);
                                             }
                                           },
                                         ),
                                       ],
                                     ),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text("t_status".tr()),
                                         DropdownButton<String>(
-                                          value: value.selectedVoucherStatus[index],
-                                          items: value.voucherStatus.map((entry) {
+                                          value: value
+                                              .selectedVoucherStatus[index],
+                                          items:
+                                              value.voucherStatus.map((entry) {
                                             return DropdownMenuItem<String>(
                                               value: entry,
                                               child: Text(entry),
@@ -135,7 +155,8 @@ class _AdminViewState extends State<AdminView> {
                                           }).toList(),
                                           onChanged: (newStatus) {
                                             if (newStatus != null) {
-                                              value.setVoucherStatus(newStatus, index);
+                                              value.setVoucherStatus(
+                                                  newStatus, index);
                                             }
                                           },
                                         ),
@@ -148,8 +169,12 @@ class _AdminViewState extends State<AdminView> {
                                   alignment: Alignment.center,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      Provider.of<VoucherProvider>(context, listen: false)
-                                          .updateVoucher(value.displayedVouchers[index].voucherId, index);
+                                      Provider.of<VoucherProvider>(context,
+                                              listen: false)
+                                          .updateVoucher(
+                                              value.displayedVouchers[index]
+                                                  .voucherId,
+                                              index);
                                     },
                                     child: Text("t_continue".tr()),
                                   ),

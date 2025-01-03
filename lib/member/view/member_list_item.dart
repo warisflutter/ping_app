@@ -363,9 +363,7 @@ class _MemberListItemState extends State<MemberListItem> {
                             if (isInternet) {
                               MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error));
                             } else {
-                              if (context.mounted) {
-                                snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
-                              }
+                              snack("t_noInternetPleaseConnectToTheInternet".tr());
                             }
                           },
                         );

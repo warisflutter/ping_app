@@ -11,13 +11,10 @@ class AdminProvider extends ChangeNotifier {
   }
   Future<void> getAdmin() async {
     loader = true;
-    notifyListeners();
-
     String? adminId = FirebaseAuth.instance.currentUser?.uid;
     if (adminId == null || adminId.isEmpty) {
       debugPrint("Admin ID is null or empty. User may not be authenticated.");
       loader = false;
-      notifyListeners();
       return;
     }
 
@@ -26,7 +23,6 @@ class AdminProvider extends ChangeNotifier {
       if (res.exists) {
         type = res.data()?["type"];
         debugPrint("Admin type: $type");
-        notifyListeners();
       } else {
         debugPrint("No admin document found for ID: $adminId");
       }
@@ -34,7 +30,7 @@ class AdminProvider extends ChangeNotifier {
       debugPrint("Error fetching admin data: $e");
     } finally {
       loader = false;
-      notifyListeners();
     }
+    notifyListeners();
   }
 }

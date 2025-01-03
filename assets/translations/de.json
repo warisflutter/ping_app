@@ -58,6 +58,7 @@
   "t_shareApp": "App teilen",
   "t_logout": "Abmelden",
   "t_deleteAccount": "Konto löschen",
+  "t_delete": "Konto",
   "t_areYouSameEmail": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Sie können kein neues Konto mit derselben E-Mail-Adresse erstellen!",
   "t_accountDeletedSuccessfully": "Konto erfolgreich gelöscht",
   "t_noUserSignedIn": "Kein Benutzer angemeldet",
@@ -243,6 +244,19 @@
   "t_removeMember": "Mitglied entfernen",
   "t_voucher": "Gutschein",
   "t_areYouSureYouWantToRemove": "Sind Sie sicher, dass Sie entfernen möchten",
-  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Kein Internet. Bitte verbinden Sie sich mit dem Internet, um die Abonnementpläne anzuzeigen."
-
+  "t_upTo20MessageTemplates": "Bis zu 20 Nachrichtenvorlagen",
+  "t_upTo3MessageTemplates": "Bis zu 3 Nachrichtenvorlagen",
+  "t_upTo5MessageTemplates": "Bis zu 5 Nachrichtenvorlagen",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Kein Internet. Bitte verbinden Sie sich mit dem Internet, um die Abonnementpläne anzuzeigen.",
+  "t_androidIOSAndWebVersion": "Android-, iOS- und Webversion",
+  "t_unlimitedNumberOfVoiceMessages": "Unbegrenzte Anzahl an Sprachnachrichten",
+  "t_upTo3UsersPerTeam": "Bis zu 3 Benutzer pro Team",
+  "t_upTo5UsersPerTeam": "Bis zu 5 Benutzer pro Team",
+  "t_upTo20UsersPerTeam": "Bis zu 20 Benutzer pro Team",
+  "t_get90DaysFreeTrail": "Holen Sie sich 90 Tage kostenlose Testversion",
+  "t_downgrade": "Herabstufen",
+  "t_upgrade": "Upgrade",
+  "t_subscribed": "Abonniert",
+  "t_subscribe": "Abonnieren",
+  "t_areYouSureThisActionWillRemoveAllYourData": "Bist du sicher? Diese Aktion wird alle deine Daten entfernen."
 }

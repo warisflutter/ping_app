@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -70,10 +72,16 @@ void main() async {
       ],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      child: const MyApp(),
+      child: MultiProvider(providers: [
+        ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+        ChangeNotifierProvider(create: (_) => MemberState()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => VoucherProvider()),
+        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+      ], child: const MyApp()),
     ),
   );
-  WatchConnectivity.instance.setupMethodChannel();
+  // WatchConnectivity.instance.setupMethodChannel();
 }
 
 class MyApp extends StatelessWidget {
@@ -81,38 +89,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges()),
+    return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      navigatorKey: navigatorKey,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: Colors.white,
         ),
-        ChangeNotifierProvider(create: (_) => MemberState()),
-        ChangeNotifierProvider(create: (_) => AdminProvider()),
-        ChangeNotifierProvider(create: (_) => VoucherProvider()),
-        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
-      ],
-      child: MaterialApp(
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-        debugShowCheckedModeBanner: false,
-        scaffoldMessengerKey: scaffoldMessengerKey,
-        navigatorKey: navigatorKey,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            brightness: Brightness.dark,
-            seedColor: Colors.white,
-          ),
-          useMaterial3: true,
-          inputDecorationTheme: const InputDecorationTheme(
-            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(80)),
-            ),
+        useMaterial3: true,
+        inputDecorationTheme: const InputDecorationTheme(
+          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(80)),
           ),
         ),
-        home: const LoadingScreen(message: "Please wait..."),
       ),
+      home: const LoadingScreen(message: "Please wait..."),
     );
   }
 }

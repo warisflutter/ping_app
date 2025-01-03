@@ -75,7 +75,11 @@ class AuthRepo {
     await usersCollection.doc(id).update({PingUserModel.keyFcmToken: fcmToken});
   }
 
-  Future<void> deleteUser(String id) async {
-    await usersCollection.doc(id).update({PingUserModel.keyIsDeleted: true});
+  Future<void> deleteUser() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.delete();
+      await usersCollection.doc(user.uid).delete();
+    }
   }
 }

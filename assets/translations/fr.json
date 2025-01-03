@@ -58,6 +58,7 @@
   "t_shareApp": "Partager l'application",
   "t_logout": "Déconnexion",
   "t_deleteAccount": "Supprimer le compte",
+  "t_delete": "Supprimer",
   "t_areYouSameEmail": "Êtes-vous sûr de vouloir supprimer votre compte ? Vous ne pourrez pas créer un nouveau compte avec la même adresse e-mail !",
   "t_accountDeletedSuccessfully": "Compte supprimé avec succès",
   "t_noUserSignedIn": "Aucun utilisateur connecté",
@@ -243,5 +244,19 @@
   "t_removeMember": "Supprimer le membre",
   "t_areYouSureYouWantToRemove": "Êtes-vous sûr de vouloir supprimer",
   "t_voucher": "Bon",
-  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Pas d'internet. Veuillez vous connecter à Internet pour voir les plans d'abonnement."
+  "t_upTo20MessageTemplates": "Jusqu'à 20 modèles de messages",
+  "t_upTo3MessageTemplates": "Jusqu'à 3 modèles de messages",
+  "t_upTo5MessageTemplates": "Jusqu'à 5 modèles de messages",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Pas d'internet. Veuillez vous connecter à Internet pour voir les plans d'abonnement.",
+  "t_androidIOSAndWebVersion": "Version Android, iOS et web",
+  "t_unlimitedNumberOfVoiceMessages": "Nombre illimité de messages vocaux",
+  "t_upTo3UsersPerTeam": "Jusqu'à 3 utilisateurs par équipe",
+  "t_upTo5UsersPerTeam": "Jusqu'à 5 utilisateurs par équipe",
+  "t_upTo20UsersPerTeam": "Jusqu'à 20 utilisateurs par équipe",
+  "t_get90DaysFreeTrail": "Obtenez 90 jours d'essai gratuit",
+  "t_downgrade": "Rétrograder",
+  "t_upgrade": "Mettre à niveau",
+  "t_subscribed": "Abonné",
+  "t_subscribe": "S'abonner",
+  "t_areYouSureThisActionWillRemoveAllYourData": "Êtes-vous sûr ? Cette action supprimera toutes vos données."
 }

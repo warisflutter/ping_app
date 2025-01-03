@@ -55,6 +55,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    // print("${context.locale}");
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {

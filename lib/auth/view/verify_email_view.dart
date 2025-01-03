@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ping_app/auth/view/login_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 
 class VerifyEmailView extends StatefulWidget {
   final User user;
@@ -66,7 +67,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                               data: Theme.of(context).copyWith(
                                 outlinedButtonTheme: OutlinedButtonThemeData(
                                   style: ButtonStyle(
-                                    foregroundColor: WidgetStateProperty.all(Colors.red),
+                                    foregroundColor:
+                                        WidgetStateProperty.all(Colors.red),
                                     side: WidgetStateProperty.all(
                                       const BorderSide(color: Colors.red),
                                     ),
@@ -103,7 +105,13 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   Future<void> logoutAction() async {
     setState(() => loading = true);
     try {
-      await FirebaseAuth.instance.signOut();
+      final isConnected = await context.isInternetAvailable();
+      if (isConnected) {
+        pop();
+        FirebaseAuth.instance.signOut();
+      } else {
+        snack("t_noInternetPleaseConnectToTheInternet".tr());
+      }
     } catch (e) {
       snack(e);
     }

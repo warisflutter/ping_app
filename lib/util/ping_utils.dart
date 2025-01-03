@@ -111,4 +111,59 @@ extension PingUtils on BuildContext {
   String pingString(String text) {
     return text.tr();
   }
+
+  Future<void> deleteAccountDialog({
+    required void Function()? onPressed,
+  }) {
+    return showDialog(
+      context: this,
+      builder: (context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          title: Text(
+            "t_delete".tr().toUpperCase(),
+            softWrap: true,
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            "t_areYouSureThisActionWillRemoveAllYourData".tr(),
+            softWrap: true,
+            textAlign: TextAlign.left,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(this);
+              },
+              child: Text(
+                't_cancel'.tr(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                "t_delete".tr().toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

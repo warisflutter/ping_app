@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/widgets/selection_widget.dart';
 import 'package:provider/provider.dart';
@@ -14,12 +16,9 @@ class SubscriptionInfoView extends StatefulWidget {
 }
 
 class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
-  late SubscriptionProvider subscriptionProvider;
   @override
   void initState() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
-      subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-    });
+    Provider.of<SubscriptionProvider>(context, listen: false).init();
     super.initState();
   }
 
@@ -206,7 +205,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
                                   : (subscriptionProvider.selectType == 1)
                                       ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
-                                      : "${"t_youWillBeChange".tr()} ${(subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[4].price : subscriptionProvider.productsDetails[7].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
+                                      : "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[7].price : subscriptionProvider.productsDetails[5].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.black,
@@ -272,7 +271,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                           ? subscriptionProvider.productsDetails[1].price
                           : (subscriptionProvider.selectType == 1)
                               ? subscriptionProvider.productsDetails[3].price
-                              : subscriptionProvider.productsDetails[5].price,
+                              : subscriptionProvider.productsDetails[7].price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -321,7 +320,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                           ? subscriptionProvider.productsDetails[0].price
                           : (subscriptionProvider.selectType == 1)
                               ? subscriptionProvider.productsDetails[2].price
-                              : subscriptionProvider.productsDetails[7].price,
+                              : subscriptionProvider.productsDetails[5].price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -349,25 +348,25 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
           fixedSize: WidgetStatePropertyAll(Size(300, 50)),
         ),
         onPressed: () async {
-          late ProductDetails data;
+          late ProductDetails selectedPrice;
           switch (subscriptionProvider.selectType) {
             case 0:
-              data = (subscriptionProvider.subscriptionType)
+              selectedPrice = (subscriptionProvider.subscriptionType)
                   ? subscriptionProvider.productsDetails[0]
                   : subscriptionProvider.productsDetails[1];
               break;
             case 1:
-              data = (subscriptionProvider.subscriptionType)
+              selectedPrice = (subscriptionProvider.subscriptionType)
                   ? subscriptionProvider.productsDetails[2]
                   : subscriptionProvider.productsDetails[3];
               break;
             default:
-              data = (subscriptionProvider.subscriptionType)
-                  ? subscriptionProvider.productsDetails[4]
-                  : subscriptionProvider.productsDetails[7];
+              selectedPrice = (subscriptionProvider.subscriptionType)
+                  ? subscriptionProvider.productsDetails[7]
+                  : subscriptionProvider.productsDetails[5];
               break;
           }
-          await subscriptionProvider.setProductDetails(data);
+          await subscriptionProvider.setProductDetails(selectedPrice);
         },
         child: Text(
           subscriptionProvider.subscribeBtnText,

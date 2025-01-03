@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/view/apple_sign_in_button.dart';
 import 'package:ping_app/auth/view/google_sign_in_button.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
@@ -189,20 +190,16 @@ class _LoginViewState extends State<LoginView> {
       );
       final uid = ref.user?.uid;
       final res = await FirebaseFirestore.instance.collection("users").doc(uid).get();
-      // debugPrint("-----------------response:${res.data()}");
       if (uid == null) {
-        // debugPrint("-----if------uid == null------");
-        // final pingUser = await AuthRepo.instance.getUserById(uid!);
-        // if (pingUser != null) {
-        //   if (pingUser.isDeleted) {
-        //     await FirebaseAuth.instance.signOut();
-        //     snack('t_errorAccountTheUser'.tr());
-        //   }
-        // }
         snack('t_errorAccountTheUser'.tr());
       } else if (res["type"] == "admin") {
         replaceAll(const AdminView());
       } else {
+        AppLifecycleService().reset();
+        AppLifecycleService().initialize(
+          isMember: false,
+          userId: uid,
+        );
         replaceAll(const DashboardView());
       }
     } catch (e) {

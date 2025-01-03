@@ -16,6 +16,12 @@ class PurchasedView extends StatefulWidget {
 
 class _PurchasedViewState extends State<PurchasedView> {
   @override
+  void initState() {
+    Provider.of<SubscriptionProvider>(context, listen: false).init();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, widget) {
       return Scaffold(

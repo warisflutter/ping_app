@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-Future<T?>? push<T>(Widget child) => navigatorKey.currentState?.push<T>(MaterialPageRoute(builder: (_) => child));
+Future<T?>? push<T>(Widget child) => navigatorKey.currentState
+    ?.push<T>(MaterialPageRoute(builder: (_) => child));
 
-void replace(Widget child) => navigatorKey.currentState?.pushReplacement(MaterialPageRoute(builder: (_) => child));
+void replace(Widget child) => navigatorKey.currentState
+    ?.pushReplacement(MaterialPageRoute(builder: (_) => child));
 void replaceAll(Widget child) => navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => child),
       (route) => false,
@@ -13,7 +14,8 @@ void replaceAll(Widget child) => navigatorKey.currentState?.pushAndRemoveUntil(
 
 void pop<T>({T? data}) => navigatorKey.currentState?.pop(data);
 
-void popToDashboard() => navigatorKey.currentState?.popUntil((route) => route.isFirst);
+void popToDashboard() =>
+    navigatorKey.currentState?.popUntil((route) => route.isFirst);
 
 // void downloadBytes(String name, Uint8List bytes) async {
 //   final anchor = AnchorElement(

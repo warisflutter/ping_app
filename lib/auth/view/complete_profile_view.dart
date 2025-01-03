@@ -6,6 +6,7 @@ import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/validator.dart';
 
 class CompleteProfileView extends StatefulWidget {
@@ -37,7 +38,15 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => FirebaseAuth.instance.signOut(),
+            onPressed: () async {
+              final isConnected = await context.isInternetAvailable();
+              if (isConnected) {
+                pop();
+                FirebaseAuth.instance.signOut();
+              } else {
+                snack("t_noInternetPleaseConnectToTheInternet".tr());
+              }
+            },
           ),
         ],
       ),

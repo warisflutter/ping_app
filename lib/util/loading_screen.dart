@@ -13,6 +13,7 @@ import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
@@ -35,26 +36,21 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   int count = 1;
-  late SubscriptionProvider subsProvider;
 
   @override
   void initState() {
     updateCounter();
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
-      subsProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-      await initLoadingScreen();
-    });
+    initLoadingScreen();
     super.initState();
   }
 
   Future<void> initLoadingScreen() async {
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-
     AppLifecycleService().reset();
     await adminProvider.getAdmin();
-    debugPrint("type: ${adminProvider.type}");
+    PingLog.pingLog("type: ${adminProvider.type}");
     if (adminProvider.type == "admin") {
-      debugPrint("===============adminProvider.type == admin");
+      PingLog.pingLog("===============adminProvider.type == admin");
       replace(const AdminView());
     } else if (adminProvider.type == "user") {
       final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -63,7 +59,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         isMember: false,
         userId: firebaseUser.uid,
       );
-      debugPrint("===============firebaseUser == null || pingUser == null && adminProvider.type == null---------");
+      PingLog.pingLog("===============firebaseUser == null || pingUser == null && adminProvider.type == null---------");
       replace(const DashboardView());
     } else {
       if (mounted) {
@@ -78,16 +74,16 @@ class _LoadingScreenState extends State<LoadingScreen> {
               AppLifecycleService().initialize(isMember: true, userId: member.id);
               replace(const MemberDashboard());
             });
-            debugPrint("---------if--------------member != null");
+            PingLog.pingLog("---------if--------------member != null");
           } else {
-            debugPrint("---------else--------------member != null");
+            PingLog.pingLog("---------else--------------member != null");
             replace(const CreateAccountView());
           }
         } else {
           replace(const CreateAccountView());
         }
       }
-      debugPrint("--------------------loading screen else--------------------------");
+      PingLog.pingLog("--------------------loading screen else--------------------------");
     }
   }
 

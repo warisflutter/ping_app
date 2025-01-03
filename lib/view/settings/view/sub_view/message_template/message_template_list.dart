@@ -24,12 +24,12 @@ class MessageListView extends StatefulWidget {
 
 class _MessageListViewState extends State<MessageListView> {
   bool loading = false;
-  late SubscriptionProvider subscriptionProvider;
+  // late SubscriptionProvider subscriptionProvider;
   @override
   void initState() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
-      subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-    });
+    // SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+    //   subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    // });
     super.initState();
   }
 
@@ -54,118 +54,120 @@ class _MessageListViewState extends State<MessageListView> {
     return Scaffold(
       key: const Key("messageListView"),
       appBar: AppBar(title: Text('t_messageTemplates'.tr())),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: StreamBuilder<List<String>>(
-                        stream: SettingRepo.instance.getMessages(teamLeadId),
-                        builder: (context, snap) {
-                          if (snap.hasError) {
-                            return getErrorMessage(context, snap.error);
-                          }
-
-                          final messages = snap.data;
-                          if (messages == null) {
-                            return getLoader();
-                          }
-
-                          if (messages.isEmpty) {
-                            return Center(
-                              key: const Key("emptyMessageList"),
-                              child: Text('t_noMessageTemplates'.tr()),
-                            );
-                          }
-
-                          return _buildList(messages);
-                        }),
-                  ),
-                  if (!widget.pickMessageMode)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        key: const Key("buttonAddMessage"),
-                        onPressed: () async {
-                          final isConnected = await context.isInternetAvailable();
-                          if (isConnected) {
-                            final numberOfMessages = await SettingRepo.instance.getMessageCount();
-                            if (subscriptionProvider.purChasedModel == null) {
-                              if (context.mounted) {
-                                final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
-                                final voucherData = await voucherProvider.fetchVoucher();
-                                if (voucherData.isEmpty) {
-                                  push(const SubscriptionInfoView());
-                                } else {
-                                  subscriptionProvider.handleVoucherType(
-                                    voucherData: voucherData,
-                                    numberOfMembers: numberOfMessages,
-                                    type: "message",
-                                  );
-                                }
-                              }
-                              // final voucherP = Provider.of<VoucherProvider>(context, listen: false);
-                              // String data = await voucherP.fetchVoucher();
-                              // if (data.isEmpty) {
-                              //   push(const SubscriptionInfoView());
-                              //   snack('you have buy onr subscription first to continue');
-                              // } else {
-                              //   PingLog.pingLog("This is my fetchVoucher: $data");
-                              //   String type = data.split("|")[1];
-                              //   PingLog.pingLog("This is my type: $type");
-                              //   if (type == "Basic") {
-                              //     PingLog.pingLog("if (type == Basic) { $numberOfMessages");
-                              //     if (numberOfMessages != 3) {
-                              //       push(const MessageAddEditView());
-                              //     }
-                              //   } else if (type == "Export") {
-                              //     if (numberOfMessages != 5) {
-                              //       push(const MessageAddEditView());
-                              //     }
-                              //   } else if (type == "Pro") {
-                              //     if (numberOfMessages != 20) {
-                              //       push(const MessageAddEditView());
-                              //     }
-                              //   }
-                              // }
-                            } else {
-                              // int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
-                              subscriptionProvider.handleSubscription(
-                                numberOfMembers: numberOfMessages,
-                                type: "message",
-                              );
-                              // if (numberOfMessages == perMessages) {
-                              //   snack('t_youHaveMessagesTemplate'.tr());
-                              // } else {
-                              //   push(const MessageAddEditView());
-                              // }
+      body: Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, _) {
+        return Stack(
+          children: [
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: StreamBuilder<List<String>>(
+                          stream: SettingRepo.instance.getMessages(teamLeadId),
+                          builder: (context, snap) {
+                            if (snap.hasError) {
+                              return getErrorMessage(context, snap.error);
                             }
-                          } else {
-                            snack("t_noInternetPleaseConnectToTheInternet".tr());
-                          }
-                        },
-                        child: Text('t_addMessage'.tr()),
-                      ),
+
+                            final messages = snap.data;
+                            if (messages == null) {
+                              return getLoader();
+                            }
+
+                            if (messages.isEmpty) {
+                              return Center(
+                                key: const Key("emptyMessageList"),
+                                child: Text('t_noMessageTemplates'.tr()),
+                              );
+                            }
+
+                            return _buildList(messages);
+                          }),
                     ),
-                ],
-              ),
-            ),
-          ),
-          if (loading)
-            Positioned.fill(
-              child: AbsorbPointer(
-                absorbing: true,
-                child: Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: getLoader(),
+                    if (!widget.pickMessageMode)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          key: const Key("buttonAddMessage"),
+                          onPressed: () async {
+                            final isConnected = await context.isInternetAvailable();
+                            if (isConnected) {
+                              final numberOfMessages = await SettingRepo.instance.getMessageCount();
+                              if (subscriptionProvider.purChasedModel == null) {
+                                if (context.mounted) {
+                                  final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
+                                  final voucherData = await voucherProvider.fetchVoucher();
+                                  if (voucherData.isEmpty) {
+                                    push(const SubscriptionInfoView());
+                                  } else {
+                                    subscriptionProvider.handleVoucherType(
+                                      voucherData: voucherData,
+                                      numberOfMembers: numberOfMessages,
+                                      type: "message",
+                                    );
+                                  }
+                                }
+                                // final voucherP = Provider.of<VoucherProvider>(context, listen: false);
+                                // String data = await voucherP.fetchVoucher();
+                                // if (data.isEmpty) {
+                                //   push(const SubscriptionInfoView());
+                                //   snack('you have buy onr subscription first to continue');
+                                // } else {
+                                //   PingLog.pingLog("This is my fetchVoucher: $data");
+                                //   String type = data.split("|")[1];
+                                //   PingLog.pingLog("This is my type: $type");
+                                //   if (type == "Basic") {
+                                //     PingLog.pingLog("if (type == Basic) { $numberOfMessages");
+                                //     if (numberOfMessages != 3) {
+                                //       push(const MessageAddEditView());
+                                //     }
+                                //   } else if (type == "Export") {
+                                //     if (numberOfMessages != 5) {
+                                //       push(const MessageAddEditView());
+                                //     }
+                                //   } else if (type == "Pro") {
+                                //     if (numberOfMessages != 20) {
+                                //       push(const MessageAddEditView());
+                                //     }
+                                //   }
+                                // }
+                              } else {
+                                // int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
+                                subscriptionProvider.handleSubscription(
+                                  numberOfMembers: numberOfMessages,
+                                  type: "message",
+                                );
+                                // if (numberOfMessages == perMessages) {
+                                //   snack('t_youHaveMessagesTemplate'.tr());
+                                // } else {
+                                //   push(const MessageAddEditView());
+                                // }
+                              }
+                            } else {
+                              snack("t_noInternetPleaseConnectToTheInternet".tr());
+                            }
+                          },
+                          child: Text('t_addMessage'.tr()),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
-        ],
-      ),
+            if (loading)
+              Positioned.fill(
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: getLoader(),
+                  ),
+                ),
+              ),
+          ],
+        );
+      }),
     );
   }
 

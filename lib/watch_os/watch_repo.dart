@@ -8,6 +8,7 @@ import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/watch_os/watch_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
@@ -87,32 +88,37 @@ class WatchConnectivity {
 
   void setupMethodChannel() {
     debugPrint("$debugKey Setting up method channel");
-    platform.setMethodCallHandler((call) async {
-      debugPrint("$debugKey Received something");
-      switch (call.method) {
-        case 'requestAuthData':
-          await _handleRequestAuthData();
-          break;
-        case 'requestTeamMembers':
-          await sendMemberListToWatch();
-          break;
-        case 'requestMessageTemplates':
-          await _handleRequestMessageTemplates();
-          break;
-        case 'receivePing':
-          await _handleReceivedPing(call.arguments['userId']);
-          break;
-        case 'receiveTextMessage':
-          _handleReceivedTextMessage(call.arguments['userId'], call.arguments['message']);
-          break;
-        case 'receiveVoiceNote':
-          _handleReceivedVoiceNote(call.arguments['userId'], call.arguments['audioData']);
-          break;
-        case 'receivePingResponse':
-          _handleReceivedPingResponse(call.arguments['notificationId'], call.arguments['response']);
-          break;
-      }
-    });
+    try {
+      platform.setMethodCallHandler((call) async {
+        debugPrint("$debugKey Received something");
+        PingLog.pingLog("--- call method: ${call.method} ---");
+        switch (call.method) {
+          case 'requestAuthData':
+            await _handleRequestAuthData();
+            break;
+          case 'requestTeamMembers':
+            await sendMemberListToWatch();
+            break;
+          case 'requestMessageTemplates':
+            await _handleRequestMessageTemplates();
+            break;
+          case 'receivePing':
+            await _handleReceivedPing(call.arguments['userId']);
+            break;
+          case 'receiveTextMessage':
+            _handleReceivedTextMessage(call.arguments['userId'], call.arguments['message']);
+            break;
+          case 'receiveVoiceNote':
+            _handleReceivedVoiceNote(call.arguments['userId'], call.arguments['audioData']);
+            break;
+          case 'receivePingResponse':
+            _handleReceivedPingResponse(call.arguments['notificationId'], call.arguments['response']);
+            break;
+        }
+      });
+    } catch (e, s) {
+      PingLog.pingLog("error: $e $s");
+    }
   }
 
   Future<void> _handleRequestAuthData() async {
@@ -200,7 +206,7 @@ class WatchConnectivity {
 
     if (memberId != null) {
       // Member login
-      final memberModel = await MemberRepo.instance.getMemberById(memberId);
+      final memberModel = await MemberRepo.instance.getMemberById("rytjcqtfVWYZEml72U18");
       final teamLead = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
 
       if (teamLead == null) {

@@ -58,6 +58,7 @@
   "t_shareApp": "Compartir aplicación",
   "t_logout": "Cerrar sesión",
   "t_deleteAccount": "Eliminar cuenta",
+  "t_delete": "Eliminar",
   "t_areYouSameEmail": "¿Está seguro de que desea eliminar su cuenta? ¡No podrá crear una nueva cuenta con el mismo correo electrónico!",
   "t_accountDeletedSuccessfully": "Cuenta eliminada con éxito",
   "t_noUserSignedIn": "Ningún usuario ha iniciado sesión",
@@ -243,5 +244,19 @@
   "t_removeMember": "Eliminar miembro",
   "t_areYouSureYouWantToRemove": "¿Está seguro de que desea eliminar?",
   "t_voucher": "Vale",
-  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Sin internet. Por favor, conéctese a internet para ver los planes de suscripción."
+  "t_upTo20MessageTemplates": "Hasta 20 plantillas de mensajes",
+  "t_upTo3MessageTemplates": "Hasta 3 plantillas de mensajes",
+  "t_upTo5MessageTemplates": "Hasta 5 plantillas de mensajes",
+  "t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans": "Sin internet. Por favor, conéctese a internet para ver los planes de suscripción.",
+  "t_androidIOSAndWebVersion": "Versión para Android, iOS y web",
+  "t_unlimitedNumberOfVoiceMessages": "Número ilimitado de mensajes de voz",
+  "t_upTo3UsersPerTeam": "Hasta 3 usuarios por equipo",
+  "t_upTo5UsersPerTeam": "Hasta 5 usuarios por equipo",
+  "t_upTo20UsersPerTeam": "Hasta 20 usuarios por equipo",
+  "t_get90DaysFreeTrail": "Obtén 90 días de prueba gratuita",
+  "t_downgrade": "Degradar",
+  "t_upgrade": "Actualizar",
+  "t_subscribed": "Suscrito",
+  "t_subscribe": "Suscribirse",
+  "t_areYouSureThisActionWillRemoveAllYourData": "¿Estás seguro? Esta acción eliminará todos tus datos."
 }

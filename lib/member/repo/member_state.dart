@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MemberState extends ChangeNotifier {
@@ -59,6 +62,7 @@ class MemberState extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final id = prefs.getString("memberId");
+      PingLog.pingLog("id: $id");
       if (id != null) {
         final memberModel = await MemberRepo.instance.getMemberById(id);
         final pingUser = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
@@ -104,6 +108,8 @@ class MemberState extends ChangeNotifier {
 
   Future<void> leaveTeam() async {
     final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getString("memberId") ?? "";
+    changeMemberOnlineStatus(id: id, status: false);
     await prefs.remove("memberId");
     _memberModel = null;
     loadMemberIdFromPrefs();
@@ -117,4 +123,13 @@ class MemberState extends ChangeNotifier {
     }
     super.dispose();
   }
+}
+
+void changeMemberOnlineStatus({
+  required String id,
+  required bool status,
+}) {
+  FirebaseFirestore.instance.collection("members").doc(id).update({
+    "isOnline": status,
+  });
 }
