@@ -36,7 +36,10 @@ class MemberDashboard extends StatelessWidget {
                   indicator: const BoxDecoration(),
                   dividerHeight: 0,
                   tabs: [
-                    Tab(text: 't_team'.tr(), icon: const Icon(Icons.group)),
+                    Tab(
+                      text: 't_team'.tr(),
+                      icon: const Icon(Icons.group),
+                    ),
                     Tab(
                       text: 't_notifications'.tr(),
                       icon: const Icon(Icons.notifications),

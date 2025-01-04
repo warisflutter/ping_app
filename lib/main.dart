@@ -81,7 +81,7 @@ void main() async {
       ], child: const MyApp()),
     ),
   );
-  // WatchConnectivity.instance.setupMethodChannel();
+  WatchConnectivity.instance.setupMethodChannel();
 }
 
 class MyApp extends StatelessWidget {

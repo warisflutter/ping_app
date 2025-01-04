@@ -41,10 +41,8 @@ class BroadcastListView extends StatelessWidget {
               return ListTile(
                 title: Text(broadcast.name),
                 subtitle: Text(parseDate(broadcast.createdAt)),
-                trailing:
-                    Text('${broadcast.memberIds.length} ${"members".tr()}'),
-                onTap: () =>
-                    push(BroadcastDetailView(initialBroadcast: broadcast)),
+                trailing: Text('${broadcast.memberIds.length} ${"members".tr()}'),
+                onTap: () => push(BroadcastDetailView(initialBroadcast: broadcast)),
               );
             },
           );
@@ -73,8 +71,7 @@ class BroadcastListView extends StatelessWidget {
               child: Text('t_add'.tr()),
               onPressed: () {
                 if (newBroadcastName.isNotEmpty) {
-                  BroadcastRepository.instance
-                      .addBroadcast(BroadcastModel(name: newBroadcastName));
+                  BroadcastRepository.instance.addBroadcast(newBroadcastName);
                   pop();
                 }
               },

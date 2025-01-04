@@ -139,7 +139,9 @@ class WatchConnectivity {
 
   Future<void> _handleRequestMessageTemplates() async {
     List<WatchOSMessageTemplate> templates = await _fetchMessageTemplates();
-    await platform.invokeMethod('sendMessageTemplates', {'templates': templates.map((t) => t.toJson()).toList()});
+    if (templates.isNotEmpty) {
+      await platform.invokeMethod('sendMessageTemplates', {'templates': templates.map((t) => t.toJson()).toList()});
+    }
   }
 
   Future<void> _handleReceivedPing(String userId) async {
