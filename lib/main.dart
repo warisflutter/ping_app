@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/firebase_options.dart';
@@ -15,7 +12,6 @@ import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
-import 'package:ping_app/view/admin/admin_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/watch_os/watch_repo.dart';
@@ -27,7 +23,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -61,26 +57,18 @@ void main() async {
   } else {
     PingLog.pingLog('No message data');
   }
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [
-        Locale('en'),
-        Locale('de'),
-        Locale('fr'),
-        Locale('es'),
-        Locale('it'),
-      ],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
-      child: MultiProvider(providers: [
-        ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
-        ChangeNotifierProvider(create: (_) => MemberState()),
-        ChangeNotifierProvider(create: (_) => AdminProvider()),
-        ChangeNotifierProvider(create: (_) => VoucherProvider()),
-        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
-      ], child: const MyApp()),
-    ),
-  );
+  runApp(EasyLocalization(
+    supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
+    path: 'assets/translations',
+    fallbackLocale: const Locale('en'),
+    child: MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+      ChangeNotifierProvider(create: (_) => MemberState()),
+      ChangeNotifierProvider(create: (_) => AdminProvider()),
+      ChangeNotifierProvider(create: (_) => VoucherProvider()),
+      ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+    ], child: const MyApp()),
+  ));
   WatchConnectivity.instance.setupMethodChannel();
 }
 
