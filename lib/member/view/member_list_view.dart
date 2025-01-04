@@ -109,155 +109,143 @@ class _MemberListViewState extends State<MemberListView> {
               ),
           ],
         ),
-        body: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                WatchConnectivity.instance.setupMethodChannel();
-              },
-              child: const Text("Setup Method Channel"),
-            ),
-            Expanded(
-              child: StreamBuilder<List<MemberModel>>(
-                stream: MemberRepo.instance.getMembers(
-                  ofTeamLead: myTeamLead,
-                  ifMemberId: ifMember?.id,
-                ),
-                builder: (context, snap) {
-                  if (snap.hasError) {
-                    return getErrorMessage(context, snap.error);
-                  }
-                  final data = snap.data;
-                  if (data == null) {
-                    return getLoader();
-                  }
-                  if (data.isEmpty && !isMember) {
-                    return getErrorMessage(context, 't_noMembersFound'.tr());
-                  }
-                  final operationsBlocked = (20) <= data.length;
-                  final members = data.where((member) => !member.isBlocked).toList();
-                  int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
-                  // PingLog.pingLog("This is the member $isMember");
-                  // if (isMember) {
-                  //   if (myTeamLead.isOnline == true) {
-                  //     numberOfOnlineMembers++;
-                  //   }
-                  // }
-                  final blockedMembers = data.where((member) => member.isBlocked).toList();
-                  final sortIds = memberState.idOrder;
-                  if (sortIds != null) {
-                    final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();
-                    members.sort(
-                      (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
-                    );
-                    members.sort(
-                      (a, b) => availIds.contains(a.id)
-                          ? -1
-                          : availIds.contains(b.id)
-                              ? 1
-                              : 0,
-                    );
-                  }
+        body: StreamBuilder<List<MemberModel>>(
+          stream: MemberRepo.instance.getMembers(
+            ofTeamLead: myTeamLead,
+            ifMemberId: ifMember?.id,
+          ),
+          builder: (context, snap) {
+            if (snap.hasError) {
+              return getErrorMessage(context, snap.error);
+            }
+            final data = snap.data;
+            if (data == null) {
+              return getLoader();
+            }
+            if (data.isEmpty && !isMember) {
+              return getErrorMessage(context, 't_noMembersFound'.tr());
+            }
+            final operationsBlocked = (20) <= data.length;
+            final members = data.where((member) => !member.isBlocked).toList();
+            int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
+            // PingLog.pingLog("This is the member $isMember");
+            // if (isMember) {
+            //   if (myTeamLead.isOnline == true) {
+            //     numberOfOnlineMembers++;
+            //   }
+            // }
+            final blockedMembers = data.where((member) => member.isBlocked).toList();
+            final sortIds = memberState.idOrder;
+            if (sortIds != null) {
+              final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();
+              members.sort(
+                (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
+              );
+              members.sort(
+                (a, b) => availIds.contains(a.id)
+                    ? -1
+                    : availIds.contains(b.id)
+                        ? 1
+                        : 0,
+              );
+            }
 
-                  return Column(
+            return Column(
+              children: [
+                getTeamCard(myTeamLead.teamName, numberOfOnlineMembers),
+                Expanded(
+                  child: Column(
                     children: [
-                      getTeamCard(myTeamLead.teamName, numberOfOnlineMembers),
+                      (isTeamLead)
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ChoiceChip(
+                                    label: Text("${'t_members'.tr()} (${members.length})"),
+                                    selected: !showBlocked,
+                                    onSelected: (selected) => setState(() => showBlocked = false),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  ChoiceChip(
+                                    label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
+                                    selected: showBlocked,
+                                    onSelected: (selected) => setState(() => showBlocked = true),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      (isMember)
+                          ? MemberListItem(
+                              operationsBlocked: operationsBlocked,
+                              isLoggedInAsMember: isMember,
+                              currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                              listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
+                            )
+                          : const SizedBox.shrink(),
+                      const Divider(),
                       Expanded(
-                        child: Column(
-                          children: [
-                            (isTeamLead)
-                                ? Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ChoiceChip(
-                                          label: Text("${'t_members'.tr()} (${members.length})"),
-                                          selected: !showBlocked,
-                                          onSelected: (selected) => setState(() => showBlocked = false),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        ChoiceChip(
-                                          label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
-                                          selected: showBlocked,
-                                          onSelected: (selected) => setState(() => showBlocked = true),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                            (isMember)
-                                ? MemberListItem(
-                                    operationsBlocked: operationsBlocked,
-                                    isLoggedInAsMember: isMember,
-                                    currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                    listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
-                                  )
-                                : const SizedBox.shrink(),
-                            const Divider(),
-                            Expanded(
-                              child: (showBlocked)
-                                  ? ListView(
-                                      children: blockedMembers
-                                          .map((member) => MemberListItem(
-                                                operationsBlocked: operationsBlocked,
-                                                key: ValueKey(member.id),
-                                                isLoggedInAsMember: isMember,
-                                                currentUserModel:
-                                                    isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                                listTimeMemberModel: member,
-                                              ))
-                                          .toList(),
-                                    )
-                                  : ReorderableListView(
-                                      onReorder: (oldIndex, newIndex) {
-                                        final currentIds = members.map((e) => e.id).toList();
-                                        memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
-                                      },
-                                      children: members.map(
-                                        (member) {
-                                          // PingLog.pingLog("team lead members: name ${member.name} status ${member.isOnline}");
-                                          // PingLog.pingLog("isMember $isMember");
-                                          if (isMember) {
-                                            if (ifMember?.name == member.name) {
-                                              return KeyedSubtree(
-                                                key: ValueKey("SizedBox-${member.id}"),
-                                                child: const SizedBox.shrink(),
-                                              );
-                                            } else {
-                                              return MemberListItem(
-                                                operationsBlocked: operationsBlocked,
-                                                key: ValueKey(member.id),
-                                                reOrderAble: true,
-                                                isLoggedInAsMember: isMember,
-                                                currentUserModel:
-                                                    (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                                listTimeMemberModel: member,
-                                              );
-                                            }
-                                          } else {
-                                            return MemberListItem(
-                                              operationsBlocked: operationsBlocked,
-                                              key: ValueKey(member.id),
-                                              reOrderAble: true,
-                                              isLoggedInAsMember: isMember,
-                                              currentUserModel:
-                                                  (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                              listTimeMemberModel: member,
-                                            );
-                                          }
-                                        },
-                                      ).toList()),
-                            ),
-                          ],
-                        ),
+                        child: (showBlocked)
+                            ? ListView(
+                                children: blockedMembers
+                                    .map((member) => MemberListItem(
+                                          operationsBlocked: operationsBlocked,
+                                          key: ValueKey(member.id),
+                                          isLoggedInAsMember: isMember,
+                                          currentUserModel:
+                                              isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                          listTimeMemberModel: member,
+                                        ))
+                                    .toList(),
+                              )
+                            : ReorderableListView(
+                                onReorder: (oldIndex, newIndex) {
+                                  final currentIds = members.map((e) => e.id).toList();
+                                  memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
+                                },
+                                children: members.map(
+                                  (member) {
+                                    // PingLog.pingLog("team lead members: name ${member.name} status ${member.isOnline}");
+                                    // PingLog.pingLog("isMember $isMember");
+                                    if (isMember) {
+                                      if (ifMember?.name == member.name) {
+                                        return KeyedSubtree(
+                                          key: ValueKey("SizedBox-${member.id}"),
+                                          child: const SizedBox.shrink(),
+                                        );
+                                      } else {
+                                        return MemberListItem(
+                                          operationsBlocked: operationsBlocked,
+                                          key: ValueKey(member.id),
+                                          reOrderAble: true,
+                                          isLoggedInAsMember: isMember,
+                                          currentUserModel:
+                                              (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                          listTimeMemberModel: member,
+                                        );
+                                      }
+                                    } else {
+                                      return MemberListItem(
+                                        operationsBlocked: operationsBlocked,
+                                        key: ValueKey(member.id),
+                                        reOrderAble: true,
+                                        isLoggedInAsMember: isMember,
+                                        currentUserModel:
+                                            (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                        listTimeMemberModel: member,
+                                      );
+                                    }
+                                  },
+                                ).toList()),
                       ),
                     ],
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       );
     });
