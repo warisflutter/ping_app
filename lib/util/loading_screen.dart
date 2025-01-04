@@ -45,6 +45,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   Future<void> initLoadingScreen() async {
+    // Provider.of<SubscriptionProvider>(context, listen: false).init();
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     AppLifecycleService().reset();
     await adminProvider.getAdmin();
