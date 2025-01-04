@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
@@ -301,13 +303,13 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     setState(() => loading = true);
     try {
       await AuthRepo.instance.createAccount(model, password.text);
-      final firebaseUser = Provider.of<PingAuthState>(context, listen: false).currentFirebaseUser;
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      push(VerifyEmailView(user: firebaseUser!));
       snack(
         't_accountCreatedAndLogin'.tr(),
         info: true,
         key: const Key("successMessage"),
       );
-      push(VerifyEmailView(user: firebaseUser!));
     } catch (e) {
       snack(e);
     }
