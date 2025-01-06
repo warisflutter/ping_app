@@ -8,6 +8,7 @@ import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/view/apple_sign_in_button.dart';
 import 'package:ping_app/auth/view/google_sign_in_button.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_utils.dart';
@@ -196,10 +197,9 @@ class _LoginViewState extends State<LoginView> {
         replaceAll(const AdminView());
       } else {
         AppLifecycleService().reset();
-        AppLifecycleService().initialize(
-          isMember: false,
-          userId: uid,
-        );
+        AppLifecycleService().initialize(isMember: false, userId: uid);
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser!.uid);
         replaceAll(const DashboardView());
       }
     } catch (e) {

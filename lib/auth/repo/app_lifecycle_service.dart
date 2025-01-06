@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
+import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {
   static final AppLifecycleService _instance = AppLifecycleService._internal();
@@ -49,7 +53,10 @@ class AppLifecycleService with WidgetsBindingObserver {
     }
   }
 
-  void setUserOnline() {
+  void setUserOnline() async {
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getString("memberId") ?? "";
+    PingLog.pingLog("id: $id");
     final userId = _userId;
     final isMember = _isMember;
     if (userId == null || isMember == null) {

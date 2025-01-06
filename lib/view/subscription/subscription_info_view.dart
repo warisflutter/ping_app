@@ -205,7 +205,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
                                   : (subscriptionProvider.selectType == 1)
                                       ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
-                                      : "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[7].price : subscriptionProvider.productsDetails[5].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
+                                      : "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[5].price : subscriptionProvider.productsDetails[4].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.black,
@@ -271,7 +271,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                           ? subscriptionProvider.productsDetails[1].price
                           : (subscriptionProvider.selectType == 1)
                               ? subscriptionProvider.productsDetails[3].price
-                              : subscriptionProvider.productsDetails[7].price,
+                              : subscriptionProvider.productsDetails[5].price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -320,7 +320,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                           ? subscriptionProvider.productsDetails[0].price
                           : (subscriptionProvider.selectType == 1)
                               ? subscriptionProvider.productsDetails[2].price
-                              : subscriptionProvider.productsDetails[5].price,
+                              : subscriptionProvider.productsDetails[4].price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -361,11 +361,12 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                   : subscriptionProvider.productsDetails[3];
               break;
             default:
-              selectedPrice = (subscriptionProvider.subscriptionType)
-                  ? subscriptionProvider.productsDetails[7]
-                  : subscriptionProvider.productsDetails[5];
+              selectedPrice = (!subscriptionProvider.subscriptionType)
+                  ? subscriptionProvider.productsDetails[5]
+                  : subscriptionProvider.productsDetails[4];
               break;
           }
+          PingLog.pingLog("select price: ${selectedPrice.price}");
           await subscriptionProvider.setProductDetails(selectedPrice);
         },
         child: Text(

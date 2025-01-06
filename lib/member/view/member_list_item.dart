@@ -303,7 +303,17 @@ class _MemberListItemState extends State<MemberListItem> {
                           final send = await push<bool>(VerifyAudioView(audioFile: file));
                           if (send ?? false) {
                             pop();
-                            NotificationRepo.instance.sendAudioNotification(me, selected, file);
+                            final data = await NotificationRepo.instance.sendAudioNotification(me, selected, file);
+                            await FirebaseNotificationService().sendNotification(
+                              messageData: data.data ?? "",
+                              type: "2",
+                              id: data.id,
+                              title: "Audio Message",
+                              body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
+                              token: selected.fcm,
+                              fromId: me.id,
+                              toId: selected.id,
+                            );
                           }
                         },
                       ),

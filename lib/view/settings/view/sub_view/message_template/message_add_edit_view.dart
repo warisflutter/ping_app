@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -53,7 +56,7 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
                 readOnly: loading,
               ),
               const SizedBox(height: 32),
-              loading
+              (loading)
                   ? getLoader()
                   : ElevatedButton(
                       key: const Key("buttonAddUpdate"),
@@ -106,10 +109,14 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
       if (isEditing) {
         await SettingRepo.instance.updateMessage(widget.originalMessage!, message.text);
       } else {
+        String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+        FirebaseFirestore.instance.collection('message_templates');
         await SettingRepo.instance.addMessage(message.text);
       }
       pop();
-    } catch (e) {
+    } catch (e, s) {
+      PingLog.pingLog("error: $e");
+      PingLog.pingLog("error: $s");
       snack(e);
     }
     setState(() => loading = false);

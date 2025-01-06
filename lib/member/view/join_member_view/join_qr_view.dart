@@ -106,8 +106,10 @@ import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -128,14 +130,16 @@ class _JoinQrViewState extends State<JoinQrView> {
 
   @override
   void initState() {
-    super.initState();
+    PingLog.pingLog("init call");
     _checkCameraPermission();
+    super.initState();
   }
 
   Future<void> _checkCameraPermission() async {
     PermissionStatus status = await Permission.camera.request();
+    PingLog.pingLog("status: ${status.name}");
 
-    if (status.isDenied) {
+    if (status.isPermanentlyDenied) {
       _showSettingsDialog();
     } else if (status.isGranted) {
       // Camera permission granted, continue as normal.
@@ -163,6 +167,12 @@ class _JoinQrViewState extends State<JoinQrView> {
         ],
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    _checkCameraPermission();
+    super.didChangeDependencies();
   }
 
   @override
@@ -221,6 +231,7 @@ class _JoinQrViewState extends State<JoinQrView> {
       AppLifecycleService().reset();
       AppLifecycleService().initialize(isMember: true, userId: member!.id);
       changeMemberOnlineStatus(id: memberId, status: true);
+      FcmRepo.instance.updateMemberFcmToken(member.id);
       replaceAll(const MemberDashboard());
     } catch (e) {
       setState(() => loading = false);

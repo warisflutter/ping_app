@@ -33,7 +33,6 @@ class AuthRepo {
       // PingLog.pingLog("keyOnlineStatus: $isOnline");
       // PingLog.pingLog("keyLastSeen: ${FieldValue.serverTimestamp()}");
       // PingLog.pingLog("id: ${id}");
-
       await usersCollection.doc(id).update({
         PingUserModel.keyOnlineStatus: isOnline,
         PingUserModel.keyLastSeen: FieldValue.serverTimestamp(),

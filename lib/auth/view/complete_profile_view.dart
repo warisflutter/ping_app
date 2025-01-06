@@ -2,8 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_utils.dart';
@@ -79,9 +81,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                         ),
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
-                        validator: (s) => s?.length == 3
-                            ? null
-                            : 't_provide3CharacterInitial'.tr(),
+                        validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
                         controller: initials,
                         maxLength: 3,
                       ),
@@ -129,6 +129,10 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
           updatedUser,
         );
         widget.firebaseUser.reload();
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        AppLifecycleService().reset();
+        AppLifecycleService().initialize(isMember: false, userId: firebaseUser!.uid);
+        FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
         replaceAll(const DashboardView());
       } catch (e) {
         snack('${'t_failedToUpdateProfile'.tr()}: $e');

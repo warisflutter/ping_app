@@ -4,8 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class SettingRepo {
   static final SettingRepo instance = SettingRepo._internal();
 
-  DocumentReference<Map<String, dynamic>> getMessageTemplateDoc(
-          String userId) =>
+  DocumentReference<Map<String, dynamic>> getMessageTemplateDoc(String userId) =>
       FirebaseFirestore.instance.collection('message_templates').doc(userId);
 
   String get currentUserId => FirebaseAuth.instance.currentUser?.uid ?? "all";
@@ -17,8 +16,16 @@ class SettingRepo {
       }
     });
   }
+  Future<void> ensureDocumentExists() async {
+    final docRef = getMessageTemplateDoc(currentUserId);
+    final docSnapshot = await docRef.get();
+    if (!docSnapshot.exists) {
+      await docRef.set({'messages': []});
+    }
+  }
 
   Future<void> addMessage(String message) async {
+    await ensureDocumentExists();
     await getMessageTemplateDoc(currentUserId).update({
       'messages': FieldValue.arrayUnion([message])
     });
@@ -50,13 +57,10 @@ class SettingRepo {
   }
 
   Stream<List<String>> getMessages(String teamLeadId) {
-
     print("getting messages for $teamLeadId");
-    return getMessageTemplateDoc(teamLeadId).snapshots().map((snapshot) =>
-        (snapshot.data()?['messages'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        []);
+    return getMessageTemplateDoc(teamLeadId)
+        .snapshots()
+        .map((snapshot) => (snapshot.data()?['messages'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? []);
   }
 
   Future<int> getMessageCount() async {

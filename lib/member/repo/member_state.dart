@@ -38,6 +38,7 @@ class MemberState extends ChangeNotifier {
     }
   }
 
+  int onlineMembers = 0;
   void initIdOrder() async {
     _idOrder = await MemberRepo.instance.getMemberOrder();
     notifyListeners();
@@ -55,6 +56,7 @@ class MemberState extends ChangeNotifier {
   MemberState() {
     initIdOrder();
     loadMemberIdFromPrefs();
+    fetchOnlineMembers();
   }
 
   Future<bool> loadMemberIdFromPrefs() async {
@@ -112,7 +114,7 @@ class MemberState extends ChangeNotifier {
     changeMemberOnlineStatus(id: id, status: false);
     await prefs.remove("memberId");
     _memberModel = null;
-    loadMemberIdFromPrefs();
+    // loadMemberIdFromPrefs();
     notifyListeners();
   }
 
@@ -122,6 +124,23 @@ class MemberState extends ChangeNotifier {
       _teamLeadSubscription!.cancel();
     }
     super.dispose();
+  }
+
+  Future<void> fetchOnlineMembers() async {
+    String memberId = member?.id ?? "";
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection("members")
+        .where("teamLeadId", isEqualTo: teamLead?.userId ?? "")
+        .where(
+          "isOnline",
+          isEqualTo: true,
+        )
+        .get();
+    final data = querySnapshot.docs.map((e) => e.id != memberId).toList();
+    int value = data.length;
+    onlineMembers = value;
+    PingLog.pingLog("online members: $value");
+    notifyListeners();
   }
 }
 

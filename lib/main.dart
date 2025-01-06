@@ -43,7 +43,6 @@ Future<void> main() async {
       );
     },
   );
-  //when app ins background
   FirebaseMessaging.onMessageOpenedApp.listen(
     (event) {
       notification.handleMessage(event);
@@ -51,7 +50,6 @@ Future<void> main() async {
   );
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
   if (initialMessage != null) {
     notification.handleMessage(initialMessage);
   } else {

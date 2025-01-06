@@ -3,8 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/view/complete_profile_view.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 
@@ -70,9 +72,13 @@ class GoogleSignInButton extends StatelessWidget {
         if (res.user != null) {
           final userDoc = await FirebaseFirestore.instance.collection("users").doc(res.user!.uid).get();
           if (userDoc.exists) {
+            final firebaseUser = FirebaseAuth.instance.currentUser;
+            AppLifecycleService().reset();
+            AppLifecycleService().initialize(isMember: false, userId: firebaseUser!.uid);
+            FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
             replaceAll(const DashboardView());
           } else {
-            replace(CompleteProfileView(firebaseUser: res.user!));
+            push(CompleteProfileView(firebaseUser: res.user!));
           }
         }
       }

@@ -5,6 +5,7 @@ import 'package:ping_app/broadcast/view/broadcast_detail_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/parsers.dart';
+import 'package:ping_app/util/ping_utils.dart';
 
 class BroadcastListView extends StatelessWidget {
   const BroadcastListView({super.key});
@@ -21,7 +22,16 @@ class BroadcastListView extends StatelessWidget {
               't_newBroadcast'.tr(),
               style: const TextStyle(color: Colors.white),
             ),
-            onPressed: () => _showNewBroadcastDialog(context),
+            onPressed: () async {
+              final isInternetAvailable = await context.isInternetAvailable();
+              if (isInternetAvailable) {
+                if (context.mounted) {
+                  _showNewBroadcastDialog(context);
+                }
+              } else {
+                snack("t_noInternetPleaseConnectToTheInternet".tr());
+              }
+            },
           ),
         ],
       ),
@@ -69,10 +79,12 @@ class BroadcastListView extends StatelessWidget {
             ),
             TextButton(
               child: Text('t_add'.tr()),
-              onPressed: () {
+              onPressed: () async {
                 if (newBroadcastName.isNotEmpty) {
                   BroadcastRepository.instance.addBroadcast(newBroadcastName);
                   pop();
+                } else {
+                  snack("broadcast name is empty");
                 }
               },
             ),

@@ -4,6 +4,7 @@ import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:provider/provider.dart';
@@ -56,12 +57,8 @@ class _JoinIdViewState extends State<JoinIdView> {
       await memberState.setMemberId(memberId);
       final member = memberState.member;
       AppLifecycleService().reset();
-      // NotificationService.instance.setNotificationListener(
-      //   context,
-      //   member!.id,
-      //   -1,
-      // );
       AppLifecycleService().initialize(isMember: true, userId: member!.id);
+      FcmRepo.instance.updateMemberFcmToken(member.id);
       replaceAll(const MemberDashboard());
     } catch (e) {
       setState(() => loading = false);

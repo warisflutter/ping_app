@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
@@ -67,8 +68,8 @@ class _MemberListViewState extends State<MemberListView> {
                 onPressed: () async {
                   final isConnected = await context.isInternetAvailable();
                   if (isConnected) {
+                    subscriptionProvider.init();
                     final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
-
                     if (subscriptionProvider.purChasedModel == null) {
                       PingLog.pingLog("purChasedModel is null");
                       if (context.mounted) {
@@ -101,6 +102,7 @@ class _MemberListViewState extends State<MemberListView> {
             if (mode.isMember)
               TextButton.icon(
                 onPressed: () {
+                  AppLifecycleService().reset();
                   memberState.leaveTeam();
                   replaceAll(const CreateAccountView());
                 },
@@ -127,13 +129,18 @@ class _MemberListViewState extends State<MemberListView> {
             }
             final operationsBlocked = (20) <= data.length;
             final members = data.where((member) => !member.isBlocked).toList();
-            int numberOfOnlineMembers = members.where((member) => member.isOnline).toList().length;
-            // PingLog.pingLog("This is the member $isMember");
-            // if (isMember) {
-            //   if (myTeamLead.isOnline == true) {
-            //     numberOfOnlineMembers++;
-            //   }
-            // }
+            int numberOfOnlineMembersForTL = members.where((member) => member.isOnline).toList().length;
+            int numberOfOnlineMembers = 0;
+            if (isMember) {
+              numberOfOnlineMembers = members
+                  .where((member) => member.isOnline)
+                  .where((member) => member.id != memberState.member!.id)
+                  .toList()
+                  .length;
+              if (myTeamLead.isOnline == true) {
+                numberOfOnlineMembers++;
+              }
+            }
             final blockedMembers = data.where((member) => member.isBlocked).toList();
             final sortIds = memberState.idOrder;
             if (sortIds != null) {
@@ -152,7 +159,10 @@ class _MemberListViewState extends State<MemberListView> {
 
             return Column(
               children: [
-                getTeamCard(myTeamLead.teamName, numberOfOnlineMembers),
+                getTeamCard(
+                  numberOfOnlineMembers: mode.isTeamLead ? numberOfOnlineMembersForTL : numberOfOnlineMembers,
+                  teamName: myTeamLead.teamName,
+                ),
                 Expanded(
                   child: Column(
                     children: [
@@ -207,8 +217,6 @@ class _MemberListViewState extends State<MemberListView> {
                                 },
                                 children: members.map(
                                   (member) {
-                                    // PingLog.pingLog("team lead members: name ${member.name} status ${member.isOnline}");
-                                    // PingLog.pingLog("isMember $isMember");
                                     if (isMember) {
                                       if (ifMember?.name == member.name) {
                                         return KeyedSubtree(
@@ -251,64 +259,30 @@ class _MemberListViewState extends State<MemberListView> {
     });
   }
 
-  Widget getTeamCard(String teamName, int onlineCount) {
-    return Builder(
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(teamName, style: Theme.of(context).textTheme.bodyLarge),
-            Text("${'t_online'.tr()} ($onlineCount)", style: Theme.of(context).textTheme.bodyLarge),
-          ],
-        ),
-      ),
+  Widget getTeamCard({
+    required String teamName,
+    required int numberOfOnlineMembers,
+  }) {
+    return Consumer<MemberState>(
+      builder: (context, memberState, _) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(teamName, style: Theme.of(context).textTheme.bodyLarge),
+              Text(
+                "${'t_online'.tr()} ($numberOfOnlineMembers)",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
-// onPressed: () async {
-//   final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
-//   if (subscriptionProvider.purChasedModel == null) {
-//     final voucherP = Provider.of<VoucherProvider>(context, listen: false);
-//     String data = await voucherP.fetchVoucher();
-//     if (data.isEmpty) {
-//       if (context.mounted) {
-//         final net = await context.isNetworkAvailable();
-//         if (net) {
-//           push(const SubscriptionInfoView());
-//         } else {
-//           snack("No internet, Please connect to internet to see Subscription plans");
-//         }
-//       }
-//     } else {
-//       PingLog.pingLog("This is my fetchVoucher: $data");
-//       String type = data.split("|")[1];
-//       PingLog.pingLog("This is my type: $type");
-//       if (type == "Basic") {
-//         PingLog.pingLog("if (type == Basic) { $numberOfMembers");
-//         if (numberOfMembers <= 3) {
-//           push(const MemberManageView());
-//         }
-//       } else if (type == "Export") {
-//         if (numberOfMembers <= 5) {
-//           push(const MemberManageView());
-//         }
-//       } else if (type == "Pro") {
-//         if (numberOfMembers <= 20) {
-//           push(const MemberManageView());
-//         }
-//       }
-//     }
-//   } else {
-//     int? perMember = subscriptionProvider.purChasedModel!.perUsersAndMessages;
-//     if (numberOfMembers != perMember) {
-//       push(const MemberManageView());
-//     } else {
-//       snack('t_youHaveMembersAllowed'.tr());
-//     }
-//   }
-// },

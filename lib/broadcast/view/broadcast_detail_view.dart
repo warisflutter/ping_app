@@ -11,11 +11,13 @@ import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/member_list_item.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
+import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/util/audio/ping_audio_record.dart';
 import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/parsers.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/record_web/audio_main.dart';
 import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:provider/provider.dart';
@@ -41,7 +43,16 @@ class BroadcastDetailView extends StatelessWidget {
         return Scaffold(
           floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.group),
-            onPressed: () => _showAddMemberDialog(context, broadcast),
+            onPressed: () async {
+              final isInternetAvailable = await context.isInternetAvailable();
+              if (isInternetAvailable) {
+                if (context.mounted) {
+                  _showAddMemberDialog(context, broadcast);
+                }
+              } else {
+                snack("t_noInternetPleaseConnectToTheInternet".tr());
+              }
+            },
           ),
           appBar: AppBar(title: Text(broadcast.name)),
           body: Column(
@@ -56,30 +67,24 @@ class BroadcastDetailView extends StatelessWidget {
               ),
               Expanded(
                 child: FutureBuilder<List<MemberModel>>(
-                  future:
-                      MemberRepo.instance.getMembersByIds(broadcast.memberIds),
+                  future: MemberRepo.instance.getMembersByIds(broadcast.memberIds),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return getLoader();
                     }
                     if (snapshot.hasError) {
-                      return getErrorMessage(
-                          context, 't_noMembersThisBroadcast'.tr());
+                      return getErrorMessage(context, 't_noMembersThisBroadcast'.tr());
                     }
                     final members = snapshot.data ?? [];
                     if (members.isEmpty) {
-                      return getErrorMessage(
-                          context, 't_noMembersThisBroadcast'.tr());
+                      return getErrorMessage(context, 't_noMembersThisBroadcast'.tr());
                     }
 
                     final sortIds = context.watch<MemberState>().idOrder;
                     if (sortIds != null) {
-                      final availIds = sortIds
-                          .where((id) => members.any((m) => m.id == id))
-                          .toList();
+                      final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();
                       members.sort(
-                        (a, b) =>
-                            availIds.indexOf(a.id) - availIds.indexOf(b.id),
+                        (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
                       );
                       //send members with id not in sortIds to end
                       members.sort(
@@ -99,8 +104,7 @@ class BroadcastDetailView extends StatelessWidget {
                               final member = members[index];
                               return MemberListItem(
                                 isLoggedInAsMember: false,
-                                currentUserModel:
-                                    MemberModel.fromPingUserModel(teamLead),
+                                currentUserModel: MemberModel.fromPingUserModel(teamLead),
                                 listTimeMemberModel: member,
                                 operationsBlocked: false,
                                 viewOnly: true,
@@ -123,11 +127,19 @@ class BroadcastDetailView extends StatelessWidget {
                                   icon: Icons.notifications_active,
                                   label: 't_sendPing'.tr(),
                                   onPressed: () async {
-                                    final me =
-                                        MemberModel.fromPingUserModel(teamLead);
+                                    final me = MemberModel.fromPingUserModel(teamLead);
                                     for (final member in members) {
-                                      await NotificationRepo.instance
-                                          .sendPingNotification(me, member);
+                                      final data = await NotificationRepo.instance.sendPingNotification(me, member);
+                                      await FirebaseNotificationService().sendNotification(
+                                        messageData: data.data ?? "",
+                                        type: "0",
+                                        id: data.id,
+                                        title: "Ping",
+                                        body: "${me.name} ${'t_sentAPing'.tr()}",
+                                        token: member.fcm,
+                                        fromId: me.id,
+                                        toId: member.id,
+                                      );
                                     }
                                   },
                                 ),
@@ -135,20 +147,25 @@ class BroadcastDetailView extends StatelessWidget {
                                   icon: Icons.message,
                                   label: 't_sendMessage'.tr(),
                                   onPressed: () async {
-                                    final message = await push<String>(
-                                        const MessageListView(
-                                            pickMessageMode: true));
+                                    final message = await push<String>(const MessageListView(pickMessageMode: true));
                                     if (message != null) {
-                                      final me = MemberModel.fromPingUserModel(
-                                          teamLead);
+                                      final me = MemberModel.fromPingUserModel(teamLead);
                                       try {
                                         for (final member in members) {
-                                          await NotificationRepo.instance
-                                              .sendMessageNotification(
-                                                  me, member, message);
+                                          final data = await NotificationRepo.instance
+                                              .sendMessageNotification(me, member, message);
+                                          await FirebaseNotificationService().sendNotification(
+                                            messageData: data.data ?? "",
+                                            type: "1",
+                                            id: data.id,
+                                            title: "Message",
+                                            body: "${me.name} ${'t_sentYouAMessage'.tr()}",
+                                            token: member.fcm,
+                                            fromId: me.id,
+                                            toId: member.id,
+                                          );
                                         }
-                                        snack('t_messageSentSuccessfully'.tr(),
-                                            info: true);
+                                        snack('t_messageSentSuccessfully'.tr(), info: true);
                                       } catch (e) {
                                         snack(e);
                                       }
@@ -159,44 +176,41 @@ class BroadcastDetailView extends StatelessWidget {
                                   icon: Icons.mic,
                                   label: 't_recordAudio'.tr(),
                                   onPressed: () async {
-                                    final me =
-                                        MemberModel.fromPingUserModel(teamLead);
+                                    final me = MemberModel.fromPingUserModel(teamLead);
 
                                     if (kIsWeb) {
-                                      final data = await push<Uint8List?>(
-                                          const AudioRecordWeb());
+                                      final data = await push<Uint8List?>(const AudioRecordWeb());
                                       if (data != null) {
-                                        snack('t_sendingAudioMessage'.tr(),
-                                            info: true);
+                                        snack('t_sendingAudioMessage'.tr(), info: true);
                                         for (final selected in members) {
-                                          await NotificationRepo.instance
-                                              .sendDataAudioNotification(
-                                                  me, selected, data);
+                                          await NotificationRepo.instance.sendDataAudioNotification(me, selected, data);
                                         }
-                                        snack(
-                                            't_audioMessageSendSuccessfully'
-                                                .tr(),
-                                            info: true);
+                                        snack('t_audioMessageSendSuccessfully'.tr(), info: true);
                                       }
                                       return;
                                     }
-                                    final file = await push<File>(
-                                        const PingAudioRecord());
+                                    final file = await push<File>(const PingAudioRecord());
                                     if (file == null) {
                                       return;
                                     }
-                                    final send = await push<bool>(
-                                        VerifyAudioView(audioFile: file));
+                                    final send = await push<bool>(VerifyAudioView(audioFile: file));
                                     if (send ?? false) {
-                                      snack('t_sendingAudioMessage'.tr(),
-                                          info: true);
+                                      snack('t_sendingAudioMessage'.tr(), info: true);
                                       for (final member in members) {
-                                        await NotificationRepo.instance
-                                            .sendAudioNotification(
-                                                me, member, file);
+                                        final data =
+                                            await NotificationRepo.instance.sendAudioNotification(me, member, file);
+                                        await FirebaseNotificationService().sendNotification(
+                                          messageData: data.data ?? "",
+                                          type: "2",
+                                          id: data.id,
+                                          title: "Audio Message",
+                                          body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
+                                          token: member.fcm,
+                                          fromId: me.id,
+                                          toId: member.id,
+                                        );
                                       }
-                                      snack('t_audioMessageSent'.tr(),
-                                          info: true);
+                                      snack('t_audioMessageSent'.tr(), info: true);
                                     }
                                   },
                                 ),

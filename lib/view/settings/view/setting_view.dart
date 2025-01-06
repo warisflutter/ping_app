@@ -38,7 +38,7 @@ class _SettingViewState extends State<SettingView> {
   Widget build(BuildContext context) {
     final pingUser = context.watch<PingAuthState>().currentPingUser;
     if (pingUser == null) {
-      return getErrorMessage(context, 't_userIsLoggedIn'.tr());
+      return getErrorMessage(context, "");
     }
     return Scaffold(
       appBar: AppBar(title: Text('t_settings'.tr())),
@@ -197,11 +197,11 @@ class _SettingViewState extends State<SettingView> {
                           final isConnected = await context.isInternetAvailable();
                           if (isConnected) {
                             if (context.mounted) {
-                              context.deleteAccountDialog(onPressed: () async {
-                                replaceAll(const CreateAccountView());
-                                await AuthRepo.instance.deleteUser();
-                                snack('t_accountDeletedSuccessfully'.tr());
-                              });
+                              // context.deleteAccountDialog(onPressed: () async {
+                              replaceAll(const CreateAccountView());
+                              await AuthRepo.instance.deleteUser();
+                              snack('t_accountDeletedSuccessfully'.tr());
+                              // });
                             }
                           } else {
                             snack("t_noInternetPleaseConnectToTheInternet".tr());

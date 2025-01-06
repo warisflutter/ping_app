@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -10,7 +9,6 @@ import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/subscription/subscription_model.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 class PurChasedModel {
   final String id;
@@ -28,7 +26,6 @@ class PurChasedModel {
 }
 
 class SubscriptionProvider extends ChangeNotifier {
-  late StreamSubscription<List<PurchaseDetails>> streamSubscription;
   int selectType = 0;
   bool subscriptionType = false;
   String selectSPrice = "";
@@ -59,8 +56,7 @@ class SubscriptionProvider extends ChangeNotifier {
       teamMembers: "t_upTo3UsersPerTeam".tr(),
     ),
     SubscriptionModel(
-      details:
-          "Upgrade to our Expert app version for an even better user experience and expanded features. Take your productivity to the next level.",
+      details: "",
       type: "t_expertSubscription".tr(),
       supportedPlatforms: "t_androidIOSAndWebVersion".tr(),
       annuallyPrice: "249.00",
@@ -251,6 +247,7 @@ class SubscriptionProvider extends ChangeNotifier {
                   if (subscriptionIds.contains(purchaseDetails.productID)) {
                     purchases.add(purchaseDetails);
                     await fetchDetailsAfterPurchase();
+                    pop();
                     notifyListeners();
                   }
                   break;
@@ -361,7 +358,10 @@ class SubscriptionProvider extends ChangeNotifier {
     //   log("Currency: ${product.rawPrice}");
     // }
 
-    return response.productDetails;
+    List<ProductDetails> fetchedProducts = response.productDetails;
+    fetchedProducts.removeWhere((product) => product.rawPrice == 0);
+
+    return fetchedProducts;
   }
 
   Future<void> showSubscriptions() async {
@@ -403,54 +403,10 @@ class SubscriptionProvider extends ChangeNotifier {
     // PingLog.pingLog("----Set Select Type----");
   }
 
-  PurchaseDetails? mostRecentPurchase;
-
   Future<void> purchaseSubscription(ProductDetails productDetails) async {
     try {
       final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
       await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
-      // _inAppPurchase.purchaseStream.listen(
-      //   (List<PurchaseDetails> purchaseDetailsList) async {
-      //     if (purchaseDetailsList.isNotEmpty) {
-      //       for (var purchaseDetails in purchaseDetailsList) {
-      //         PingLog.pingLog("purchase status ${purchaseDetails.status}");
-      //         switch (purchaseDetails.status) {
-      //           case PurchaseStatus.pending:
-      //             PingLog.pingLog('Purchase is pending...');
-      //             break;
-      //           case PurchaseStatus.error:
-      //             PingLog.pingLog('Purchase Error: ${purchaseDetails.error}');
-      //             snack(purchaseDetails.error?.message ?? "");
-      //             break;
-      //           case PurchaseStatus.restored:
-      //             PingLog.pingLog('PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
-      //             if (subscriptionIds.contains(purchaseDetails.productID)) {
-      //               PingLog.pingLog("....if (subscriptionIds.contains(purchaseDetails.productID))...");
-      //               purchases.add(purchaseDetails);
-      //               await fetchDetailsAfterPurchase();
-      //               notifyListeners();
-      //             }
-      //             break;
-      //           case PurchaseStatus.purchased:
-      //             PingLog.pingLog('PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
-      //             if (subscriptionIds.contains(purchaseDetails.productID)) {
-      //               purchases.add(purchaseDetails);
-      //               await fetchDetailsAfterPurchase();
-      //               notifyListeners();
-      //             }
-      //             break;
-      //           case PurchaseStatus.canceled:
-      //             PingLog.pingLog('Purchase was canceled. Product ID: ${purchaseDetails.productID}');
-      //             break;
-      //         }
-      //         // Mark purchase as complete
-      //         if (purchaseDetails.pendingCompletePurchase) {
-      //           _inAppPurchase.completePurchase(purchaseDetails);
-      //         }
-      //       }
-      //     }
-      //   },
-      // );
     } catch (e, s) {
       debugPrint("Error: $e");
       debugPrint("st: $s");

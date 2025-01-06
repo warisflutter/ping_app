@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/view/settings/view/sub_view/message_template/message_add_edit_view.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -24,14 +25,6 @@ class MessageListView extends StatefulWidget {
 
 class _MessageListViewState extends State<MessageListView> {
   bool loading = false;
-  // late SubscriptionProvider subscriptionProvider;
-  @override
-  void initState() {
-    // SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
-    //   subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
-    // });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +86,7 @@ class _MessageListViewState extends State<MessageListView> {
                           onPressed: () async {
                             final isConnected = await context.isInternetAvailable();
                             if (isConnected) {
+                              subscriptionProvider.init();
                               final numberOfMessages = await SettingRepo.instance.getMessageCount();
                               if (subscriptionProvider.purChasedModel == null) {
                                 if (context.mounted) {
@@ -108,41 +102,11 @@ class _MessageListViewState extends State<MessageListView> {
                                     );
                                   }
                                 }
-                                // final voucherP = Provider.of<VoucherProvider>(context, listen: false);
-                                // String data = await voucherP.fetchVoucher();
-                                // if (data.isEmpty) {
-                                //   push(const SubscriptionInfoView());
-                                //   snack('you have buy onr subscription first to continue');
-                                // } else {
-                                //   PingLog.pingLog("This is my fetchVoucher: $data");
-                                //   String type = data.split("|")[1];
-                                //   PingLog.pingLog("This is my type: $type");
-                                //   if (type == "Basic") {
-                                //     PingLog.pingLog("if (type == Basic) { $numberOfMessages");
-                                //     if (numberOfMessages != 3) {
-                                //       push(const MessageAddEditView());
-                                //     }
-                                //   } else if (type == "Export") {
-                                //     if (numberOfMessages != 5) {
-                                //       push(const MessageAddEditView());
-                                //     }
-                                //   } else if (type == "Pro") {
-                                //     if (numberOfMessages != 20) {
-                                //       push(const MessageAddEditView());
-                                //     }
-                                //   }
-                                // }
                               } else {
-                                // int perMessages = subscriptionProvider.purChasedModel?.perUsersAndMessages ?? 0;
                                 subscriptionProvider.handleSubscription(
                                   numberOfMembers: numberOfMessages,
                                   type: "message",
                                 );
-                                // if (numberOfMessages == perMessages) {
-                                //   snack('t_youHaveMessagesTemplate'.tr());
-                                // } else {
-                                //   push(const MessageAddEditView());
-                                // }
                               }
                             } else {
                               snack("t_noInternetPleaseConnectToTheInternet".tr());
@@ -215,7 +179,7 @@ class _MessageListViewState extends State<MessageListView> {
     return widget.pickMessageMode
         ? ListView(children: buildMessages())
         : ReorderableListView(
-            buildDefaultDragHandles: false,
+            // buildDefaultDragHandles: false,
             onReorder: (oldIndex, newIndex) => actionReordering(oldIndex, newIndex),
             children: buildMessages(),
           );
