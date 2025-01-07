@@ -46,6 +46,16 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDcfFrP7s861I78UTBKX6EsBCExDAOCuZ0',
+    appId: '1:607056826389:web:423f1ad4674d8c5ba6be1c',
+    messagingSenderId: '607056826389',
+    projectId: 'pingapp-94e13',
+    authDomain: 'pingapp-94e13.firebaseapp.com',
+    storageBucket: 'pingapp-94e13.firebasestorage.app',
+    measurementId: 'G-3FMTLXTTL8',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAj-Ds-KrosuhllhHc78f0OlLOO94W22Dk',
     appId: '1:607056826389:android:56e1dab434cf5be2a6be1c',
@@ -54,25 +64,14 @@ class DefaultFirebaseOptions {
     storageBucket: 'pingapp-94e13.firebasestorage.app',
   );
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDcfFrP7s861I78UTBKX6EsBCExDAOCuZ0',
-    appId: '1:607056826389:web:6cce59b7f8425657a6be1c',
-    messagingSenderId: '607056826389',
-    projectId: 'pingapp-94e13',
-    authDomain: 'pingapp-94e13.firebaseapp.com',
-    storageBucket: 'pingapp-94e13.firebasestorage.app',
-    measurementId: 'G-FN7S7NES81',
-  );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCDfx4Eh2ZVajvd9yTnTKEKGScjIpiicJY',
-    appId: '1:607056826389:ios:f923f45e4498375fa6be1c',
+    appId: '1:607056826389:ios:dd486e80ca805ebaa6be1c',
     messagingSenderId: '607056826389',
     projectId: 'pingapp-94e13',
     storageBucket: 'pingapp-94e13.firebasestorage.app',
-    androidClientId: '607056826389-t4oiiqr0aig1iouvjmbav5j6nbvm4185.apps.googleusercontent.com',
-    iosClientId: '607056826389-r2ni9nvbm8bdhvl1cudq9a14995r0smq.apps.googleusercontent.com',
+    androidClientId: '607056826389-st08hq2j8ald2eg2si8colt24mi4a5i8.apps.googleusercontent.com',
+    iosClientId: '607056826389-6dugrh1bl521559ga4nljlsjnub9nqi8.apps.googleusercontent.com',
     iosBundleId: 'com.martin.pingapp.pingApp',
   );
-
 }

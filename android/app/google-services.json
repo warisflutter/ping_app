@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "607056826389-st08hq2j8ald2eg2si8colt24mi4a5i8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.team.pingapp.ping_app",
+            "certificate_hash": "9712509c448aeb9a06dbacfaecea858a5b94d632"
+          }
+        },
+        {
+          "client_id": "607056826389-u8fccilnofhv0a0nss1ufmld88g24bep.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.team.pingapp.ping_app",
+            "certificate_hash": "a64e486ff064837fb247dabddee3ff8cb9713d3d"
+          }
+        },
+        {
           "client_id": "607056826389-lt27gkhq57p9il1uuv4dhejakjglg5l4.apps.googleusercontent.com",
           "client_type": 3
         }
