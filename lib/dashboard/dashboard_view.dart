@@ -11,7 +11,16 @@ Future<void> onPopInvoked(BuildContext context) async {
   final bool shouldPop = await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('t_areYouSure'.tr()),
+          title: Row(
+            children: [
+              const Icon(
+                Icons.warning,
+                color: Colors.red,
+              ),
+              const SizedBox(width: 5),
+              Text('t_areYouSure'.tr()),
+            ],
+          ),
           content: Text('t_closingThisWorkProperly'.tr()),
           actions: <Widget>[
             TextButton(
@@ -55,7 +64,6 @@ class _DashboardViewState extends State<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
-    // print("${context.locale}");
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
