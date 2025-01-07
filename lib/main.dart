@@ -49,18 +49,27 @@ Future<void> main() async {
     },
   );
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  RemoteMessage? initialMessage =
+      await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
     notification.handleMessage(initialMessage);
   } else {
     PingLog.pingLog('No message data');
   }
   runApp(EasyLocalization(
-    supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
+    supportedLocales: const [
+      Locale('en'),
+      Locale('de'),
+      Locale('fr'),
+      Locale('es'),
+      Locale('it')
+    ],
     path: 'assets/translations',
     fallbackLocale: const Locale('en'),
     child: MultiProvider(providers: [
-      ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+      ChangeNotifierProvider(
+          create: (_) =>
+              PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
       ChangeNotifierProvider(create: (_) => MemberState()),
       ChangeNotifierProvider(create: (_) => AdminProvider()),
       ChangeNotifierProvider(create: (_) => VoucherProvider()),

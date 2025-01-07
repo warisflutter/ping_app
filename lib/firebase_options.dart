@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'pingapp-94e13.firebasestorage.app',
     androidClientId: '607056826389-t4oiiqr0aig1iouvjmbav5j6nbvm4185.apps.googleusercontent.com',
     iosClientId: '607056826389-r2ni9nvbm8bdhvl1cudq9a14995r0smq.apps.googleusercontent.com',
-    iosBundleId: 'com.team.pingapp.ping-app',
+    iosBundleId: 'com.martin.pingapp.pingApp',
   );
 
 }

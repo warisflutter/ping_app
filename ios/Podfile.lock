@@ -1254,6 +1254,8 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GTMSessionFetcher/Core (~> 3.4)
   - Flutter (1.0.0)
+  - flutter_email_sender (0.0.1):
+    - Flutter
   - google_sign_in_ios (0.0.1):
     - AppAuth (>= 1.7.4)
     - Flutter
@@ -1389,6 +1391,9 @@ PODS:
   - GTMSessionFetcher/Core (3.5.0)
   - GTMSessionFetcher/Full (3.5.0):
     - GTMSessionFetcher/Core
+  - in_app_purchase_storekit (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - leveldb-library (1.22.5)
   - MTBBarcodeScanner (5.0.11)
   - nanopb (3.30910.0):
@@ -1399,12 +1404,9 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - PromisesObjC (2.4.0)
-  - purchases_flutter (8.1.2):
+  - permission_handler_apple (9.3.0):
     - Flutter
-    - PurchasesHybridCommon (= 13.2.1)
-  - PurchasesHybridCommon (13.2.1):
-    - RevenueCat (= 5.3.3)
+  - PromisesObjC (2.4.0)
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
@@ -1412,7 +1414,6 @@ PODS:
   - record_darwin (1.0.0):
     - Flutter
     - FlutterMacOS
-  - RevenueCat (5.3.3)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -1431,9 +1432,11 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
+  - flutter_email_sender (from `.symlinks/plugins/flutter_email_sender/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
+  - in_app_purchase_storekit (from `.symlinks/plugins/in_app_purchase_storekit/darwin`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
-  - purchases_flutter (from `.symlinks/plugins/purchases_flutter/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - record_darwin (from `.symlinks/plugins/record_darwin/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -1470,9 +1473,7 @@ SPEC REPOS:
     - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
-    - PurchasesHybridCommon
     - RecaptchaInterop
-    - RevenueCat
 
 EXTERNAL SOURCES:
   audioplayers_darwin:
@@ -1489,12 +1490,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
+  flutter_email_sender:
+    :path: ".symlinks/plugins/flutter_email_sender/ios"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
+  in_app_purchase_storekit:
+    :path: ".symlinks/plugins/in_app_purchase_storekit/darwin"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
-  purchases_flutter:
-    :path: ".symlinks/plugins/purchases_flutter/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
   record_darwin:
@@ -1532,6 +1537,7 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: 7a0d78d155ede78407f0fdc89fbc914014c7c540
   FirebaseStorage: f9e2bf027d549db18b6195a37b31c85f56e40200
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_email_sender: 10a22605f92809a11ef52b2f412db806c6082d40
   google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
@@ -1540,17 +1546,16 @@ SPEC CHECKSUMS:
   gRPC-Core: a27c294d6149e1c39a7d173527119cfbc3375ce4
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
+  in_app_purchase_storekit: 8c3b0b3eb1b0f04efbff401c3de6266d4258d433
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: f3260cb3ab38c087e4d3dae2b71cd1a0c79fbb32
-  PurchasesHybridCommon: 7955b21cc5a8be78cea6dcf92f3906f3e5cec972
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   record_darwin: df0a677188e5fed18472550298e675f19ddaffbe
-  RevenueCat: d9e8b1b56bf81483cf8bb902a952a2da8749b964
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
@@ -1558,4 +1563,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 255bd2046f14ea2837514bf7bfbcc77d039fc744
 
-COCOAPODS: 1.13.0
+COCOAPODS: 1.15.2
