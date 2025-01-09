@@ -1,7 +1,14 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
+import 'package:ping_app/auth/view/complete_profile_view.dart';
+import 'package:ping_app/dashboard/dashboard_view.dart';
+import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
+import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AppleSignInButton extends StatelessWidget {
@@ -13,11 +20,11 @@ class AppleSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SignInWithAppleButton(
       borderRadius: BorderRadius.circular(40),
-      onPressed: () => signInWithApple(),
+      onPressed: () => signInWithApple(context),
     );
   }
 
-  Future<void> signInWithApple() async {
+  Future<void> signInWithApple(BuildContext context) async {
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -39,7 +46,23 @@ class AppleSignInButton extends StatelessWidget {
         accessToken: appleCredential.authorizationCode,
       );
 
-      await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        PingLog.pingLog("---Firebase user is null after sign-in.---");
+        return;
+      }
+      if (context.mounted) {
+        final userDoc = await FirebaseFirestore.instance.collection("users").doc(firebaseUser.uid).get();
+        if (userDoc.exists) {
+          AppLifecycleService().reset();
+          AppLifecycleService().initialize(isMember: false, userId: firebaseUser.uid);
+          FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+          replaceAll(const DashboardView());
+        } else {
+          push(CompleteProfileView(firebaseUser: firebaseUser));
+        }
+      }
       onSignedIn();
     } catch (e) {
       snack(e);
