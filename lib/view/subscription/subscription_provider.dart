@@ -27,12 +27,17 @@ class PurChasedModel {
 }
 
 class SubscriptionProvider extends ChangeNotifier {
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  PurChasedModel? purChasedModel;
+  late ProductDetails selectProductDetails;
+  List<PurchaseDetails> purchases = [];
+  List<ProductDetails> productsDetails = <ProductDetails>[];
   int selectType = 0;
   bool subscriptionType = false;
   String selectSPrice = "";
-  double purChasedPrice = 0.0;
   String subscribeBtnText = "";
-  PurChasedModel? purChasedModel;
+  double purChasedPrice = 0.0;
+
   List<String> subscriptionIds = <String>[
   (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
     (Platform.isIOS) ? "pingapp_199_1y" : "basicyearly",
@@ -41,10 +46,6 @@ class SubscriptionProvider extends ChangeNotifier {
     (Platform.isIOS) ? "pingapp_34_1m" : "promonthly",
     (Platform.isIOS) ? "pingapp_349_1y" : "proyearly",
   ];
-  late ProductDetails selectProductDetails;
-  List<PurchaseDetails> purchases = [];
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  List<ProductDetails> productsDetails = <ProductDetails>[];
   List<SubscriptionModel> subscriptions = <SubscriptionModel>[
     SubscriptionModel(
       details: "",
