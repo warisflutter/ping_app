@@ -13,9 +13,16 @@ void replaceAll(Widget child) => navigatorKey.currentState?.pushAndRemoveUntil(
     );
 
 void pop<T>({T? data}) => navigatorKey.currentState?.pop(data);
-
+bool canPop() => navigatorKey.currentState?.canPop() ?? false;
 void popToDashboard() =>
     navigatorKey.currentState?.popUntil((route) => route.isFirst);
+void safePop<T>({T? data}) {
+  if (canPop()) {
+    pop<T>(data: data);
+  }
+}
+/// Pops all routes until the first one in the stack.
+void popToRoot() => navigatorKey.currentState?.popUntil((route) => route.isFirst);
 
 // void downloadBytes(String name, Uint8List bytes) async {
 //   final anchor = AnchorElement(
