@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -33,12 +34,12 @@ class SubscriptionProvider extends ChangeNotifier {
   String subscribeBtnText = "";
   PurChasedModel? purChasedModel;
   List<String> subscriptionIds = <String>[
-    "basicmonthly",
-    "basicyearly",
-    "expertmonthly",
-    "expertyearly",
-    "promonthly",
-    "proyearly",
+  (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
+    (Platform.isIOS) ? "pingapp_199_1y" : "basicyearly",
+    (Platform.isIOS) ? "pingapp_24_1m" : "expertmonthly",
+    (Platform.isIOS) ? "pingapp_249_1y" : "expertyearly",
+    (Platform.isIOS) ? "pingapp_34_1m" : "promonthly",
+    (Platform.isIOS) ? "pingapp_349_1y" : "proyearly",
   ];
   late ProductDetails selectProductDetails;
   List<PurchaseDetails> purchases = [];
@@ -88,38 +89,64 @@ class SubscriptionProvider extends ChangeNotifier {
       PingLog.pingLog(".........transactionDate.......${purchases.first.transactionDate}...");
       PingLog.pingLog(".........productID.......${purchases.first.productID}...");
       PingLog.pingLog(".........status.......${purchases.first.status}...");
-      switch (purChasedModel?.id ?? "") {
-        case "basicmonthly":
-          setSubscriptionType(true);
-          setSelectType(0);
-          setSelectedPrice(productsDetails[0].price);
-          break;
-        case "basicyearly":
-          setSubscriptionType(false);
-          setSelectType(0);
-          setSelectedPrice(productsDetails[1].price);
-          break;
-        case "expertmonthly":
-          setSubscriptionType(true);
-          setSelectType(1);
-          setSelectedPrice(productsDetails[2].price);
-          break;
-        case "expertyearly":
-          setSubscriptionType(false);
-          setSelectType(1);
-          setSelectedPrice(productsDetails[3].price);
-          break;
-        case "promonthly":
-          setSubscriptionType(true);
-          setSelectType(2);
-          setSelectedPrice(productsDetails[5].price);
-          break;
-        default:
-          setSubscriptionType(false);
-          setSelectType(2);
-          setSelectedPrice(productsDetails[7].price);
-          break;
+      // switch (purChasedModel?.id ?? "") {
+      //   case "basicmonthly":
+      //     setSubscriptionType(true);
+      //     setSelectType(0);
+      //     setSelectedPrice(productsDetails[0].price);
+      //     break;
+      //   case "basicyearly":
+      //     setSubscriptionType(false);
+      //     setSelectType(0);
+      //     setSelectedPrice(productsDetails[1].price);
+      //     break;
+      //   case "expertmonthly":
+      //     setSubscriptionType(true);
+      //     setSelectType(1);
+      //     setSelectedPrice(productsDetails[2].price);
+      //     break;
+      //   case "expertyearly":
+      //     setSubscriptionType(false);
+      //     setSelectType(1);
+      //     setSelectedPrice(productsDetails[3].price);
+      //     break;
+      //   case "promonthly":
+      //     setSubscriptionType(true);
+      //     setSelectType(2);
+      //     setSelectedPrice(productsDetails[5].price);
+      //     break;
+      //   default:
+      //     setSubscriptionType(false);
+      //     setSelectType(2);
+      //     setSelectedPrice(productsDetails[7].price);
+      //     break;
+      // }
+    if (purChasedModel?.id == subscriptionIds[0]) {
+        setSubscriptionType(true);
+        setSelectType(0);
+        setSelectedPrice(productsDetails[0].price);
+      } else if (purChasedModel?.id == subscriptionIds[1]) {
+        setSubscriptionType(false);
+        setSelectType(0);
+        setSelectedPrice(productsDetails[1].price);
+      } else if (purChasedModel?.id == subscriptionIds[2]) {
+        setSubscriptionType(true);
+        setSelectType(1);
+        setSelectedPrice(productsDetails[2].price);
+      } else if (purChasedModel?.id == subscriptionIds[3]) {
+        setSubscriptionType(false);
+        setSelectType(1);
+        setSelectedPrice(productsDetails[3].price);
+      } else if (purChasedModel?.id == subscriptionIds[4]) {
+        setSubscriptionType(true);
+        setSelectType(2);
+        setSelectedPrice(productsDetails[5].price);
+      } else {
+        setSubscriptionType(false);
+        setSelectType(2);
+        setSelectedPrice(productsDetails[7].price);
       }
+
     } else {
       setSubscriptionType(false);
       setSelectType(2);
