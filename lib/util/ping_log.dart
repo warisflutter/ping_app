@@ -1,7 +1,10 @@
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 
 class PingLog {
   static void pingLog(String text) {
-    log("🔰 $text");
+    if (kDebugMode) {
+      log("🔰 $text");
+    }
   }
 }
