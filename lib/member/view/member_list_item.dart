@@ -224,8 +224,8 @@ class _MemberListItemState extends State<MemberListItem> {
                                   false;
                               if (confirmation) {
                                 final data = await NotificationRepo.instance.sendPingNotification(me, selected);
-                                snack("t_pingSentSuccessfully".tr(), info: true);
-                                await FirebaseNotificationService().sendNotification(
+
+                                final res = await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
                                   type: "0",
                                   id: data.id,
@@ -235,6 +235,9 @@ class _MemberListItemState extends State<MemberListItem> {
                                   fromId: me.id,
                                   toId: selected.id,
                                 );
+                                if (res) {
+                                  snack("t_pingSentSuccessfully".tr(), info: true);
+                                }
                               } else {
                                 snack("t_pingSendingCancelled".tr());
                               }
@@ -264,8 +267,7 @@ class _MemberListItemState extends State<MemberListItem> {
                               if (confirmation) {
                                 final data =
                                     await NotificationRepo.instance.sendMessageNotification(me, selected, message);
-                                snack("t_messageSentSuccessfully".tr(), info: true);
-                                await FirebaseNotificationService().sendNotification(
+                                final res = await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
                                   type: "1",
                                   id: data.id,
@@ -275,6 +277,9 @@ class _MemberListItemState extends State<MemberListItem> {
                                   fromId: me.id,
                                   toId: selected.id,
                                 );
+                                if (res) {
+                                  snack("t_messageSentSuccessfully".tr(), info: true);
+                                }
                               } else {
                                 snack("t_messageSendingCancelled".tr());
                               }
