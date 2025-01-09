@@ -26,9 +26,9 @@ class AppleSignInButton extends StatelessWidget {
         ],
         webAuthenticationOptions: Platform.isAndroid
             ? WebAuthenticationOptions(
-                clientId: 'com.googleusercontent.apps.29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo',
+                clientId: 'com.googleusercontent.apps.406099696497-l9gojfp6b3h1cgie1se28a9ol9fmsvvk',
                 redirectUri: Uri.parse(
-                  'https://pingapp-17ef7.firebaseapp.com/__/auth/handler',
+                  'https://pingapp-94e13.firebaseapp.com/__/auth/handler',
                 ),
               )
             : null,
