@@ -58,7 +58,7 @@ class FirebaseNotificationService {
     return credentials.accessToken.data;
   }
 
-  Future<void> sendNotification({
+  Future<bool> sendNotification({
     required String title,
     required String body,
     required String token,
@@ -68,6 +68,7 @@ class FirebaseNotificationService {
     required String type,
     required String messageData,
   }) async {
+    Completer<bool> completer = Completer<bool>();
     try {
       String serverTokenKey = await getAccessToken();
       String endPoint = "https://fcm.googleapis.com/v1/projects/pingapp-94e13/messages:send";
@@ -96,12 +97,16 @@ class FirebaseNotificationService {
       if (response.statusCode == 200) {
         log('Notification sent successfully');
         log(response.body);
+        completer.complete(true);
       } else {
+        completer.complete(false);
         log('Failed to send notification. Status code: ${response.statusCode}');
       }
     } catch (e, s) {
+      completer.complete(false);
       log('Error sending notification: $e $s');
     }
+    return completer.future;
   }
 
   Future<void> handleMessage(RemoteMessage message) async {
