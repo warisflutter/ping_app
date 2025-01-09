@@ -48,8 +48,10 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>io.flutter.embedded_views_preview</key>
+    <true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera to scan Qr Code</string>
+	<string>We need access to your camera to scan QR codes.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Record audio to send audio messages</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
