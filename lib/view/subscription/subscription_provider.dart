@@ -17,6 +17,7 @@ class PurChasedModel {
   final String price;
   final String details;
   final int perUsersAndMessages;
+
   PurChasedModel({
     required this.title,
     required this.id,
@@ -39,7 +40,7 @@ class SubscriptionProvider extends ChangeNotifier {
   double purChasedPrice = 0.0;
 
   List<String> subscriptionIds = <String>[
-  (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
+    (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
     (Platform.isIOS) ? "pingapp_199_1y" : "basicyearly",
     (Platform.isIOS) ? "pingapp_24_1m" : "expertmonthly",
     (Platform.isIOS) ? "pingapp_249_1y" : "expertyearly",
@@ -78,17 +79,21 @@ class SubscriptionProvider extends ChangeNotifier {
       teamMembers: "t_upTo20UsersPerTeam".tr(),
     ),
   ];
+
   SubscriptionProvider() {
     init();
   }
+
   Future<void> init() async {
     PingLog.pingLog("SubscriptionProvider init");
     await showSubscriptions();
     await initLister();
     await restorePurchases();
     if (purChasedModel != null) {
-      PingLog.pingLog(".........transactionDate.......${purchases.first.transactionDate}...");
-      PingLog.pingLog(".........productID.......${purchases.first.productID}...");
+      PingLog.pingLog(
+          ".........transactionDate.......${purchases.first.transactionDate}...");
+      PingLog.pingLog(
+          ".........productID.......${purchases.first.productID}...");
       PingLog.pingLog(".........status.......${purchases.first.status}...");
       // switch (purChasedModel?.id ?? "") {
       //   case "basicmonthly":
@@ -122,7 +127,7 @@ class SubscriptionProvider extends ChangeNotifier {
       //     setSelectedPrice(productsDetails[7].price);
       //     break;
       // }
-    if (purChasedModel?.id == subscriptionIds[0]) {
+      if (purChasedModel?.id == subscriptionIds[0]) {
         setSubscriptionType(true);
         setSelectType(0);
         setSelectedPrice(productsDetails[0].price);
@@ -147,7 +152,6 @@ class SubscriptionProvider extends ChangeNotifier {
         setSelectType(2);
         setSelectedPrice(productsDetails[7].price);
       }
-
     } else {
       setSubscriptionType(false);
       setSelectType(2);
@@ -155,15 +159,72 @@ class SubscriptionProvider extends ChangeNotifier {
     setSubscribeButton();
     notifyListeners();
   }
-
-  setSelectedPrice(String value) {
-    selectSPrice = value;
-    notifyListeners();
-    PingLog.pingLog("This is my value $value and  selected Price: $selectSPrice");
+  Future<void> initLister() async {
+    try {
+      _inAppPurchase.purchaseStream.listen(
+        (List<PurchaseDetails> purchaseDetailsList) async {
+          PingLog.pingLog(
+              ".............initLister....start................................");
+          PingLog.pingLog(
+              "purchaseDetailsList length: ${purchaseDetailsList.length}");
+          PingLog.pingLog("purchaseDetailsList ${purchaseDetailsList}");
+          if (purchaseDetailsList.isEmpty) {
+            PingLog.pingLog("No purchases in purchaseDetailsList.");
+          } else {
+            for (var purchaseDetails in purchaseDetailsList) {
+              PingLog.pingLog("purchase status ${purchaseDetails.status}");
+              switch (purchaseDetails.status) {
+                case PurchaseStatus.pending:
+                  PingLog.pingLog('Purchase is pending...');
+                  break;
+                case PurchaseStatus.error:
+                  PingLog.pingLog('Purchase Error: ${purchaseDetails.error}');
+                  break;
+                case PurchaseStatus.restored:
+                  PingLog.pingLog(
+                      'PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
+                  if (subscriptionIds.contains(purchaseDetails.productID)) {
+                    PingLog.pingLog(
+                        "....if (subscriptionIds.contains(purchaseDetails.productID))...");
+                    purchases.add(purchaseDetails);
+                    await fetchDetailsAfterPurchase();
+                    notifyListeners();
+                  }
+                  break;
+                case PurchaseStatus.purchased:
+                  PingLog.pingLog(
+                      'PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
+                  if (subscriptionIds.contains(purchaseDetails.productID)) {
+                    purchases.add(purchaseDetails);
+                    await fetchDetailsAfterPurchase();
+                    pop();
+                    notifyListeners();
+                  }
+                  break;
+                case PurchaseStatus.canceled:
+                  PingLog.pingLog(
+                      'Purchase was canceled. Product ID: ${purchaseDetails.productID}');
+                  break;
+              }
+              // Mark purchase as complete
+              if (purchaseDetails.pendingCompletePurchase) {
+                _inAppPurchase.completePurchase(purchaseDetails);
+              }
+            }
+          }
+        },
+        onError: (error) {
+          PingLog.pingLog("Purchase stream error: $error");
+        },
+      );
+    } catch (e, s) {
+      PingLog.pingLog("initLister error: $e $s");
+    }
+    PingLog.pingLog(
+        "................initLister......end...........................");
   }
-
   Future fetchDetailsAfterPurchase() async {
-    PingLog.pingLog("----fetchDetailsAfterPurchase Call----");
+    PingLog.pingLog("----fetchDetailsAfterPurchase Function Start----");
     PingLog.pingLog("----> ${purchases.first.productID} $subscriptionIds");
     try {
       if (purchases.isNotEmpty) {
@@ -239,131 +300,13 @@ class SubscriptionProvider extends ChangeNotifier {
     } catch (e, s) {
       PingLog.pingLog("This is my Error: $e $s");
     }
-    PingLog.pingLog("===> This is my purchase model => ${purChasedModel?.title}");
+    PingLog.pingLog(
+        "===> This is my purchase model => ${purChasedModel?.title}");
+    PingLog.pingLog("----fetchDetailsAfterPurchase Function end----");
   }
-
-  Future<void> initLister() async {
-    try {
-      _inAppPurchase.purchaseStream.listen(
-        (List<PurchaseDetails> purchaseDetailsList) async {
-          PingLog.pingLog(".............initLister....start................................");
-          PingLog.pingLog("purchaseDetailsList length: ${purchaseDetailsList.length}");
-          PingLog.pingLog("purchaseDetailsList ${purchaseDetailsList}");
-          if (purchaseDetailsList.isEmpty) {
-            PingLog.pingLog("No purchases in purchaseDetailsList.");
-          } else {
-            for (var purchaseDetails in purchaseDetailsList) {
-              PingLog.pingLog("purchase status ${purchaseDetails.status}");
-              switch (purchaseDetails.status) {
-                case PurchaseStatus.pending:
-                  PingLog.pingLog('Purchase is pending...');
-                  break;
-                case PurchaseStatus.error:
-                  PingLog.pingLog('Purchase Error: ${purchaseDetails.error}');
-                  break;
-                case PurchaseStatus.restored:
-                  PingLog.pingLog('PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
-                  if (subscriptionIds.contains(purchaseDetails.productID)) {
-                    PingLog.pingLog("....if (subscriptionIds.contains(purchaseDetails.productID))...");
-                    purchases.add(purchaseDetails);
-                    await fetchDetailsAfterPurchase();
-                    notifyListeners();
-                  }
-                  break;
-                case PurchaseStatus.purchased:
-                  PingLog.pingLog('PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
-                  if (subscriptionIds.contains(purchaseDetails.productID)) {
-                    purchases.add(purchaseDetails);
-                    await fetchDetailsAfterPurchase();
-                    pop();
-                    notifyListeners();
-                  }
-                  break;
-                case PurchaseStatus.canceled:
-                  PingLog.pingLog('Purchase was canceled. Product ID: ${purchaseDetails.productID}');
-                  break;
-              }
-              // Mark purchase as complete
-              if (purchaseDetails.pendingCompletePurchase) {
-                _inAppPurchase.completePurchase(purchaseDetails);
-              }
-            }
-          }
-        },
-        onError: (error) {
-          PingLog.pingLog("Purchase stream error: $error");
-        },
-      );
-    } catch (e, s) {
-      PingLog.pingLog("initLister error: $e $s");
-    }
-    PingLog.pingLog("................initLister......end...........................");
-  }
-
-  String compareDoubles(double value1, double value2) {
-    if (value1 > value2) {
-      return 'greater';
-    } else if (value1 < value2) {
-      return 'less';
-    } else {
-      return 'equal';
-    }
-  }
-
-  void setSubscribeButton() {
-    if (selectType == 2) {
-      subscribeBtnText = "t_get90DaysFreeTrail".tr();
-    } else if (purChasedModel != null) {
-      double selectedDPrice = 0.0;
-      purChasedPrice = double.parse(purChasedModel?.price.replaceAll(RegExp(r'[^0-9.]'), '') ?? "");
-      selectedDPrice = double.parse(selectSPrice.replaceAll(RegExp(r'[^0-9.]'), ''));
-      PingLog.pingLog("purChasedPrice: $purChasedPrice");
-      PingLog.pingLog("selectedDPrice: $selectedDPrice");
-
-      String value = compareDoubles(purChasedPrice, selectedDPrice);
-      PingLog.pingLog("-----value $value-----");
-      if (value == "greater") {
-        PingLog.pingLog("----if (purChasedPrice > selectedDPrice) { Downgrade----");
-        subscribeBtnText = "t_downgrade".tr();
-      } else if (value == "less") {
-        PingLog.pingLog("----} else if (purChasedPrice < selectedDPrice) { Upgrade----");
-        subscribeBtnText = "t_upgrade".tr();
-      } else if (value == "equal") {
-        PingLog.pingLog("----user is already subscribed----");
-        subscribeBtnText = "t_subscribed".tr();
-      }
-
-      PingLog.pingLog("----subscribeBtnText $subscribeBtnText----");
-    } else {
-      subscribeBtnText = "t_subscribe".tr();
-    }
-    notifyListeners();
-  }
-
-  Future<void> restorePurchases() async {
-    try {
-      PingLog.pingLog("----Restore Purchase Call----");
-      await _inAppPurchase.restorePurchases();
-    } catch (e) {
-      debugPrint("Error restoring purchases: $e");
-    }
-  }
-
-  Future<void> setProductDetails(ProductDetails value) async {
-    try {
-      selectProductDetails = value;
-      PingLog.pingLog("ProductDetails id: ${selectProductDetails.id}");
-      PingLog.pingLog("ProductDetails title: ${selectProductDetails.title}");
-      PingLog.pingLog("ProductDetails price: ${selectProductDetails.price}");
-      await purchaseSubscription(selectProductDetails);
-      notifyListeners();
-    } catch (e, s) {
-      PingLog.pingLog("error: $e $s");
-    }
-  }
-
   Future<List<ProductDetails>> fetchSubscriptionDetails() async {
-    final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(
+    final ProductDetailsResponse response =
+    await _inAppPurchase.queryProductDetails(
       subscriptionIds.toSet(),
     );
 
@@ -391,56 +334,44 @@ class SubscriptionProvider extends ChangeNotifier {
 
     return fetchedProducts;
   }
-
+  Future<void> restorePurchases() async {
+    try {
+      PingLog.pingLog("----Restore Purchase Call----");
+      await _inAppPurchase.restorePurchases();
+    } catch (e) {
+      debugPrint("Error restoring purchases: $e");
+    }
+  }
+  Future<void> setProductDetails(ProductDetails value) async {
+    try {
+      selectProductDetails = value;
+      PingLog.pingLog("ProductDetails id: ${selectProductDetails.id}");
+      PingLog.pingLog("ProductDetails title: ${selectProductDetails.title}");
+      PingLog.pingLog("ProductDetails price: ${selectProductDetails.price}");
+      await purchaseSubscription(selectProductDetails);
+      notifyListeners();
+    } catch (e, s) {
+      PingLog.pingLog("error: $e $s");
+    }
+  }
   Future<void> showSubscriptions() async {
     productsDetails = await fetchSubscriptionDetails();
-    debugPrint("----showSubscriptions subscription length: ${productsDetails.length}----");
+    debugPrint(
+        "----showSubscriptions subscription length: ${productsDetails.length}----");
     debugPrint(
         "----showSubscriptions subscription length: ${productsDetails.map((e) => "id:${e.id}-price:${e.price}").toList()}----");
     notifyListeners();
   }
-
-  void setSubscriptionType(bool value) {
-    subscriptionType = value;
-    if (subscriptionType) {
-      if (selectType == 0) {
-        setSelectedPrice(productsDetails[0].price);
-      } else if (selectType == 1) {
-        setSelectedPrice(productsDetails[2].price);
-      } else {
-        setSelectedPrice(productsDetails[4].price);
-      }
-    } else {
-      if (selectType == 0) {
-        setSelectedPrice(productsDetails[1].price);
-      } else if (selectType == 1) {
-        setSelectedPrice(productsDetails[3].price);
-      } else {
-        setSelectedPrice(productsDetails[5].price);
-      }
-    }
-    // PingLog.pingLog("----Set Subscription Type----");
-    setSubscribeButton();
-    notifyListeners();
-  }
-
-  void setSelectType(int value) {
-    selectType = value;
-    setSubscribeButton();
-    notifyListeners();
-    // PingLog.pingLog("----Set Select Type----");
-  }
-
   Future<void> purchaseSubscription(ProductDetails productDetails) async {
     try {
-      final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
+      final PurchaseParam purchaseParam =
+          PurchaseParam(productDetails: productDetails);
       await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
     } catch (e, s) {
       debugPrint("Error: $e");
       debugPrint("st: $s");
     }
   }
-
   void handleVoucherType({
     required String voucherData,
     required int numberOfMembers,
@@ -467,7 +398,6 @@ class SubscriptionProvider extends ChangeNotifier {
     // PingLog.pingLog("typeLimits: ${typeLimits[_type]}");
     // PingLog.pingLog("typeLimits.containsKey(type): ${typeLimits.containsKey(_type)}");
   }
-
   void handleSubscription({
     required int numberOfMembers,
     required String type,
@@ -481,6 +411,83 @@ class SubscriptionProvider extends ChangeNotifier {
       } else {
         push(const MemberManageView());
       }
+    }
+  }
+  void setSubscriptionType(bool value) {
+    subscriptionType = value;
+    if (subscriptionType) {
+      if (selectType == 0) {
+        setSelectedPrice(productsDetails[0].price);
+      } else if (selectType == 1) {
+        setSelectedPrice(productsDetails[2].price);
+      } else {
+        setSelectedPrice(productsDetails[4].price);
+      }
+    } else {
+      if (selectType == 0) {
+        setSelectedPrice(productsDetails[1].price);
+      } else if (selectType == 1) {
+        setSelectedPrice(productsDetails[3].price);
+      } else {
+        setSelectedPrice(productsDetails[5].price);
+      }
+    }
+    // PingLog.pingLog("----Set Subscription Type----");
+    setSubscribeButton();
+    notifyListeners();
+  }
+  void setSelectType(int value) {
+    selectType = value;
+    setSubscribeButton();
+    notifyListeners();
+    // PingLog.pingLog("----Set Select Type----");
+  }
+  void setSubscribeButton() {
+    if (selectType == 2) {
+      subscribeBtnText = "t_get90DaysFreeTrail".tr();
+    } else if (purChasedModel != null) {
+      double selectedDPrice = 0.0;
+      purChasedPrice = double.parse(
+          purChasedModel?.price.replaceAll(RegExp(r'[^0-9.]'), '') ?? "");
+      selectedDPrice =
+          double.parse(selectSPrice.replaceAll(RegExp(r'[^0-9.]'), ''));
+      PingLog.pingLog("purChasedPrice: $purChasedPrice");
+      PingLog.pingLog("selectedDPrice: $selectedDPrice");
+
+      String value = _compareDoubles(purChasedPrice, selectedDPrice);
+      PingLog.pingLog("-----value $value-----");
+      if (value == "greater") {
+        PingLog.pingLog(
+            "----if (purChasedPrice > selectedDPrice) { Downgrade----");
+        subscribeBtnText = "t_downgrade".tr();
+      } else if (value == "less") {
+        PingLog.pingLog(
+            "----} else if (purChasedPrice < selectedDPrice) { Upgrade----");
+        subscribeBtnText = "t_upgrade".tr();
+      } else if (value == "equal") {
+        PingLog.pingLog("----user is already subscribed----");
+        subscribeBtnText = "t_subscribed".tr();
+      }
+
+      PingLog.pingLog("----subscribeBtnText $subscribeBtnText----");
+    } else {
+      subscribeBtnText = "t_subscribe".tr();
+    }
+    notifyListeners();
+  }
+  void setSelectedPrice(String value) {
+    selectSPrice = value;
+    notifyListeners();
+    PingLog.pingLog(
+        "This is my value $value and  selected Price: $selectSPrice");
+  }
+  String _compareDoubles(double value1, double value2) {
+    if (value1 > value2) {
+      return 'greater';
+    } else if (value1 < value2) {
+      return 'less';
+    } else {
+      return 'equal';
     }
   }
 }
