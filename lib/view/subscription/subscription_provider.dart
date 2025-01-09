@@ -4,12 +4,7 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
-import 'package:ping_app/view/settings/view/sub_view/message_template/message_add_edit_view.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/ping_log.dart';
-import 'package:ping_app/view/subscription/subscription_model.dart';
+import 'package:ping_app/file_path.dart';
 
 class PurChasedModel {
   final String id;
@@ -28,7 +23,7 @@ class PurChasedModel {
 }
 
 class SubscriptionProvider extends ChangeNotifier {
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  final _inAppPurchase = InAppPurchase.instance;
   PurChasedModel? purChasedModel;
   late ProductDetails selectProductDetails;
   List<PurchaseDetails> purchases = [];
@@ -85,7 +80,7 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    PingLog.pingLog("SubscriptionProvider init");
+    PingLog.pingLog("---SubscriptionProvider init---");
     await showSubscriptions();
     await initLister();
     await restorePurchases();
@@ -93,63 +88,70 @@ class SubscriptionProvider extends ChangeNotifier {
       PingLog.pingLog(".........transactionDate.......${purchases.first.transactionDate}...");
       PingLog.pingLog(".........productID.......${purchases.first.productID}...");
       PingLog.pingLog(".........status.......${purchases.first.status}...");
-      // switch (purChasedModel?.id ?? "") {
-      //   case "basicmonthly":
-      //     setSubscriptionType(true);
-      //     setSelectType(0);
-      //     setSelectedPrice(productsDetails[0].price);
-      //     break;
-      //   case "basicyearly":
-      //     setSubscriptionType(false);
-      //     setSelectType(0);
-      //     setSelectedPrice(productsDetails[1].price);
-      //     break;
-      //   case "expertmonthly":
-      //     setSubscriptionType(true);
-      //     setSelectType(1);
-      //     setSelectedPrice(productsDetails[2].price);
-      //     break;
-      //   case "expertyearly":
-      //     setSubscriptionType(false);
-      //     setSelectType(1);
-      //     setSelectedPrice(productsDetails[3].price);
-      //     break;
-      //   case "promonthly":
-      //     setSubscriptionType(true);
-      //     setSelectType(2);
-      //     setSelectedPrice(productsDetails[5].price);
-      //     break;
-      //   default:
-      //     setSubscriptionType(false);
-      //     setSelectType(2);
-      //     setSelectedPrice(productsDetails[7].price);
-      //     break;
-      // }
-      if (purChasedModel?.id == subscriptionIds[0]) {
-        setSubscriptionType(true);
-        setSelectType(0);
-        setSelectedPrice(productsDetails[0].price);
-      } else if (purChasedModel?.id == subscriptionIds[1]) {
-        setSubscriptionType(false);
-        setSelectType(0);
-        setSelectedPrice(productsDetails[1].price);
-      } else if (purChasedModel?.id == subscriptionIds[2]) {
-        setSubscriptionType(true);
-        setSelectType(1);
-        setSelectedPrice(productsDetails[2].price);
-      } else if (purChasedModel?.id == subscriptionIds[3]) {
-        setSubscriptionType(false);
-        setSelectType(1);
-        setSelectedPrice(productsDetails[3].price);
-      } else if (purChasedModel?.id == subscriptionIds[4]) {
-        setSubscriptionType(true);
-        setSelectType(2);
-        setSelectedPrice(productsDetails[4].price);
-      } else {
-        setSubscriptionType(false);
-        setSelectType(2);
-        setSelectedPrice(productsDetails[5].price);
+      String productId = purChasedModel?.id ?? "";
+      int subscriptionIndex = subscriptionIds.indexOf(productId);
+      switch (subscriptionIndex) {
+        case 0:
+          setSubscriptionType(true);
+          setSelectType(0);
+          setSelectedPrice(productsDetails[0].price);
+          break;
+        case 1:
+          setSubscriptionType(false);
+          setSelectType(0);
+          setSelectedPrice(productsDetails[1].price);
+          break;
+        case 2:
+          setSubscriptionType(true);
+          setSelectType(1);
+          setSelectedPrice(productsDetails[2].price);
+          break;
+        case 3:
+          setSubscriptionType(false);
+          setSelectType(1);
+          setSelectedPrice(productsDetails[3].price);
+          break;
+        case 4:
+          setSubscriptionType(true);
+          setSelectType(2);
+          setSelectedPrice(productsDetails[4].price);
+          break;
+        case 5:
+          setSubscriptionType(false);
+          setSelectType(2);
+          setSelectedPrice(productsDetails[5].price);
+          break;
+        default:
+          setSubscriptionType(false);
+          setSelectType(2);
+          setSelectedPrice(productsDetails[5].price);
+          break;
       }
+      // if (purChasedModel?.id == subscriptionIds[0]) {
+      //   setSubscriptionType(true);
+      //   setSelectType(0);
+      //   setSelectedPrice(productsDetails[0].price);
+      // } else if (purChasedModel?.id == subscriptionIds[1]) {
+      //   setSubscriptionType(false);
+      //   setSelectType(0);
+      //   setSelectedPrice(productsDetails[1].price);
+      // } else if (purChasedModel?.id == subscriptionIds[2]) {
+      //   setSubscriptionType(true);
+      //   setSelectType(1);
+      //   setSelectedPrice(productsDetails[2].price);
+      // } else if (purChasedModel?.id == subscriptionIds[3]) {
+      //   setSubscriptionType(false);
+      //   setSelectType(1);
+      //   setSelectedPrice(productsDetails[3].price);
+      // } else if (purChasedModel?.id == subscriptionIds[4]) {
+      //   setSubscriptionType(true);
+      //   setSelectType(2);
+      //   setSelectedPrice(productsDetails[4].price);
+      // } else {
+      //   setSubscriptionType(false);
+      //   setSelectType(2);
+      //   setSelectedPrice(productsDetails[5].price);
+      // }
     } else {
       setSubscriptionType(false);
       setSelectType(2);
@@ -179,16 +181,19 @@ class SubscriptionProvider extends ChangeNotifier {
                   PingLog.pingLog('Purchase Error: ${purchaseDetails.error}');
                   break;
                 case PurchaseStatus.restored:
-                  PingLog.pingLog('PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
+                  PingLog.pingLog(
+                      'PurchaseStatus is restored. Product ID: ${purchaseDetails.productID}');
                   if (subscriptionIds.contains(purchaseDetails.productID)) {
-                    PingLog.pingLog("....if (subscriptionIds.contains(purchaseDetails.productID))...");
+                    PingLog.pingLog(
+                        "....if (subscriptionIds.contains(purchaseDetails.productID))...");
                     purchases.add(purchaseDetails);
                     await fetchDetailsAfterPurchase();
                     notifyListeners();
                   }
                   break;
                 case PurchaseStatus.purchased:
-                  PingLog.pingLog('PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
+                  PingLog.pingLog(
+                      'PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
                   if (subscriptionIds.contains(purchaseDetails.productID)) {
                     purchases.add(purchaseDetails);
                     await fetchDetailsAfterPurchase();
@@ -197,7 +202,8 @@ class SubscriptionProvider extends ChangeNotifier {
                   }
                   break;
                 case PurchaseStatus.canceled:
-                  PingLog.pingLog('Purchase was canceled. Product ID: ${purchaseDetails.productID}');
+                  PingLog.pingLog(
+                      'Purchase was canceled. Product ID: ${purchaseDetails.productID}');
                   break;
               }
               // Mark purchase as complete
