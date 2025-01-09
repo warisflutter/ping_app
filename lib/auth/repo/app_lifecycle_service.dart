@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/repo/auth_repo.dart';
-import 'package:ping_app/member/repo/member_repo.dart';
-import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/ping_log.dart';
-import 'package:provider/provider.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {

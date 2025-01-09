@@ -60,17 +60,18 @@ class GoogleSignInButton extends StatelessWidget {
   Future<void> _handleGoogleSignIn(BuildContext context) async {
     PingLog.pingLog("---handleGoogleSignIn function start---");
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
         PingLog.pingLog("---Google user is null. Sign-in canceled by user.---");
         return;
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
       final firebaseUser = userCredential.user;
       if (firebaseUser == null) {
         PingLog.pingLog("---Firebase user is null after sign-in.---");
@@ -85,7 +86,8 @@ class GoogleSignInButton extends StatelessWidget {
 
         if (userDoc.exists) {
           AppLifecycleService().reset();
-          AppLifecycleService().initialize(isMember: false, userId: firebaseUser.uid);
+          AppLifecycleService()
+              .initialize(isMember: false, userId: firebaseUser.uid);
           FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
           replaceAll(const DashboardView());
         } else {

@@ -1,16 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/model/ping_user_model.dart';
-import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
-import 'package:ping_app/auth/repo/auth_repo.dart';
-import 'package:ping_app/dashboard/dashboard_view.dart';
-import 'package:ping_app/util/fcm_repo.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/ping_utils.dart';
-import 'package:ping_app/util/validator.dart';
-
+import 'package:ping_app/file_path.dart';
 class CompleteProfileView extends StatefulWidget {
   final User firebaseUser;
 
@@ -99,7 +90,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                _isLoading
+                (_isLoading)
                     ? getLoader()
                     : ElevatedButton(
                         onPressed: _updateProfile,
@@ -129,10 +120,10 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
           updatedUser,
         );
         widget.firebaseUser.reload();
-        final firebaseUser = FirebaseAuth.instance.currentUser;
+        String uid = widget.firebaseUser.uid;
         AppLifecycleService().reset();
-        AppLifecycleService().initialize(isMember: false, userId: firebaseUser!.uid);
-        FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+        AppLifecycleService().initialize(isMember: false, userId: uid);
+        FcmRepo.instance.updateTeamLeadFcmToken(uid);
         replaceAll(const DashboardView());
       } catch (e) {
         snack('${'t_failedToUpdateProfile'.tr()}: $e');

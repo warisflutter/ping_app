@@ -4,17 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
-import 'package:ping_app/auth/view/apple_sign_in_button.dart';
-import 'package:ping_app/auth/view/google_sign_in_button.dart';
-import 'package:ping_app/dashboard/dashboard_view.dart';
-import 'package:ping_app/util/fcm_repo.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/ping_utils.dart';
-import 'package:ping_app/util/screen_manager/constants.dart';
-import 'package:ping_app/util/validator.dart';
-import 'package:ping_app/view/admin/admin_view.dart';
+import 'package:ping_app/file_path.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});

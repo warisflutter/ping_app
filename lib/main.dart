@@ -49,27 +49,19 @@ Future<void> main() async {
     },
   );
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  RemoteMessage? initialMessage =
-      await FirebaseMessaging.instance.getInitialMessage();
+  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
     notification.handleMessage(initialMessage);
   } else {
     PingLog.pingLog('No message data');
   }
   runApp(EasyLocalization(
-    supportedLocales: const [
-      Locale('en'),
-      Locale('de'),
-      Locale('fr'),
-      Locale('es'),
-      Locale('it')
-    ],
+    supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
     path: 'assets/translations',
     fallbackLocale: const Locale('en'),
     child: MultiProvider(providers: [
       ChangeNotifierProvider(
-          create: (_) =>
-              PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+          create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
       ChangeNotifierProvider(create: (_) => MemberState()),
       ChangeNotifierProvider(create: (_) => AdminProvider()),
       ChangeNotifierProvider(create: (_) => VoucherProvider()),
@@ -79,8 +71,25 @@ Future<void> main() async {
   WatchConnectivity.instance.setupMethodChannel();
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    PingLog.pingLog("MyApp initState");
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    PingLog.pingLog("MyApp dispose");
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +119,10 @@ class MyApp extends StatelessWidget {
 }
 
 /*
+for team lead
 funzoftapple786@gmail.com
 Fun112233
 for admin
+apptweak.hafiz@gmail.com
 Ping123456
 */
