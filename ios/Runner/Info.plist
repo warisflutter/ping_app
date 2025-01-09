@@ -7,7 +7,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-            <string>com.googleusercontent.apps.29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo</string>
+            <string>com.googleusercontent.apps.406099696497-l9gojfp6b3h1cgie1se28a9ol9fmsvvk</string>
         </array>
       </dict>
     </array>
@@ -16,7 +16,7 @@
     	<string>en</string>
     </array>
     <key>GIDClientID</key>
-    <string>29322079000-5k0ir5mavjs27epo561hkup8ie1jk6qo.apps.googleusercontent.com</string>
+    <string>607056826389-6dugrh1bl521559ga4nljlsjnub9nqi8.apps.googleusercontent.com</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
