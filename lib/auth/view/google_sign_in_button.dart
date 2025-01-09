@@ -9,6 +9,7 @@ import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
 
 class GoogleSignInButton extends StatelessWidget {
   final void Function() onSignedIn;
@@ -57,35 +58,45 @@ class GoogleSignInButton extends StatelessWidget {
   }
 
   Future<void> _handleGoogleSignIn(BuildContext context) async {
+    PingLog.pingLog("---handleGoogleSignIn function start---");
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return;
-
+      if (googleUser == null) {
+        PingLog.pingLog("---Google user is null. Sign-in canceled by user.---");
+        return;
+      }
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
-      final res = await FirebaseAuth.instance.signInWithCredential(credential);
-      if (context.mounted) {
-        if (res.user != null) {
-          final userDoc = await FirebaseFirestore.instance.collection("users").doc(res.user!.uid).get();
-          if (userDoc.exists) {
-            final firebaseUser = FirebaseAuth.instance.currentUser;
-            AppLifecycleService().reset();
-            AppLifecycleService().initialize(isMember: false, userId: firebaseUser!.uid);
-            FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
-            replaceAll(const DashboardView());
-          } else {
-            push(CompleteProfileView(firebaseUser: res.user!));
-          }
-        }
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        PingLog.pingLog("---Firebase user is null after sign-in.---");
+        return;
       }
 
+      if (context.mounted) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection("users")
+            .doc(firebaseUser.uid)
+            .get();
+
+        if (userDoc.exists) {
+          AppLifecycleService().reset();
+          AppLifecycleService().initialize(isMember: false, userId: firebaseUser.uid);
+          FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+          replaceAll(const DashboardView());
+        } else {
+          push(CompleteProfileView(firebaseUser: firebaseUser));
+        }
+      }
       onSignedIn();
-    } catch (e) {
-      snack(e);
+    } catch (e, stackTrace) {
+      PingLog.pingLog("---Error during Google sign-in: $e $stackTrace---");
+      snack("An error occurred during sign-in. Please try again.");
     }
+    PingLog.pingLog("---handleGoogleSignIn function end---");
   }
 }
