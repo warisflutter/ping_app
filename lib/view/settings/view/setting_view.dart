@@ -122,7 +122,8 @@ class _SettingViewState extends State<SettingView> {
                     PingDialogs.showVoucherDialog(
                       context: context,
                       applyVoucher: () async {
-                        await Provider.of<VoucherProvider>(context, listen: false).applyForVoucher(context);
+                        await Provider.of<VoucherProvider>(context, listen: false)
+                            .applyForVoucher(context);
                       },
                     );
                   },
@@ -170,6 +171,7 @@ class _SettingViewState extends State<SettingView> {
                         String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
                         FirebaseFirestore.instance.collection("users").doc(uid).update({
                           "isOnline": false,
+                          "fcm": "",
                         });
                         replaceAll(const CreateAccountView());
                         await FirebaseAuth.instance.signOut();
