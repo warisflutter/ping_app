@@ -1,13 +1,10 @@
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
-import 'package:ping_app/member/repo/member_state.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -22,14 +19,14 @@ class _QRViewExampleState extends State<JoinQrView> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
-
   bool loading = false;
 
   @override
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller!.pauseCamera();
+      _checkCameraPermission();
+      // controller!.pauseCamera();
     } else if (Platform.isIOS) {
       controller!.resumeCamera();
     }
@@ -79,6 +76,41 @@ class _QRViewExampleState extends State<JoinQrView> {
     super.dispose();
   }
 
+  Future<void> _checkCameraPermission() async {
+    PermissionStatus status = await Permission.camera.request();
+    PingLog.pingLog("status: ${status.name}");
+
+    if (status.isPermanentlyDenied) {
+      _showSettingsDialog();
+    } else if (status.isGranted) {
+      controller!.resumeCamera();
+      // Camera permission granted, continue as normal.
+    }
+  }
+
+  void _showSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Permission Required'),
+        content: const Text('Camera Permission Explanation'),
+        actions: [
+          TextButton(
+            onPressed: () => pop(),
+            child: Text('t_cancel'.tr()),
+          ),
+          TextButton(
+            onPressed: () {
+              pop();
+              openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void actionJoinByQr(String memberId) async {
     if (loading || memberId.isEmpty) {
       return;
@@ -99,6 +131,8 @@ class _QRViewExampleState extends State<JoinQrView> {
     }
   }
 }
+
+//
 // import 'dart:io';
 // import 'package:easy_localization/easy_localization.dart';
 // import 'package:flutter/material.dart';
@@ -175,12 +209,6 @@ class _QRViewExampleState extends State<JoinQrView> {
 //         ],
 //       ),
 //     );
-//   }
-//
-//   @override
-//   void didChangeDependencies() {
-//     _checkCameraPermission();
-//     super.didChangeDependencies();
 //   }
 //
 //   @override
