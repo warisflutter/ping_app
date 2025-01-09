@@ -2,21 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/repo/ping_auth_state.dart';
-import 'package:ping_app/firebase_options.dart';
-import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
-import 'package:ping_app/util/fcm_repo.dart';
-import 'package:ping_app/util/loading_screen.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/ping_log.dart';
-import 'package:ping_app/view/admin/admin_provider.dart';
-import 'package:ping_app/view/subscription/subscription_provider.dart';
-import 'package:ping_app/view/voucher/voucher_provider.dart';
-import 'package:ping_app/watch_os/watch_repo.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:ping_app/file_path.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
