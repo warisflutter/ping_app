@@ -37,6 +37,7 @@ class MemberState extends ChangeNotifier {
   }
 
   int onlineMembers = 0;
+
   void initIdOrder() async {
     _idOrder = await MemberRepo.instance.getMemberOrder();
     notifyListeners();
@@ -148,5 +149,6 @@ void changeMemberOnlineStatus({
 }) {
   FirebaseFirestore.instance.collection("members").doc(id).update({
     "isOnline": status,
+    "fcm": "",
   });
 }
