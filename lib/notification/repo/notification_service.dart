@@ -129,4 +129,17 @@ class FirebaseNotificationService {
       sound: true,
     );
   }
+
+  Future<String?> getDeviceToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    try {
+      String? token = await messaging.getToken();
+      return token;
+    } catch (e) {
+      print("Error retrieving FCM Token: $e");
+      return null;
+    }
+  }
+
 }
