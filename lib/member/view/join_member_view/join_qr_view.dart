@@ -119,9 +119,14 @@ class _QRViewExampleState extends State<JoinQrView> {
     try {
       await memberState.setMemberId(memberId);
       final member = memberState.member;
+      String? token = await FirebaseNotificationService().getDeviceToken();
       AppLifecycleService().reset();
       AppLifecycleService().initialize(isMember: true, userId: member!.id);
-      changeMemberOnlineStatus(id: memberId, status: true);
+      changeMemberOnlineStatus(
+      id: memberId,
+      status: true,
+      fcmToken: token ?? "",
+      );
       replaceAll(const MemberDashboard());
     } catch (e) {
       setState(() => loading = false);
