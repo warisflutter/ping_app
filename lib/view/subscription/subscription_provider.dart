@@ -22,6 +22,15 @@ class PurChasedModel {
   });
 }
 
+
+List<String> subscriptionIds = <String>[
+  (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
+  (Platform.isIOS) ? "pingapp_199_1y" : "basicyearly",
+  (Platform.isIOS) ? "pingapp_24_1m" : "expertmonthly",
+  (Platform.isIOS) ? "pingapp_249_1y" : "expertyearly",
+  (Platform.isIOS) ? "pingapp_34_1m" : "promonthly",
+  (Platform.isIOS) ? "pingapp_349_1y" : "proyearly",
+];
 class SubscriptionProvider extends ChangeNotifier {
   final _inAppPurchase = InAppPurchase.instance;
   PurChasedModel? purChasedModel;
@@ -35,14 +44,7 @@ class SubscriptionProvider extends ChangeNotifier {
   String subscribeBtnText = "";
   double purChasedPrice = 0.0;
 
-  List<String> subscriptionIds = <String>[
-    (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
-    (Platform.isIOS) ? "pingapp_199_1y" : "basicyearly",
-    (Platform.isIOS) ? "pingapp_24_1m" : "expertmonthly",
-    (Platform.isIOS) ? "pingapp_249_1y" : "expertyearly",
-    (Platform.isIOS) ? "pingapp_34_1m" : "promonthly",
-    (Platform.isIOS) ? "pingapp_349_1y" : "proyearly",
-  ];
+
   List<SubscriptionModel> subscriptions = <SubscriptionModel>[
     SubscriptionModel(
       details: "",
@@ -141,9 +143,7 @@ class SubscriptionProvider extends ChangeNotifier {
     try {
       _inAppPurchase.purchaseStream.listen(
         (List<PurchaseDetails> purchaseDetailsList) async {
-          PingLog.pingLog(".............initLister....start................................");
           PingLog.pingLog("purchaseDetailsList length: ${purchaseDetailsList.length}");
-          PingLog.pingLog("purchaseDetailsList $purchaseDetailsList");
           if (purchaseDetailsList.isEmpty) {
             PingLog.pingLog("No purchases in purchaseDetailsList.");
           } else {
@@ -341,7 +341,6 @@ class SubscriptionProvider extends ChangeNotifier {
       selectProductDetails = value;
       PingLog.pingLog("ProductDetails id: ${selectProductDetails.id}");
       PingLog.pingLog("ProductDetails title: ${selectProductDetails.title}");
-      PingLog.pingLog("ProductDetails price: ${selectProductDetails.price}");
       await purchaseSubscription(selectProductDetails);
       notifyListeners();
     } catch (e, s) {
@@ -450,23 +449,18 @@ class SubscriptionProvider extends ChangeNotifier {
       double selectedDPrice = 0.0;
       purChasedPrice = double.parse(purChasedModel?.price.replaceAll(RegExp(r'[^0-9.]'), '') ?? "");
       selectedDPrice = double.parse(selectSPrice.replaceAll(RegExp(r'[^0-9.]'), ''));
-      PingLog.pingLog("purChasedPrice: $purChasedPrice");
-      PingLog.pingLog("selectedDPrice: $selectedDPrice");
 
       String value = _compareDoubles(purChasedPrice, selectedDPrice);
-      PingLog.pingLog("-----value $value-----");
       if (value == "greater") {
         PingLog.pingLog("----if (purChasedPrice > selectedDPrice) { Downgrade----");
         subscribeBtnText = "t_downgrade".tr();
       } else if (value == "less") {
-        PingLog.pingLog("----} else if (purChasedPrice < selectedDPrice) { Upgrade----");
         subscribeBtnText = "t_upgrade".tr();
       } else if (value == "equal") {
         PingLog.pingLog("----user is already subscribed----");
         subscribeBtnText = "t_subscribed".tr();
       }
 
-      PingLog.pingLog("----subscribeBtnText $subscribeBtnText----");
     } else {
       subscribeBtnText = "t_subscribe".tr();
     }
@@ -476,7 +470,6 @@ class SubscriptionProvider extends ChangeNotifier {
   void setSelectedPrice(String value) {
     selectSPrice = value;
     notifyListeners();
-    PingLog.pingLog("This is my value $value and  selected Price: $selectSPrice");
   }
 
   String _compareDoubles(double value1, double value2) {
