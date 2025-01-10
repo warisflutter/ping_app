@@ -117,7 +117,7 @@ class WatchConnectivity {
         }
       });
     } catch (e, s) {
-      PingLog.pingLog("error: $e $s");
+      PingLog.pingLog("error in the setupMethodChannel: $e $s");
     }
   }
 
