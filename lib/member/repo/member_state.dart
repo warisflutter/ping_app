@@ -110,10 +110,13 @@ class MemberState extends ChangeNotifier {
   Future<void> leaveTeam() async {
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getString("memberId") ?? "";
-    changeMemberOnlineStatus(id: id, status: false);
+    FirebaseFirestore.instance.collection("members").doc(id).update({
+      "isOnline": false,
+      "fcm": "",
+    });
+    // changeMemberOnlineStatus(id: id, status: false);
     await prefs.remove("memberId");
     _memberModel = null;
-    // loadMemberIdFromPrefs();
     notifyListeners();
   }
 
@@ -143,13 +146,13 @@ class MemberState extends ChangeNotifier {
   }
 }
 
-void changeMemberOnlineStatus({
-  required String id,
-  required bool status,
-  String? fcmToken,
-}) {
-  FirebaseFirestore.instance.collection("members").doc(id).update({
-    "isOnline": status,
-    "fcm": fcmToken ?? "",
-  });
-}
+// void changeMemberOnlineStatus({
+//   required String id,
+//   required bool status,
+//   String? fcmToken,
+// }) {
+//   FirebaseFirestore.instance.collection("members").doc(id).update({
+//     "isOnline": status,
+//     "fcm": fcmToken ?? "",
+//   });
+// }

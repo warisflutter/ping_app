@@ -122,8 +122,7 @@ class _SettingViewState extends State<SettingView> {
                     PingDialogs.showVoucherDialog(
                       context: context,
                       applyVoucher: () async {
-                        await Provider.of<VoucherProvider>(context, listen: false)
-                            .applyForVoucher(context);
+                        await Provider.of<VoucherProvider>(context, listen: false).applyForVoucher(context);
                       },
                     );
                   },
@@ -198,13 +197,9 @@ class _SettingViewState extends State<SettingView> {
                         try {
                           final isConnected = await context.isInternetAvailable();
                           if (isConnected) {
-                            if (context.mounted) {
-                              // context.deleteAccountDialog(onPressed: () async {
-                              replaceAll(const CreateAccountView());
-                              await AuthRepo.instance.deleteUser();
-                              snack('t_accountDeletedSuccessfully'.tr());
-                              // });
-                            }
+                            replaceAll(const CreateAccountView());
+                            await AuthRepo.instance.deleteUser();
+                            snack('t_accountDeletedSuccessfully'.tr());
                           } else {
                             snack("t_noInternetPleaseConnectToTheInternet".tr());
                           }
