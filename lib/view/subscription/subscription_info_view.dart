@@ -31,197 +31,205 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
       ),
       body: Consumer<SubscriptionProvider>(
         builder: (context, subscriptionProvider, widget) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Row(
-                  children: List.generate(
-                    subscriptionProvider.subscriptions.length,
-                    (index) {
-                      String text = subscriptionProvider.subscriptions[index].type;
-                      return Expanded(
-                        child: SelectionWidget(
-                          onTap: () {
-                            subscriptionProvider.setSelectType(index);
-                          },
-                          type: subscriptionProvider.selectType,
-                          index: index,
-                          text: text,
-                        ),
-                      );
-                    },
+          if (subscriptionProvider.loader) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            );
+          } else {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: List.generate(
+                      subscriptionProvider.subscriptions.length,
+                      (index) {
+                        String text = subscriptionProvider.subscriptions[index].type;
+                        return Expanded(
+                          child: SelectionWidget(
+                            onTap: () {
+                              subscriptionProvider.setSelectType(index);
+                            },
+                            type: subscriptionProvider.selectType,
+                            index: index,
+                            text: text,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xffF7F7F7),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Colors.black,
-                        ),
-                        child: Text(
-                          (subscriptionProvider.selectType == 0)
-                              ? subscriptionProvider.subscriptions[0].type
-                              : (subscriptionProvider.selectType == 1)
-                                  ? subscriptionProvider.subscriptions[1].type
-                                  : subscriptionProvider.subscriptions[2].type,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                  const SizedBox(height: 20),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xffF7F7F7),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                          ),
+                          child: Text(
+                            (subscriptionProvider.selectType == 0)
+                                ? subscriptionProvider.subscriptions[0].type
+                                : (subscriptionProvider.selectType == 1)
+                                    ? subscriptionProvider.subscriptions[1].type
+                                    : subscriptionProvider.subscriptions[2].type,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 10.0,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 10.0,
+                          ),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: Color(0xffF7F7F7),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.black,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    (subscriptionProvider.selectType == 0)
+                                        ? subscriptionProvider.subscriptions[0].teamMembers
+                                        : (subscriptionProvider.selectType == 1)
+                                            ? subscriptionProvider.subscriptions[1].teamMembers
+                                            : subscriptionProvider.subscriptions[2].teamMembers,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 40),
+                                child: Divider(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.black,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    (subscriptionProvider.selectType == 0)
+                                        ? subscriptionProvider.subscriptions[0].numberOfMessages
+                                        : (subscriptionProvider.selectType == 1)
+                                            ? subscriptionProvider.subscriptions[1].numberOfMessages
+                                            : subscriptionProvider.subscriptions[2].numberOfMessages,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 40),
+                                child: Divider(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.black,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    (subscriptionProvider.selectType == 0)
+                                        ? subscriptionProvider.subscriptions[0].numberOfVoiceMessages
+                                        : (subscriptionProvider.selectType == 1)
+                                            ? subscriptionProvider.subscriptions[1].numberOfVoiceMessages
+                                            : subscriptionProvider.subscriptions[2].numberOfVoiceMessages,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 40),
+                                child: Divider(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.black,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    (subscriptionProvider.selectType == 0)
+                                        ? subscriptionProvider.subscriptions[0].supportedPlatforms
+                                        : (subscriptionProvider.selectType == 1)
+                                            ? subscriptionProvider.subscriptions[1].supportedPlatforms
+                                            : subscriptionProvider.subscriptions[2].supportedPlatforms,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              _selectMOrY(subscriptionProvider: subscriptionProvider),
+                              _subscribeButton(subscriptionProvider: subscriptionProvider),
+                              Text(
+                                (subscriptionProvider.selectType == 0)
+                                    ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
+                                    : (subscriptionProvider.selectType == 1)
+                                        ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
+                                        : "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[5].price : subscriptionProvider.productsDetails[4].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Color(0xffF7F7F7),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.black,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  (subscriptionProvider.selectType == 0)
-                                      ? subscriptionProvider.subscriptions[0].teamMembers
-                                      : (subscriptionProvider.selectType == 1)
-                                          ? subscriptionProvider.subscriptions[1].teamMembers
-                                          : subscriptionProvider.subscriptions[2].teamMembers,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 40),
-                              child: Divider(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.black,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  (subscriptionProvider.selectType == 0)
-                                      ? subscriptionProvider.subscriptions[0].numberOfMessages
-                                      : (subscriptionProvider.selectType == 1)
-                                          ? subscriptionProvider.subscriptions[1].numberOfMessages
-                                          : subscriptionProvider.subscriptions[2].numberOfMessages,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 40),
-                              child: Divider(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.black,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  (subscriptionProvider.selectType == 0)
-                                      ? subscriptionProvider.subscriptions[0].numberOfVoiceMessages
-                                      : (subscriptionProvider.selectType == 1)
-                                          ? subscriptionProvider.subscriptions[1].numberOfVoiceMessages
-                                          : subscriptionProvider.subscriptions[2].numberOfVoiceMessages,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 40),
-                              child: Divider(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.black,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  (subscriptionProvider.selectType == 0)
-                                      ? subscriptionProvider.subscriptions[0].supportedPlatforms
-                                      : (subscriptionProvider.selectType == 1)
-                                          ? subscriptionProvider.subscriptions[1].supportedPlatforms
-                                          : subscriptionProvider.subscriptions[2].supportedPlatforms,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            _selectMOrY(subscriptionProvider: subscriptionProvider),
-                            _subscribeButton(subscriptionProvider: subscriptionProvider),
-                            Text(
-                              (subscriptionProvider.selectType == 0)
-                                  ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
-                                  : (subscriptionProvider.selectType == 1)
-                                      ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
-                                      : "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[5].price : subscriptionProvider.productsDetails[4].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          }
         },
       ),
     );
