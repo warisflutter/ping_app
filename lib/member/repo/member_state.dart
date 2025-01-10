@@ -146,9 +146,10 @@ class MemberState extends ChangeNotifier {
 void changeMemberOnlineStatus({
   required String id,
   required bool status,
+  String? fcmToken,
 }) {
   FirebaseFirestore.instance.collection("members").doc(id).update({
     "isOnline": status,
-    "fcm": "",
+    "fcm": fcmToken ?? "",
   });
 }
