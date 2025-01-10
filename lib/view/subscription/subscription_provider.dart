@@ -193,11 +193,12 @@ class SubscriptionProvider extends ChangeNotifier {
                   break;
                 case PurchaseStatus.purchased:
                   PingLog.pingLog(
-                      'PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}');
+                    'PurchaseStatus is purchased. Product ID: ${purchaseDetails.productID}',
+                  );
                   if (subscriptionIds.contains(purchaseDetails.productID)) {
                     purchases.add(purchaseDetails);
                     await fetchDetailsAfterPurchase();
-                    safePop();
+                    // safePop();
                     notifyListeners();
                   }
                   break;
