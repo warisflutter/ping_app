@@ -26,7 +26,6 @@ class _QRViewExampleState extends State<JoinQrView> {
     super.reassemble();
     if (Platform.isAndroid) {
       _checkCameraPermission();
-      // controller!.pauseCamera();
     } else if (Platform.isIOS) {
       controller!.resumeCamera();
     }
@@ -84,7 +83,6 @@ class _QRViewExampleState extends State<JoinQrView> {
       _showSettingsDialog();
     } else if (status.isGranted) {
       controller!.resumeCamera();
-      // Camera permission granted, continue as normal.
     }
   }
 
