@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/widgets/selection_widget.dart';
@@ -140,8 +143,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                         ? subscriptionProvider.subscriptions[0].numberOfMessages
                                         : (subscriptionProvider.selectType == 1)
                                             ? subscriptionProvider.subscriptions[1].numberOfMessages
-                                            : subscriptionProvider
-                                                .subscriptions[2].numberOfMessages,
+                                            : subscriptionProvider.subscriptions[2].numberOfMessages,
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -166,13 +168,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   const SizedBox(width: 10),
                                   Text(
                                     (subscriptionProvider.selectType == 0)
-                                        ? subscriptionProvider
-                                            .subscriptions[0].numberOfVoiceMessages
+                                        ? subscriptionProvider.subscriptions[0].numberOfVoiceMessages
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider
-                                                .subscriptions[1].numberOfVoiceMessages
-                                            : subscriptionProvider
-                                                .subscriptions[2].numberOfVoiceMessages,
+                                            ? subscriptionProvider.subscriptions[1].numberOfVoiceMessages
+                                            : subscriptionProvider.subscriptions[2].numberOfVoiceMessages,
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -199,10 +198,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                     (subscriptionProvider.selectType == 0)
                                         ? subscriptionProvider.subscriptions[0].supportedPlatforms
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider
-                                                .subscriptions[1].supportedPlatforms
-                                            : subscriptionProvider
-                                                .subscriptions[2].supportedPlatforms,
+                                            ? subscriptionProvider.subscriptions[1].supportedPlatforms
+                                            : subscriptionProvider.subscriptions[2].supportedPlatforms,
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -268,8 +265,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       alignment: Alignment.centerRight,
                       child: Icon(
                         Icons.check_circle_outline,
-                        color:
-                            (subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
+                        color: (subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
                       ),
                     ),
                     Text(
@@ -282,8 +278,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      getProduct(subscriptionProvider.selectType, false,
-                          subscriptionProvider.productsDetails).price,
+                      getProduct(subscriptionProvider.selectType, false, subscriptionProvider.productsDetails).price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -315,8 +310,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       alignment: Alignment.centerRight,
                       child: Icon(
                         Icons.check_circle_outline,
-                        color:
-                            (!subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
+                        color: (!subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
                       ),
                     ),
                     Text(
@@ -329,8 +323,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      getProduct(subscriptionProvider.selectType, true,
-                          subscriptionProvider.productsDetails).price,
+                      getProduct(subscriptionProvider.selectType, true, subscriptionProvider.productsDetails).price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -361,7 +354,19 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
           late ProductDetails selectedPrice = getProduct(subscriptionProvider.selectType,
               subscriptionProvider.subscriptionType, subscriptionProvider.productsDetails);
           PingLog.pingLog("select price: ${selectedPrice.price}");
-          await subscriptionProvider.setProductDetails(selectedPrice);
+          if (subscriptionProvider.purChasedModel == null) {
+            await subscriptionProvider.setProductDetails(selectedPrice);
+          } else {
+            context.showSubscriptionDialog(
+              context,
+              onTap: () {
+                String url = (Platform.isAndroid)
+                    ? "https://play.google.com/store/account/subscriptions"
+                    : "https://account.apple.com/account/manage/section/subscriptions";
+                context.launchURL(url);
+              },
+            );
+          }
         },
         child: Text(
           subscriptionProvider.subscribeBtnText,

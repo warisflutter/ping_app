@@ -22,7 +22,6 @@ class PurChasedModel {
   });
 }
 
-
 List<String> subscriptionIds = <String>[
   (Platform.isIOS) ? "pingapp_19_1m" : "basicmonthly",
   (Platform.isIOS) ? "pingapp_199_1y" : "basicyearly",
@@ -31,6 +30,7 @@ List<String> subscriptionIds = <String>[
   (Platform.isIOS) ? "pingapp_34_1m" : "promonthly",
   (Platform.isIOS) ? "pingapp_349_1y" : "proyearly",
 ];
+
 class SubscriptionProvider extends ChangeNotifier {
   final _inAppPurchase = InAppPurchase.instance;
   PurChasedModel? purChasedModel;
@@ -43,7 +43,6 @@ class SubscriptionProvider extends ChangeNotifier {
   String selectSPrice = "";
   String subscribeBtnText = "";
   double purChasedPrice = 0.0;
-
 
   List<SubscriptionModel> subscriptions = <SubscriptionModel>[
     SubscriptionModel(
@@ -460,7 +459,6 @@ class SubscriptionProvider extends ChangeNotifier {
         PingLog.pingLog("----user is already subscribed----");
         subscribeBtnText = "t_subscribed".tr();
       }
-
     } else {
       subscribeBtnText = "t_subscribe".tr();
     }

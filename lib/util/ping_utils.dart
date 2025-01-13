@@ -166,4 +166,33 @@ extension PingUtils on BuildContext {
       },
     );
   }
+
+  void showSubscriptionDialog(
+    BuildContext context, {
+    required void Function()? onTap,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Cancel Subscription"),
+          content: const Text(
+            "You need to cancel your current subscription before you can upgrade or downgrade. Would you like to proceed to cancel your subscription?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                pop();
+              },
+              child: const Text("Close"),
+            ),
+            ElevatedButton(
+              onPressed: onTap,
+              child: const Text("Cancel Subscription"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

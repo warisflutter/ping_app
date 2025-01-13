@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -20,15 +22,19 @@ Future<void> main() async {
   notification.forGroundMessage();
   FirebaseMessaging.onMessage.listen(
     (message) {
-      notificationAlert(
-        onTap: () {
-          pop();
-          notification.handleMessage(message);
-        },
-        context: navigatorKey.currentState!.context,
-        title: message.notification?.title ?? "",
-        message: message.notification?.body ?? "",
-      );
+      if (Platform.isAndroid) {
+        notificationAlert(
+          onTap: () {
+            pop();
+            notification.handleMessage(message);
+          },
+          context: navigatorKey.currentState!.context,
+          title: message.notification?.title ?? "",
+          message: message.notification?.body ?? "",
+        );
+      } else if (Platform.isIOS) {
+        notification.handleMessage(message);
+      }
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(
@@ -48,8 +54,7 @@ Future<void> main() async {
     path: 'assets/translations',
     fallbackLocale: const Locale('en'),
     child: MultiProvider(providers: [
-      ChangeNotifierProvider(
-          create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+      ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
       ChangeNotifierProvider(create: (_) => MemberState()),
       ChangeNotifierProvider(create: (_) => AdminProvider()),
       ChangeNotifierProvider(create: (_) => VoucherProvider()),
