@@ -22,17 +22,18 @@ Future<void> main() async {
   notification.forGroundMessage();
   FirebaseMessaging.onMessage.listen(
     (message) {
-      if (Platform.isAndroid) {
-        notificationAlert(
-          onTap: () {
-            pop();
-            notification.handleMessage(message);
-          },
-          context: navigatorKey.currentState!.context,
-          title: message.notification?.title ?? "",
-          message: message.notification?.body ?? "",
-        );
-      }
+      notification.handleMessage(message);
+      // if (Platform.isAndroid) {
+      //   notificationAlert(
+      //     onTap: () {
+      //       pop();
+      //       notification.handleMessage(message);
+      //     },
+      //     context: navigatorKey.currentState!.context,
+      //     title: message.notification?.title ?? "",
+      //     message: message.notification?.body ?? "",
+      //   );
+      // }
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(

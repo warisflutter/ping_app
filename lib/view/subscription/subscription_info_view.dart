@@ -278,7 +278,13 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      getProduct(subscriptionProvider.selectType, false, subscriptionProvider.productsDetails).price,
+                      subscriptionProvider
+                          .getProduct(
+                            type: subscriptionProvider.selectType,
+                            mode: false,
+                            products: subscriptionProvider.productsDetails,
+                          )
+                          .price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -323,7 +329,13 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      getProduct(subscriptionProvider.selectType, true, subscriptionProvider.productsDetails).price,
+                      subscriptionProvider
+                          .getProduct(
+                            type: subscriptionProvider.selectType,
+                            mode: true,
+                            products: subscriptionProvider.productsDetails,
+                          )
+                          .price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -351,22 +363,25 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
           fixedSize: WidgetStatePropertyAll(Size(300, 50)),
         ),
         onPressed: () async {
-          late ProductDetails selectedPrice = getProduct(subscriptionProvider.selectType,
-              subscriptionProvider.subscriptionType, subscriptionProvider.productsDetails);
+          late ProductDetails selectedPrice = subscriptionProvider.getProduct(
+            type: subscriptionProvider.selectType,
+            mode: subscriptionProvider.subscriptionType,
+            products: subscriptionProvider.productsDetails,
+          );
           PingLog.pingLog("select price: ${selectedPrice.price}");
-          if (subscriptionProvider.purChasedModel == null) {
-            await subscriptionProvider.setProductDetails(selectedPrice);
-          } else {
-            context.showSubscriptionDialog(
-              context,
-              onTap: () {
-                String url = (Platform.isAndroid)
-                    ? "https://play.google.com/store/account/subscriptions"
-                    : "https://account.apple.com/account/manage/section/subscriptions";
-                context.launchURL(url);
-              },
-            );
-          }
+          // if (subscriptionProvider.purChasedModel == null) {
+          //   await subscriptionProvider.setProductDetails(selectedPrice);
+          // } else {
+          //   context.showSubscriptionDialog(
+          //     context,
+          //     onTap: () {
+          //       String url = (Platform.isAndroid)
+          //           ? "https://play.google.com/store/account/subscriptions"
+          //           : "https://account.apple.com/account/manage/section/subscriptions";
+          //       context.launchURL(url);
+          //     },
+          //   );
+          // }
         },
         child: Text(
           subscriptionProvider.subscribeBtnText,
@@ -374,27 +389,5 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
         ),
       ),
     );
-  }
-
-  ProductDetails getProduct(int type, bool mode, List<ProductDetails> products) {
-    if (type == 0) {
-      if (mode) {
-        return products.firstWhere((product) => product.id == subscriptionIds[0]);
-      } else {
-        return products.firstWhere((product) => product.id == subscriptionIds[1]);
-      }
-    } else if (type == 1) {
-      if (mode) {
-        return products.firstWhere((product) => product.id == subscriptionIds[2]);
-      } else {
-        return products.firstWhere((product) => product.id == subscriptionIds[3]);
-      }
-    } else {
-      if (mode) {
-        return products.firstWhere((product) => product.id == subscriptionIds[4]);
-      } else {
-        return products.firstWhere((product) => product.id == subscriptionIds[5]);
-      }
-    }
   }
 }

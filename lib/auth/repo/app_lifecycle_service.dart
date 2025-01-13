@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ping_app/file_path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {
   static final AppLifecycleService _instance = AppLifecycleService._internal();
@@ -37,13 +36,12 @@ class AppLifecycleService with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         setUserOnline();
         break;
+      case AppLifecycleState.detached:
+        setUserOffline();
+        break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
-        setUserOffline();
-        break;
-      case AppLifecycleState.detached:
-        setUserOffline();
         break;
     }
   }

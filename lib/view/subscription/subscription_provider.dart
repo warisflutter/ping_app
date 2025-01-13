@@ -438,30 +438,54 @@ class SubscriptionProvider extends ChangeNotifier {
     selectType = value;
     setSubscribeButton();
     notifyListeners();
-    // PingLog.pingLog("----Set Select Type----");
   }
 
   void setSubscribeButton() {
-    if (selectType == 2) {
-      subscribeBtnText = "t_get90DaysFreeTrail".tr();
-    } else if (purChasedModel != null) {
-      double selectedDPrice = 0.0;
-      purChasedPrice = double.parse(purChasedModel?.price.replaceAll(RegExp(r'[^0-9.]'), '') ?? "");
-      selectedDPrice = double.parse(selectSPrice.replaceAll(RegExp(r'[^0-9.]'), ''));
-
-      String value = _compareDoubles(purChasedPrice, selectedDPrice);
-      if (value == "greater") {
-        PingLog.pingLog("----if (purChasedPrice > selectedDPrice) { Downgrade----");
-        subscribeBtnText = "t_downgrade".tr();
-      } else if (value == "less") {
-        subscribeBtnText = "t_upgrade".tr();
-      } else if (value == "equal") {
-        PingLog.pingLog("----user is already subscribed----");
-        subscribeBtnText = "t_subscribed".tr();
+    subscribeBtnText = "$subscriptionType <===> $selectType <===> ${purChasedModel!.id}";
+    int currentPurchasedIndex = subscriptionIds.indexWhere((thisId) => thisId == purChasedModel!.id);
+    if (currentPurchasedIndex == -1) {
+      subscribeBtnText = "Subscribe";
+      return;
+    }
+    ProductDetails selectedProduct = getProduct(type: selectType, mode: subscriptionType, products: productsDetails);
+    int currentSelectedProductIndex = subscriptionIds.indexWhere((thisId) => thisId == selectedProduct.id);
+    if (currentSelectedProductIndex == -1) {
+      subscribeBtnText = "Subscribe";
+      return;
+    }
+    if (currentSelectedProductIndex == currentPurchasedIndex) {
+      subscribeBtnText = "Subscribed";
+    } else if (currentSelectedProductIndex > currentPurchasedIndex) {
+      if (currentSelectedProductIndex == 5 || currentSelectedProductIndex == 4) {
+        subscribeBtnText = "t_get90DaysFreeTrail".tr();
+      } else {
+        subscribeBtnText = "Upgrade";
       }
     } else {
-      subscribeBtnText = "t_subscribe".tr();
+      subscribeBtnText = "Downgrade";
     }
+    // if (selectType == 2) {
+    //   subscribeBtnText = "t_get90DaysFreeTrail".tr();
+    // } else if (purChasedModel != null) {
+    //   double selectedDPrice = 0.0;
+    //   purChasedPrice = double.parse(purChasedModel?.price.replaceAll(RegExp(r'[^0-9.]'), '') ?? "");
+    //   selectedDPrice = double.parse(selectSPrice.replaceAll(RegExp(r'[^0-9.]'), ''));
+    //   String value = _compareDoubles(purChasedPrice, selectedDPrice);
+    //   PingLog.pingLog("title: ${purChasedModel?.title}");
+    //   PingLog.pingLog("purChasedPrice: $purChasedPrice");
+    //   PingLog.pingLog("selectedDPrice: $selectedDPrice");
+    //   if (value == "greater") {
+    //     PingLog.pingLog("----if (purChasedPrice > selectedDPrice) { Downgrade----");
+    //     subscribeBtnText = "t_downgrade".tr();
+    //   } else if (value == "less") {
+    //     subscribeBtnText = "t_upgrade".tr();
+    //   } else if (value == "equal") {
+    //     PingLog.pingLog("----user is already subscribed----");
+    //     subscribeBtnText = "t_subscribed".tr();
+    //   }
+    // } else {
+    //   subscribeBtnText = "t_subscribe".tr();
+    // }
     notifyListeners();
   }
 
@@ -477,6 +501,32 @@ class SubscriptionProvider extends ChangeNotifier {
       return 'less';
     } else {
       return 'equal';
+    }
+  }
+
+  ProductDetails getProduct({
+    required int type,
+    required bool mode,
+    required List<ProductDetails> products,
+  }) {
+    if (type == 0) {
+      if (mode) {
+        return products.firstWhere((product) => product.id == subscriptionIds[0]);
+      } else {
+        return products.firstWhere((product) => product.id == subscriptionIds[1]);
+      }
+    } else if (type == 1) {
+      if (mode) {
+        return products.firstWhere((product) => product.id == subscriptionIds[2]);
+      } else {
+        return products.firstWhere((product) => product.id == subscriptionIds[3]);
+      }
+    } else {
+      if (mode) {
+        return products.firstWhere((product) => product.id == subscriptionIds[4]);
+      } else {
+        return products.firstWhere((product) => product.id == subscriptionIds[5]);
+      }
     }
   }
 }
