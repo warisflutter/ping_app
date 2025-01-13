@@ -282,8 +282,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      getPrice(subscriptionProvider.selectType, 'y',
-                          subscriptionProvider.productsDetails),
+                      getProduct(subscriptionProvider.selectType, false,
+                          subscriptionProvider.productsDetails).price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -329,8 +329,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      getPrice(subscriptionProvider.selectType, 'm',
-                          subscriptionProvider.productsDetails),
+                      getProduct(subscriptionProvider.selectType, true,
+                          subscriptionProvider.productsDetails).price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -369,28 +369,6 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
         ),
       ),
     );
-  }
-
-  String getPrice(int type, String mode, List<ProductDetails> products) {
-    if (type == 0) {
-      if (mode == 'm') {
-        return products.firstWhere((product) => product.id == subscriptionIds[0]).price;
-      } else {
-        return products.firstWhere((product) => product.id == subscriptionIds[1]).price;
-      }
-    } else if (type == 1) {
-      if (mode == 'm') {
-        return products.firstWhere((product) => product.id == subscriptionIds[2]).price;
-      } else {
-        return products.firstWhere((product) => product.id == subscriptionIds[3]).price;
-      }
-    } else {
-      if (mode == 'm') {
-        return products.firstWhere((product) => product.id == subscriptionIds[4]).price;
-      } else {
-        return products.firstWhere((product) => product.id == subscriptionIds[5]).price;
-      }
-    }
   }
 
   ProductDetails getProduct(int type, bool mode, List<ProductDetails> products) {
