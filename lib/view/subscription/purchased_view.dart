@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -51,7 +53,9 @@ class _PurchasedViewState extends State<PurchasedView> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    String url = "https://play.google.com/store/account/subscriptions";
+                    String url = (Platform.isAndroid)
+                        ? "https://play.google.com/store/account/subscriptions"
+                        : "https://account.apple.com/account/manage/section/subscriptions";
                     context.launchURL(url);
                   },
                   child: Text("t_cancelSubscription".tr()),

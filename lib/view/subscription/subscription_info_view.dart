@@ -140,7 +140,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                         ? subscriptionProvider.subscriptions[0].numberOfMessages
                                         : (subscriptionProvider.selectType == 1)
                                             ? subscriptionProvider.subscriptions[1].numberOfMessages
-                                            : subscriptionProvider.subscriptions[2].numberOfMessages,
+                                            : subscriptionProvider
+                                                .subscriptions[2].numberOfMessages,
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -165,10 +166,13 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   const SizedBox(width: 10),
                                   Text(
                                     (subscriptionProvider.selectType == 0)
-                                        ? subscriptionProvider.subscriptions[0].numberOfVoiceMessages
+                                        ? subscriptionProvider
+                                            .subscriptions[0].numberOfVoiceMessages
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider.subscriptions[1].numberOfVoiceMessages
-                                            : subscriptionProvider.subscriptions[2].numberOfVoiceMessages,
+                                            ? subscriptionProvider
+                                                .subscriptions[1].numberOfVoiceMessages
+                                            : subscriptionProvider
+                                                .subscriptions[2].numberOfVoiceMessages,
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -195,8 +199,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                     (subscriptionProvider.selectType == 0)
                                         ? subscriptionProvider.subscriptions[0].supportedPlatforms
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider.subscriptions[1].supportedPlatforms
-                                            : subscriptionProvider.subscriptions[2].supportedPlatforms,
+                                            ? subscriptionProvider
+                                                .subscriptions[1].supportedPlatforms
+                                            : subscriptionProvider
+                                                .subscriptions[2].supportedPlatforms,
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -262,7 +268,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       alignment: Alignment.centerRight,
                       child: Icon(
                         Icons.check_circle_outline,
-                        color: (subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
+                        color:
+                            (subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
                       ),
                     ),
                     Text(
@@ -275,11 +282,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      (subscriptionProvider.selectType == 0)
-                          ? subscriptionProvider.productsDetails[1].price
-                          : (subscriptionProvider.selectType == 1)
-                              ? subscriptionProvider.productsDetails[3].price
-                              : subscriptionProvider.productsDetails[5].price,
+                      getProduct(subscriptionProvider.selectType, false,
+                          subscriptionProvider.productsDetails).price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -311,7 +315,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       alignment: Alignment.centerRight,
                       child: Icon(
                         Icons.check_circle_outline,
-                        color: (!subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
+                        color:
+                            (!subscriptionProvider.subscriptionType) ? Colors.black : Colors.white,
                       ),
                     ),
                     Text(
@@ -324,11 +329,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                       ),
                     ),
                     Text(
-                      (subscriptionProvider.selectType == 0)
-                          ? subscriptionProvider.productsDetails[0].price
-                          : (subscriptionProvider.selectType == 1)
-                              ? subscriptionProvider.productsDetails[2].price
-                              : subscriptionProvider.productsDetails[4].price,
+                      getProduct(subscriptionProvider.selectType, true,
+                          subscriptionProvider.productsDetails).price,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -356,24 +358,8 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
           fixedSize: WidgetStatePropertyAll(Size(300, 50)),
         ),
         onPressed: () async {
-          late ProductDetails selectedPrice;
-          switch (subscriptionProvider.selectType) {
-            case 0:
-              selectedPrice = (subscriptionProvider.subscriptionType)
-                  ? subscriptionProvider.productsDetails[0]
-                  : subscriptionProvider.productsDetails[1];
-              break;
-            case 1:
-              selectedPrice = (subscriptionProvider.subscriptionType)
-                  ? subscriptionProvider.productsDetails[2]
-                  : subscriptionProvider.productsDetails[3];
-              break;
-            default:
-              selectedPrice = (!subscriptionProvider.subscriptionType)
-                  ? subscriptionProvider.productsDetails[5]
-                  : subscriptionProvider.productsDetails[4];
-              break;
-          }
+          late ProductDetails selectedPrice = getProduct(subscriptionProvider.selectType,
+              subscriptionProvider.subscriptionType, subscriptionProvider.productsDetails);
           PingLog.pingLog("select price: ${selectedPrice.price}");
           await subscriptionProvider.setProductDetails(selectedPrice);
         },
@@ -383,5 +369,27 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
         ),
       ),
     );
+  }
+
+  ProductDetails getProduct(int type, bool mode, List<ProductDetails> products) {
+    if (type == 0) {
+      if (mode) {
+        return products.firstWhere((product) => product.id == subscriptionIds[0]);
+      } else {
+        return products.firstWhere((product) => product.id == subscriptionIds[1]);
+      }
+    } else if (type == 1) {
+      if (mode) {
+        return products.firstWhere((product) => product.id == subscriptionIds[2]);
+      } else {
+        return products.firstWhere((product) => product.id == subscriptionIds[3]);
+      }
+    } else {
+      if (mode) {
+        return products.firstWhere((product) => product.id == subscriptionIds[4]);
+      } else {
+        return products.firstWhere((product) => product.id == subscriptionIds[5]);
+      }
+    }
   }
 }
