@@ -175,13 +175,11 @@ extension PingUtils on BuildContext {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Cancel Subscription"),
+          title: Text("t_cancelSubscription".tr()),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "You need to cancel your current subscription before you can upgrade or downgrade. Would you like to proceed to cancel your subscription?",
-              ),
+              Text("t_youNeedToCancelYourCurrentSubscriptionBeforeYouCanUpgradeDowngrade".tr()),
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -190,21 +188,20 @@ extension PingUtils on BuildContext {
                       onPressed: () {
                         pop();
                       },
-                      child: const Text("Close"),
+                      child: Text("t_close".tr()),
                     ),
                   ),
                   const SizedBox(width: 5),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: onTap,
-                      child: const Text("Cancel"),
+                      child: Text("t_cancel".tr()),
                     ),
                   ),
                 ],
               ),
             ],
           ),
-
         );
       },
     );
