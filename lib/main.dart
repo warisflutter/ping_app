@@ -32,8 +32,6 @@ Future<void> main() async {
           title: message.notification?.title ?? "",
           message: message.notification?.body ?? "",
         );
-      } else if (Platform.isIOS) {
-        notification.handleMessage(message);
       }
     },
   );
