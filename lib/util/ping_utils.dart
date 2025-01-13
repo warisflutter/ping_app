@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,7 +11,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 extension PingUtils on BuildContext {
   double get screenHeight => MediaQuery.of(this).size.height;
+
   double get screenWidth => MediaQuery.of(this).size.width;
+
   Future<void> launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -165,5 +168,16 @@ extension PingUtils on BuildContext {
         );
       },
     );
+  }
+
+  Future<bool> isAndroidWearOS() async {
+    Completer<bool> completer = Completer<bool>();
+    if (Platform.isAndroid & Platform.isIOS & Platform.isWindows & kIsWeb) {
+      completer.complete(false);
+    } else {
+      completer.complete(true);
+    }
+
+    return completer.future;
   }
 }
