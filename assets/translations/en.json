@@ -260,5 +260,7 @@
   "t_subscribe": "Subscribe",
   "t_reAuthenticate": "Re-Authenticate",
   "t_confirm": "Confirm",
-  "t_areYouSureThisActionWillRemoveAllYourData": "Are you sure? This action will remove all your data"
+  "t_areYouSureThisActionWillRemoveAllYourData": "Are you sure? This action will remove all your data",
+  "t_close": "Close",
+  "t_youNeedToCancelYourCurrentSubscriptionBeforeYouCanUpgradeDowngrade": "You need to cancel your current subscription before you can upgrade or downgrade. Would you like to proceed to cancel your subscription"
 }
