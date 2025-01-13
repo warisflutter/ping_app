@@ -122,7 +122,8 @@ class _SettingViewState extends State<SettingView> {
                     PingDialogs.showVoucherDialog(
                       context: context,
                       applyVoucher: () async {
-                        await Provider.of<VoucherProvider>(context, listen: false).applyForVoucher(context);
+                        await Provider.of<VoucherProvider>(context, listen: false)
+                            .applyForVoucher(context);
                       },
                     );
                   },
@@ -171,9 +172,12 @@ class _SettingViewState extends State<SettingView> {
                         FirebaseFirestore.instance.collection("users").doc(uid).update({
                           "isOnline": false,
                           "fcm": "",
+                        }).then((data) {
+                          replaceAll(const CreateAccountView());
+                          FirebaseAuth.instance.signOut();
                         });
-                        replaceAll(const CreateAccountView());
-                        await FirebaseAuth.instance.signOut();
+                        // replaceAll(const CreateAccountView());
+                        // await FirebaseAuth.instance.signOut();
                       } else {
                         snack("t_noInternetPleaseConnectToTheInternet".tr());
                       }
