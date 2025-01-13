@@ -49,9 +49,9 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 
   void setUserOnline() async {
-    final prefs = await SharedPreferences.getInstance();
-    String id = prefs.getString("memberId") ?? "";
-    PingLog.pingLog("id: $id");
+    // final prefs = await SharedPreferences.getInstance();
+    // String id = prefs.getString("memberId") ?? "";
+    // PingLog.pingLog("id: $id");
     final userId = _userId;
     final isMember = _isMember;
     if (userId == null || isMember == null) {
