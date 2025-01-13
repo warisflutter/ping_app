@@ -25,46 +25,48 @@ class _PurchasedViewState extends State<PurchasedView> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, widget) {
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text("${subscriptionProvider.purChasedModel?.title} ${"t_subscription".tr()}"),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Lottie.asset(
-                  height: 200,
-                  width: 200,
-                  'assets/images/success_animation.json',
-                ),
-                Text("${subscriptionProvider.purChasedModel?.details}"),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    replace(const SubscriptionInfoView());
-                  },
-                  child: Text("t_upgradeDowngradeSubscription".tr()),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    String url = (Platform.isAndroid)
-                        ? "https://play.google.com/store/account/subscriptions"
-                        : "https://account.apple.com/account/manage/section/subscriptions";
-                    context.launchURL(url);
-                  },
-                  child: Text("t_cancelSubscription".tr()),
-                ),
-              ],
+    return Consumer<SubscriptionProvider>(
+      builder: (context, subscriptionProvider, widget) {
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text("${subscriptionProvider.purChasedModel?.title} ${"t_subscription".tr()}"),
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Lottie.asset(
+                    height: 200,
+                    width: 200,
+                    'assets/images/success_animation.json',
+                  ),
+                  Text("${subscriptionProvider.purChasedModel?.details}"),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      replace(const SubscriptionInfoView());
+                    },
+                    child: Text("t_upgradeDowngradeSubscription".tr()),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      String url = (Platform.isAndroid)
+                          ? "https://play.google.com/store/account/subscriptions"
+                          : "https://account.apple.com/account/manage/section/subscriptions";
+                      context.launchURL(url);
+                    },
+                    child: Text("t_cancelSubscription".tr()),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
