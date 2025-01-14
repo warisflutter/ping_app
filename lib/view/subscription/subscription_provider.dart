@@ -444,25 +444,25 @@ class SubscriptionProvider extends ChangeNotifier {
     subscribeBtnText = "$subscriptionType <===> $selectType <===> ${purChasedModel!.id}";
     int currentPurchasedIndex = subscriptionIds.indexWhere((thisId) => thisId == purChasedModel!.id);
     if (currentPurchasedIndex == -1) {
-      subscribeBtnText = "Subscribe";
+      subscribeBtnText = "t_subscribe".tr();
       return;
     }
     ProductDetails selectedProduct = getProduct(type: selectType, mode: subscriptionType, products: productsDetails);
     int currentSelectedProductIndex = subscriptionIds.indexWhere((thisId) => thisId == selectedProduct.id);
     if (currentSelectedProductIndex == -1) {
-      subscribeBtnText = "Subscribe";
+      subscribeBtnText = "t_subscribe".tr();
       return;
     }
     if (currentSelectedProductIndex == currentPurchasedIndex) {
-      subscribeBtnText = "Subscribed";
+      subscribeBtnText = "t_subscribed".tr();
     } else if (currentSelectedProductIndex > currentPurchasedIndex) {
       if (currentSelectedProductIndex == 5 || currentSelectedProductIndex == 4) {
         subscribeBtnText = "t_get90DaysFreeTrail".tr();
       } else {
-        subscribeBtnText = "Upgrade";
+        subscribeBtnText = "t_upgrade".tr();
       }
     } else {
-      subscribeBtnText = "Downgrade";
+      subscribeBtnText = "t_downgrade".tr();
     }
     // if (selectType == 2) {
     //   subscribeBtnText = "t_get90DaysFreeTrail".tr();
