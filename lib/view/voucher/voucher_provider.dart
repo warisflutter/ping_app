@@ -163,13 +163,13 @@ class VoucherProvider extends ChangeNotifier {
         }
       } else {
         // No vouchers found
-        data = "No vouchers found for the user.";
+        data = "";
         PingLog.pingLog(data);
       }
     } catch (e) {
       // Log any errors
       debugPrint("Error fetching vouchers: $e");
-      data = "Error occurred while fetching vouchers.";
+      data = "";
     }
 
     return data;
