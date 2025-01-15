@@ -5,6 +5,7 @@ class PingDialogs {
   static void showVoucherDialog({
     required BuildContext context,
     required void Function() applyVoucher,
+    required TextEditingController controller,
   }) {
     showDialog(
       context: context,
@@ -20,7 +21,10 @@ class PingDialogs {
                 textAlign: TextAlign.left,
                 style: const TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 5),
+              TextFormField(
+                controller: controller,
+              ),
             ],
           ),
           actions: [

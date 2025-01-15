@@ -372,6 +372,11 @@ class SubscriptionProvider extends ChangeNotifier {
     required int numberOfMembers,
     required String type,
   }) {
+    String status = voucherData.split("|")[0];
+    if (status == "Voucher is Expire") {
+      snack("Voucher is Expire");
+      return;
+    }
     String typeSplit = voucherData.split("|")[1];
     Map<String, int> typeLimits = {
       "Basic": 3,

@@ -119,11 +119,12 @@ class _SettingViewState extends State<SettingView> {
                   title: Text('t_voucher'.tr()),
                   leading: const Icon(Icons.gif_box),
                   onTap: () {
+                    final voucherP = Provider.of<VoucherProvider>(context, listen: false);
                     PingDialogs.showVoucherDialog(
+                      controller: voucherP.codeTEC,
                       context: context,
                       applyVoucher: () async {
-                        await Provider.of<VoucherProvider>(context, listen: false)
-                            .applyForVoucher(context);
+                        await voucherP.applyForVoucher(context);
                       },
                     );
                   },

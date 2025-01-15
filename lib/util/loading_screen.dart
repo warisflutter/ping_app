@@ -99,31 +99,32 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Stack(children: [
-        Center(
-          child: Image.asset("assets/images/logo.png", width: mobileWidth),
-        ),
-        Positioned(
-          bottom: 32,
-          left: 0,
-          right: 0,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              widget.error != null
-                  ? getErrorMessage(context, widget.error)
-                  : count < 6
-                      ? tweenAnimationBuilder()
-                      : getLoader(),
-              const SizedBox(height: 8),
-              Text(widget.message, textAlign: TextAlign.center),
-            ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Stack(children: [
+          Center(
+            child: Image.asset("assets/images/logo.png", width: mobileWidth),
           ),
-        ),
-      ]),
-    ));
+          Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                widget.error != null
+                    ? getErrorMessage(context, widget.error)
+                    : count < 6
+                        ? tweenAnimationBuilder()
+                        : getLoader(),
+                const SizedBox(height: 8),
+                Text(widget.message, textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 
   Widget tweenAnimationBuilder() {
