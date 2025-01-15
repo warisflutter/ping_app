@@ -441,28 +441,36 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   void setSubscribeButton() {
-    subscribeBtnText = "$subscriptionType <===> $selectType <===> ${purChasedModel!.id}";
-    int currentPurchasedIndex = subscriptionIds.indexWhere((thisId) => thisId == purChasedModel!.id);
-    if (currentPurchasedIndex == -1) {
-      subscribeBtnText = "t_subscribe".tr();
-      return;
-    }
-    ProductDetails selectedProduct = getProduct(type: selectType, mode: subscriptionType, products: productsDetails);
-    int currentSelectedProductIndex = subscriptionIds.indexWhere((thisId) => thisId == selectedProduct.id);
-    if (currentSelectedProductIndex == -1) {
-      subscribeBtnText = "t_subscribe".tr();
-      return;
-    }
-    if (currentSelectedProductIndex == currentPurchasedIndex) {
-      subscribeBtnText = "t_subscribed".tr();
-    } else if (currentSelectedProductIndex > currentPurchasedIndex) {
-      if (currentSelectedProductIndex == 5 || currentSelectedProductIndex == 4) {
-        subscribeBtnText = "t_get90DaysFreeTrail".tr();
+    // subscribeBtnText = "$subscriptionType <===> $selectType <===> ${purChasedModel!.id}";
+    if (purChasedModel != null) {
+      int currentPurchasedIndex = subscriptionIds.indexWhere((thisId) => thisId == purChasedModel!.id);
+      if (currentPurchasedIndex == -1) {
+        subscribeBtnText = "t_subscribe".tr();
+        return;
+      }
+      ProductDetails selectedProduct = getProduct(type: selectType, mode: subscriptionType, products: productsDetails);
+      int currentSelectedProductIndex = subscriptionIds.indexWhere((thisId) => thisId == selectedProduct.id);
+      if (currentSelectedProductIndex == -1) {
+        subscribeBtnText = "t_subscribe".tr();
+        return;
+      }
+      if (currentSelectedProductIndex == currentPurchasedIndex) {
+        subscribeBtnText = "t_subscribed".tr();
+      } else if (currentSelectedProductIndex > currentPurchasedIndex) {
+        if (currentSelectedProductIndex == 5 || currentSelectedProductIndex == 4) {
+          subscribeBtnText = "t_get90DaysFreeTrail".tr();
+        } else {
+          subscribeBtnText = "t_upgrade".tr();
+        }
       } else {
-        subscribeBtnText = "t_upgrade".tr();
+        subscribeBtnText = "t_downgrade".tr();
       }
     } else {
-      subscribeBtnText = "t_downgrade".tr();
+      if (selectType == 2) {
+        subscribeBtnText = "t_get90DaysFreeTrail".tr();
+      } else {
+        subscribeBtnText = "t_subscribe".tr();
+      }
     }
     // if (selectType == 2) {
     //   subscribeBtnText = "t_get90DaysFreeTrail".tr();
@@ -494,15 +502,15 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _compareDoubles(double value1, double value2) {
-    if (value1 > value2) {
-      return 'greater';
-    } else if (value1 < value2) {
-      return 'less';
-    } else {
-      return 'equal';
-    }
-  }
+  // String _compareDoubles(double value1, double value2) {
+  //   if (value1 > value2) {
+  //     return 'greater';
+  //   } else if (value1 < value2) {
+  //     return 'less';
+  //   } else {
+  //     return 'equal';
+  //   }
+  // }
 
   ProductDetails getProduct({
     required int type,

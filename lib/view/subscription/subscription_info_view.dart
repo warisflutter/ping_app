@@ -369,19 +369,19 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
             products: subscriptionProvider.productsDetails,
           );
           PingLog.pingLog("select price: ${selectedPrice.price}");
-          // if (subscriptionProvider.purChasedModel == null) {
-          //   await subscriptionProvider.setProductDetails(selectedPrice);
-          // } else {
-          //   context.showSubscriptionDialog(
-          //     context,
-          //     onTap: () {
-          //       String url = (Platform.isAndroid)
-          //           ? "https://play.google.com/store/account/subscriptions"
-          //           : "https://account.apple.com/account/manage/section/subscriptions";
-          //       context.launchURL(url);
-          //     },
-          //   );
-          // }
+          if (subscriptionProvider.purChasedModel == null) {
+            await subscriptionProvider.setProductDetails(selectedPrice);
+          } else {
+            context.showSubscriptionDialog(
+              context,
+              onTap: () {
+                String url = (Platform.isAndroid)
+                    ? "https://play.google.com/store/account/subscriptions"
+                    : "https://account.apple.com/account/manage/section/subscriptions";
+                context.launchURL(url);
+              },
+            );
+          }
         },
         child: Text(
           subscriptionProvider.subscribeBtnText,

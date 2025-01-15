@@ -55,6 +55,7 @@ class _MemberListItemState extends State<MemberListItem> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       Provider.of<MemberState>(context, listen: false).loadMemberIdFromPrefs();
       await loadRecentNotification();
+      sendNotificationToTeamLead();
     });
   }
 
@@ -83,6 +84,24 @@ class _MemberListItemState extends State<MemberListItem> {
   void dispose() {
     notificationSubscription?.cancel();
     super.dispose();
+  }
+
+  void sendNotificationToTeamLead() async {
+    if (widget.isLoggedInAsMember && !widget.listTimeMemberModel.isOnline) {
+      PingLog.pingLog("isLoggedInAsMember${widget.isLoggedInAsMember}");
+      PingLog.pingLog("is member is online ${widget.listTimeMemberModel.isOnline}");
+      final notificationService = FirebaseNotificationService();
+      notificationService.sendNotification(
+        title: "Ping App",
+        body: "t_importantPingAppWontWorkAfterYouCloseIt".tr(),
+        token: widget.listTimeMemberModel.fcm,
+        fromId: "",
+        toId: "",
+        id: "",
+        type: "Not Open",
+        messageData: "",
+      );
+    }
   }
 
   @override

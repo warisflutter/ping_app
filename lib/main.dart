@@ -1,9 +1,10 @@
-import 'dart:io';
-
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ping_app/file_path.dart';
@@ -16,6 +17,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await initializeService();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FcmRepo.instance.initialise();
   final notification = FirebaseNotificationService();
@@ -23,17 +25,6 @@ Future<void> main() async {
   FirebaseMessaging.onMessage.listen(
     (message) {
       notification.handleMessage(message);
-      // if (Platform.isAndroid) {
-      //   notificationAlert(
-      //     onTap: () {
-      //       pop();
-      //       notification.handleMessage(message);
-      //     },
-      //     context: navigatorKey.currentState!.context,
-      //     title: message.notification?.title ?? "",
-      //     message: message.notification?.body ?? "",
-      //   );
-      // }
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(
@@ -110,6 +101,48 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+  service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      isForegroundMode: true,
+      autoStart: true,
+      autoStartOnBoot: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      onForeground: onStart,
+      autoStart: true,
+    ),
+  );
+  service.startService();
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  service.on("stop").listen((event) {
+    service.stopSelf();
+    print("background process is now stopped");
+  });
+
+  service.on("start").listen((event) {});
+
+  Timer.periodic(const Duration(seconds: 1), (timer) {
+    print("service is successfully running  ${DateTime.now().second}");
+  });
+}
+
+Future<void> showNotification() async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      'your channel id', 'your channel name',
+      channelDescription: 'your channel description',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker');
+  const NotificationDetails notificationDetails = NotificationDetails(android: androidNotificationDetails);
+  await flutterLocalNotificationsPlugin.show(1, 'plain title', 'plain body', notificationDetails, payload: 'item x');
+}
 /*
 for team lead
 funzoftapple786@gmail.com
@@ -118,3 +151,14 @@ for admin
 apptweak.hafiz@gmail.com
 Ping123456
 */
+// if (Platform.isAndroid) {
+//   notificationAlert(
+//     onTap: () {
+//       pop();
+//       notification.handleMessage(message);
+//     },
+//     context: navigatorKey.currentState!.context,
+//     title: message.notification?.title ?? "",
+//     message: message.notification?.body ?? "",
+//   );
+// }

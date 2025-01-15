@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:ping_app/file_path.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {
@@ -13,7 +18,6 @@ class AppLifecycleService with WidgetsBindingObserver {
   AppLifecycleService._internal() {
     WidgetsBinding.instance.addObserver(this);
   }
-
   void initialize({required bool isMember, required String userId}) {
     _userId = userId;
     _isMember = isMember;
@@ -27,22 +31,18 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     PingLog.pingLog("AppLifecycleState: $state");
     if (_userId == null) {
       return;
     }
-    switch (state) {
-      case AppLifecycleState.resumed:
-        setUserOnline();
-        break;
-      case AppLifecycleState.detached:
-        setUserOffline();
-        break;
-      case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
-        break;
+    log("This is userId => $_userId");
+
+    if (state == AppLifecycleState.detached) {
+      setUserOffline(state: state.name);
+    } else {
+      PingLog.pingLog("AppLifecycleState resume");
+      setUserOnline();
     }
   }
 
@@ -63,7 +63,7 @@ class AppLifecycleService with WidgetsBindingObserver {
     }
   }
 
-  void setUserOffline() {
+  void setUserOffline({String state = 'Sata'}) {
     final userId = _userId;
     final isMember = _isMember;
     if (userId == null || isMember == null) {
@@ -71,9 +71,9 @@ class AppLifecycleService with WidgetsBindingObserver {
     }
 
     if (isMember) {
-      MemberRepo.instance.updateOnlineStatus(userId, false);
+      MemberRepo.instance.updateOnlineStatus(userId, false, state: state);
     } else {
-      AuthRepo.instance.updateOnlineStatus(userId, false);
+      AuthRepo.instance.updateOnlineStatus(userId, false, state: state);
     }
   }
 

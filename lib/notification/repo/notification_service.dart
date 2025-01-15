@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
@@ -110,16 +111,20 @@ class FirebaseNotificationService {
   }
 
   Future<void> handleMessage(RemoteMessage message) async {
-    BuildContext context = navigatorKey.currentState!.context;
-    final notification = PingNotificationModel(
-      data: message.data["message"],
-      id: message.data["id"],
-      type: NotificationType.values[int.parse(message.data["type"])],
-      toId: message.data["toId"],
-      fromId: message.data["fromId"],
-      message: message.notification?.body ?? "",
-    );
-    _showNotificationAndDeliver(context, notification);
+    PingLog.pingLog("This is my type: ${message.data["type"]}");
+    if (message.data["type"] == "Not Open") {
+    } else {
+      BuildContext context = navigatorKey.currentState!.context;
+      final notification = PingNotificationModel(
+        data: message.data["message"],
+        id: message.data["id"],
+        type: NotificationType.values[int.parse(message.data["type"])],
+        toId: message.data["toId"],
+        fromId: message.data["fromId"],
+        message: message.notification?.body ?? "",
+      );
+      _showNotificationAndDeliver(context, notification);
+    }
   }
 
   Future forGroundMessage() async {
@@ -137,9 +142,8 @@ class FirebaseNotificationService {
       String? token = await messaging.getToken();
       return token;
     } catch (e) {
-      print("Error retrieving FCM Token: $e");
+      PingLog.pingLog("Error retrieving FCM Token: $e");
       return null;
     }
   }
-
 }
