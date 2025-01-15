@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/model/member_model.dart';
@@ -57,10 +58,9 @@ class MemberRepo {
     _memberChangesController.add(null);
   }
 
-  Future<void> updateOnlineStatus(String memberId, bool isOnline, {String state = ""}) async {
-    print("updating member online status $isOnline");
+  Future<void> updateOnlineStatus(String memberId, bool isOnline) async {
+    debugPrint("updating member online status $isOnline");
     await _memberCollection.doc(memberId).update({
-      "state": state,
       MemberModel.keyMemberOnline: isOnline,
       MemberModel.keyLastSeen: FieldValue.serverTimestamp(),
     });
