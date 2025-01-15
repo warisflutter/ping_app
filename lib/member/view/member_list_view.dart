@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -68,13 +70,13 @@ class _MemberListViewState extends State<MemberListView> {
                 onPressed: () async {
                   final isConnected = await context.isInternetAvailable();
                   if (isConnected) {
-                    subscriptionProvider.init();
                     final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
                     if (subscriptionProvider.purChasedModel == null) {
                       PingLog.pingLog("purChasedModel is null");
                       if (context.mounted) {
                         final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
                         final voucherData = await voucherProvider.fetchVoucher();
+                        log("voucherData $voucherData");
                         if (voucherData.isEmpty) {
                           push(const SubscriptionInfoView());
                         } else {
@@ -86,6 +88,7 @@ class _MemberListViewState extends State<MemberListView> {
                         }
                       }
                     } else {
+                      subscriptionProvider.init();
                       PingLog.pingLog("purChasedModel is not null");
                       subscriptionProvider.handleSubscription(
                         numberOfMembers: numberOfMembers,
