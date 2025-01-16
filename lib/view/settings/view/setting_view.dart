@@ -124,7 +124,12 @@ class _SettingViewState extends State<SettingView> {
                       controller: voucherP.codeTEC,
                       context: context,
                       applyVoucher: () async {
-                        await voucherP.applyForVoucher(context);
+                        final isInternet = await context.isInternetAvailable();
+                        if (isInternet) {
+                          await voucherP.applyForVoucher(context);
+                        } else {
+                          snack("t_noInternetPleaseConnectToTheInternet".tr());
+                        }
                       },
                     );
                   },

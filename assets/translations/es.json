@@ -258,5 +258,6 @@
   "t_upgrade": "Actualizar",
   "t_subscribed": "Suscrito",
   "t_subscribe": "Suscribirse",
-  "t_areYouSureThisActionWillRemoveAllYourData": "¿Estás seguro? Esta acción eliminará todos tus datos."
+  "t_areYouSureThisActionWillRemoveAllYourData": "¿Estás seguro? Esta acción eliminará todos tus datos.",
+  "t_importantPingAppWontWorkAfterYouCloseIt": "Importante: La aplicación Ping no funcionará después de cerrarla."
 }

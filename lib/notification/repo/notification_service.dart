@@ -19,7 +19,12 @@ class FirebaseNotificationService {
   ) async {
     await showDialog(
       context: navigatorKey.currentState!.context,
-      builder: (context) => NotificationResponseDialog(notification: notification),
+      builder: (context) {
+        Future.delayed(const Duration(seconds: 30)).then((value) {
+          safePop();
+        });
+        return NotificationResponseDialog(notification: notification);
+      },
     );
 
     NotificationRepo.instance.markNotificationDelivered(notification.id);

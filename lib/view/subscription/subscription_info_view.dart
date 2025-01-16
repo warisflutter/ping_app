@@ -210,19 +210,24 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                               ),
                               _selectMOrY(subscriptionProvider: subscriptionProvider),
                               _subscribeButton(subscriptionProvider: subscriptionProvider),
-                              Text(
-                                (subscriptionProvider.selectType == 0)
-                                    ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[1].price : subscriptionProvider.productsDetails[0].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
-                                    : (subscriptionProvider.selectType == 1)
-                                        ? "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[3].price : subscriptionProvider.productsDetails[2].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}"
-                                        : "${"t_youWillBeChange".tr()} ${(!subscriptionProvider.subscriptionType) ? subscriptionProvider.productsDetails[5].price : subscriptionProvider.productsDetails[4].price} on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
+                              Builder(builder: (context) {
+                                String price = subscriptionProvider
+                                    .getProduct(
+                                      type: subscriptionProvider.selectType,
+                                      mode: subscriptionProvider.subscriptionType,
+                                      products: subscriptionProvider.productsDetails,
+                                    )
+                                    .price;
+                                return Text(
+                                  "${"t_youWillBeChange".tr()} $price on every ${subscriptionProvider.subscriptionType ? "t_month".tr() : "t_year".tr()} ${"t_afterSubscribingThisCancelAtAnyTime".tr()}",
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                );
+                              }),
                             ],
                           ),
                         ),

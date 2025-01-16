@@ -55,7 +55,6 @@ class _MemberListItemState extends State<MemberListItem> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       Provider.of<MemberState>(context, listen: false).loadMemberIdFromPrefs();
       await loadRecentNotification();
-      sendNotificationToTeamLead();
     });
   }
 
@@ -84,24 +83,6 @@ class _MemberListItemState extends State<MemberListItem> {
   void dispose() {
     notificationSubscription?.cancel();
     super.dispose();
-  }
-
-  void sendNotificationToTeamLead() async {
-    if (widget.isLoggedInAsMember && !widget.listTimeMemberModel.isOnline) {
-      PingLog.pingLog("isLoggedInAsMember${widget.isLoggedInAsMember}");
-      PingLog.pingLog("is member is online ${widget.listTimeMemberModel.isOnline}");
-      final notificationService = FirebaseNotificationService();
-      notificationService.sendNotification(
-        title: "Ping App",
-        body: "t_importantPingAppWontWorkAfterYouCloseIt".tr(),
-        token: widget.listTimeMemberModel.fcm,
-        fromId: "",
-        toId: "",
-        id: "",
-        type: "Not Open",
-        messageData: "",
-      );
-    }
   }
 
   @override
@@ -156,10 +137,17 @@ class _MemberListItemState extends State<MemberListItem> {
                             ),
                           const SizedBox(width: 8),
                           if (widget.listTimeMemberModel.isOnline && !widget.listTimeMemberModel.isBlocked)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 8.0),
-                              child: Icon(Icons.circle, color: Colors.green, size: 12),
-                            ),
+                            FutureBuilder(
+                                future: context.isInternetAvailable(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                  } else if (snapshot.hasData && snapshot.data == true) {
+                                  } else {}
+                                  return const Padding(
+                                    padding: EdgeInsets.only(right: 8.0),
+                                    child: Icon(Icons.circle, color: Colors.green, size: 12),
+                                  );
+                                }),
                           Text(widget.listTimeMemberModel.name),
                         ],
                       ),

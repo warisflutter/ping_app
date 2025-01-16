@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ping_app/file_path.dart';
@@ -38,18 +37,23 @@ Future<void> main() async {
   } else {
     PingLog.pingLog('No message data');
   }
-  runApp(EasyLocalization(
-    supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
-    path: 'assets/translations',
-    fallbackLocale: const Locale('en'),
-    child: MultiProvider(providers: [
-      ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
-      ChangeNotifierProvider(create: (_) => MemberState()),
-      ChangeNotifierProvider(create: (_) => AdminProvider()),
-      ChangeNotifierProvider(create: (_) => VoucherProvider()),
-      ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
-    ], child: const MyApp()),
-  ));
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+          ChangeNotifierProvider(create: (_) => MemberState()),
+          ChangeNotifierProvider(create: (_) => AdminProvider()),
+          ChangeNotifierProvider(create: (_) => VoucherProvider()),
+          ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+        ],
+        child: const MyApp(),
+      ),
+    ),
+  );
   WatchConnectivity.instance.setupMethodChannel();
 }
 
@@ -99,8 +103,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-
 
 /*
 for team lead

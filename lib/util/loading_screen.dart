@@ -19,6 +19,7 @@ import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoadingScreen extends StatefulWidget {
   final dynamic error;
@@ -49,10 +50,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
     AppLifecycleService().reset();
     await adminProvider.getAdmin();
     PingLog.pingLog("type: ${adminProvider.type}");
-    if (adminProvider.type == "admin") {
-      PingLog.pingLog("===============adminProvider.type == admin");
-      replace(const AdminView());
-    } else if (adminProvider.type == "user") {
+    final sp = await SharedPreferences.getInstance();
+    String memberId = sp.getString("memberId") ?? "";
+    if (memberId.isEmpty) {
       final firebaseUser = FirebaseAuth.instance.currentUser;
       FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser!.uid);
       AppLifecycleService().initialize(
