@@ -258,6 +258,10 @@
   "t_upgrade": "Upgrade",
   "t_subscribed": "Abonniert",
   "t_subscribe": "Abonnieren",
+  "t_reAuthenticate": "Erneut authentifizieren",
+  "t_confirm": "bestätigen",
+  "t_close": "Schließen",
   "t_areYouSureThisActionWillRemoveAllYourData": "Bist du sicher? Diese Aktion wird alle deine Daten entfernen.",
-  "t_importantPingAppWontWorkAfterYouCloseIt": "Wichtig: Die Ping-App funktioniert nicht mehr, nachdem Sie sie geschlossen haben."
+  "t_importantPingAppWontWorkAfterYouCloseIt": "Wichtig: Die Ping-App funktioniert nicht mehr, nachdem Sie sie geschlossen haben.",
+  "t_youNeedToCancelYourCurrentSubscriptionBeforeYouCanUpgradeDowngrade": "Sie müssen Ihr aktuelles Abonnement kündigen, bevor Sie ein Upgrade oder Downgrade durchführen können. Möchten Sie fortfahren und Ihr Abonnement kündigen?"
 }
