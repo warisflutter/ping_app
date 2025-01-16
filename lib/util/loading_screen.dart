@@ -52,9 +52,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
     PingLog.pingLog("type: ${adminProvider.type}");
     final sp = await SharedPreferences.getInstance();
     String memberId = sp.getString("memberId") ?? "";
-    if (memberId.isEmpty) {
-      final firebaseUser = FirebaseAuth.instance.currentUser;
-      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser!.uid);
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (memberId.isEmpty && firebaseUser != null) {
+      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
       AppLifecycleService().initialize(
         isMember: false,
         userId: firebaseUser.uid,
