@@ -141,12 +141,15 @@ class _MemberListItemState extends State<MemberListItem> {
                                 future: context.isInternetAvailable(),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox.shrink();
                                   } else if (snapshot.hasData && snapshot.data == true) {
-                                  } else {}
-                                  return const Padding(
-                                    padding: EdgeInsets.only(right: 8.0),
-                                    child: Icon(Icons.circle, color: Colors.green, size: 12),
-                                  );
+                                    return const Padding(
+                                      padding: EdgeInsets.only(right: 8.0),
+                                      child: Icon(Icons.circle, color: Colors.green, size: 12),
+                                    );
+                                  } else {
+                                    return const SizedBox.shrink();
+                                  }
                                 }),
                           Text(widget.listTimeMemberModel.name),
                         ],
