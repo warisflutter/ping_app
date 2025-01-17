@@ -2,7 +2,6 @@ import 'dart:async' as async;
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -99,6 +98,9 @@ Future<void> initializeService() async {
       isForegroundMode: true,
       autoStart: true,
       autoStartOnBoot: true,
+      initialNotificationTitle: "Ping App",
+      initialNotificationContent: "Your app is running in the background.",
+      foregroundServiceNotificationId: 2000,
     ),
     iosConfiguration: IosConfiguration(
       onForeground: onStart,
@@ -106,7 +108,7 @@ Future<void> initializeService() async {
     ),
   );
   service.startService();
-  service.invoke("activeInBackground", {"state": "resume"});
+  service.invoke("activeInBackground", {"state": "resumed"});
 }
 
 @pragma('vm:entry-point')
