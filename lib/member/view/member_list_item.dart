@@ -137,20 +137,10 @@ class _MemberListItemState extends State<MemberListItem> {
                             ),
                           const SizedBox(width: 8),
                           if (widget.listTimeMemberModel.isOnline && !widget.listTimeMemberModel.isBlocked)
-                            FutureBuilder(
-                                future: context.isInternetAvailable(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox.shrink();
-                                  } else if (snapshot.hasData && snapshot.data == true) {
-                                    return const Padding(
-                                      padding: EdgeInsets.only(right: 8.0),
-                                      child: Icon(Icons.circle, color: Colors.green, size: 12),
-                                    );
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                }),
+                            const Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: Icon(Icons.circle, color: Colors.green, size: 12),
+                            ),
                           Text(widget.listTimeMemberModel.name),
                         ],
                       ),
