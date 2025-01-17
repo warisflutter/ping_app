@@ -21,12 +21,14 @@ Future<void> main() async {
   final notification = FirebaseNotificationService();
   notification.forGroundMessage();
   FirebaseMessaging.onMessage.listen(
-    (message) {
+
+        (message) {
+
       notification.handleMessage(message);
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(
-    (event) {
+        (event) {
       notification.handleMessage(event);
     },
   );
