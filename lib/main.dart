@@ -12,6 +12,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
+final ValueNotifier<RemoteMessage?> currentMessage = ValueNotifier(null);
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
@@ -21,14 +22,12 @@ Future<void> main() async {
   final notification = FirebaseNotificationService();
   notification.forGroundMessage();
   FirebaseMessaging.onMessage.listen(
-
-        (message) {
-
+    (message) {
       notification.handleMessage(message);
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(
-        (event) {
+    (event) {
       notification.handleMessage(event);
     },
   );
@@ -39,23 +38,21 @@ Future<void> main() async {
   } else {
     PingLog.pingLog('No message data');
   }
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
-          ChangeNotifierProvider(create: (_) => MemberState()),
-          ChangeNotifierProvider(create: (_) => AdminProvider()),
-          ChangeNotifierProvider(create: (_) => VoucherProvider()),
-          ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
-        ],
-        child: const MyApp(),
-      ),
+  runApp(EasyLocalization(
+    supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
+    path: 'assets/translations',
+    fallbackLocale: const Locale('en'),
+    child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PingAuthState(userStream: FirebaseAuth.instance.userChanges())),
+        ChangeNotifierProvider(create: (_) => MemberState()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => VoucherProvider()),
+        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+      ],
+      child: const MyApp(),
     ),
-  );
+  ));
   WatchConnectivity.instance.setupMethodChannel();
 }
 
@@ -81,28 +78,32 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      debugShowCheckedModeBanner: false,
-      scaffoldMessengerKey: scaffoldMessengerKey,
-      navigatorKey: navigatorKey,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: Colors.white,
-        ),
-        useMaterial3: true,
-        inputDecorationTheme: const InputDecorationTheme(
-          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(80)),
-          ),
-        ),
-      ),
-      home: const LoadingScreen(message: "Please wait..."),
-    );
+    return ValueListenableBuilder<RemoteMessage?>(
+        valueListenable: currentMessage,
+        builder: (context, v, c) {
+          return MaterialApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            debugShowCheckedModeBanner: false,
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            navigatorKey: navigatorKey,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                brightness: Brightness.dark,
+                seedColor: Colors.white,
+              ),
+              useMaterial3: true,
+              inputDecorationTheme: const InputDecorationTheme(
+                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(80)),
+                ),
+              ),
+            ),
+            home: const LoadingScreen(message: "Please wait..."),
+          );
+        });
   }
 }
 
