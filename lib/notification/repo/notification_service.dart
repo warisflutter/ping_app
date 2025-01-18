@@ -22,7 +22,6 @@ class FirebaseNotificationService {
     await showDialog(
       context: navigatorKey.currentState!.context,
       builder: (context) {
-        playAudio();
         Future.delayed(const Duration(seconds: 30)).then((value) {
           safePop();
         });
