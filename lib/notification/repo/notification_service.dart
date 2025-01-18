@@ -11,6 +11,8 @@ import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/record_web/audio_player.dart';
+import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
   void _showNotificationAndDeliver(
@@ -20,6 +22,7 @@ class FirebaseNotificationService {
     await showDialog(
       context: navigatorKey.currentState!.context,
       builder: (context) {
+        playAudio();
         Future.delayed(const Duration(seconds: 30)).then((value) {
           safePop();
         });
@@ -28,6 +31,21 @@ class FirebaseNotificationService {
     );
 
     NotificationRepo.instance.markNotificationDelivered(notification.id);
+  }
+
+  Future<void> playAudio() async {
+    final player = AudioPlayer(
+      source: "assets/sound/beep_sound.mp3",
+      onDelete: () {},
+    );
+    await player.createState().play();
+    if (await Vibration.hasCustomVibrationsSupport()) {
+      Vibration.vibrate(duration: 1000);
+    } else {
+      Vibration.vibrate();
+      await Future.delayed(Duration(milliseconds: 500));
+      Vibration.vibrate();
+    }
   }
 
   Future<String> getAccessToken() async {
