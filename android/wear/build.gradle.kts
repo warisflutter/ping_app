@@ -14,12 +14,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.team.pingapp.ping_app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.team.pingapp.ping_app"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 13
         versionName = "2.0"
         vectorDrawables {
@@ -53,7 +53,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
 
     buildFeatures {
@@ -64,11 +64,11 @@ android {
         kotlinCompilerExtensionVersion = "1.4.4"
     }
 
-    packagingOptions {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+//    packagingOptions {
+//        resources {
+//            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+//        }
+//    }
 }
 
 dependencies {

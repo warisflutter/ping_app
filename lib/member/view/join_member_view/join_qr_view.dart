@@ -6,7 +6,7 @@ import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 class JoinQrView extends StatefulWidget {
   const JoinQrView({super.key});
