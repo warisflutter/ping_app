@@ -132,14 +132,6 @@ class FirebaseNotificationService {
     }
   }
 
-  Future forGroundMessage() async {
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-  }
-
   Future<String?> getDeviceToken() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 

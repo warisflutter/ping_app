@@ -20,7 +20,6 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FcmRepo.instance.initialise();
   final notification = FirebaseNotificationService();
-  notification.forGroundMessage();
   FirebaseMessaging.onMessage.listen(
     (message) {
       notification.handleMessage(message);
