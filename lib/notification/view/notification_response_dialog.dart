@@ -39,7 +39,7 @@ class NotificationResponseDialog extends StatelessWidget {
             Text(
               notification.message,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -52,7 +52,7 @@ class NotificationResponseDialog extends StatelessWidget {
                 child: Text(
                   notification.data ?? "",
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -93,7 +93,7 @@ class NotificationResponseDialog extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         't_coming'.tr(),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
@@ -119,7 +119,7 @@ class NotificationResponseDialog extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         't_notComing'.tr(),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
