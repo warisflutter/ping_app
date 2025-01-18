@@ -105,6 +105,7 @@ Future<void> initializeService() async {
     ),
     iosConfiguration: IosConfiguration(
       onForeground: onStart,
+      onBackground: onStart,
       autoStart: true,
     ),
   );
@@ -112,8 +113,22 @@ Future<void> initializeService() async {
   service.invoke("activeInBackground", {"state": "resumed"});
 }
 
+
 @pragma('vm:entry-point')
-void onStart(ServiceInstance service) async {
+Future<bool> onIosBackground(ServiceInstance service) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  debugPrint("This is my service status in Background");
+  return true;
+}
+
+void startBackgroundService() {
+  final service = FlutterBackgroundService();
+  service.startService();
+}
+
+@pragma('vm:entry-point')
+Future<bool> onStart(ServiceInstance service) async {
   service.on("activeInBackground").listen((event) async {
     debugPrint("state: ${event?["state"]}");
     async.Timer.periodic(const Duration(seconds: 2), (timer) async {
@@ -136,6 +151,7 @@ void onStart(ServiceInstance service) async {
       }
     }
   });
+  return true;
 }
 
 void sendNotificationToTeamLead(String token) async {
