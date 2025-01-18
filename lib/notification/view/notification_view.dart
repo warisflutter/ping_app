@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
@@ -74,14 +75,16 @@ class NotificationView extends StatelessWidget {
                             : notification.sentAt != null
                                 ? const Icon(Icons.done)
                                 : const Icon(Icons.pending_actions),
-                    onTap: (notification.isResponded)
-                        ? null
-                        : () => showDialog(
-                              context: context,
-                              builder: (context) => NotificationResponseDialog(
-                                notification: notification,
-                              ),
-                            ),
+                    onTap: () {
+                      if (notification.response != null) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => NotificationResponseDialog(
+                            notification: notification,
+                          ),
+                        );
+                      }
+                    },
                   );
                 },
               );

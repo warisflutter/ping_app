@@ -83,24 +83,6 @@ class NotificationRepo {
     }
   }
 
-  // Future<PingNotificationModel> sendAudioNotification(
-  //   MemberModel fromMember,
-  //   MemberModel toMember,
-  //   File audio,
-  // ) async {
-  //   final doc = notificationCollection.doc();
-  //   final fileUrl = await uploadFileAndGetUrl(doc.id, audio);
-  //
-  //   final n = PingNotificationModel(
-  //     fromId: fromMember.id,
-  //     toId: toMember.id,
-  //     type: NotificationType.audioMessage,
-  //     message: "${fromMember.name} ${'t_sentYouAudioMessage'.tr()}",
-  //     data: fileUrl,
-  //   );
-  //
-  //   await doc.set(n.toJson());
-  // }
   Future<PingNotificationModel> sendAudioNotification(
     MemberModel fromMember,
     MemberModel toMember,
