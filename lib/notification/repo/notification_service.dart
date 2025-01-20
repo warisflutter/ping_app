@@ -11,7 +11,7 @@ import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
 import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/record_web/audio_player.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
@@ -32,17 +32,21 @@ class FirebaseNotificationService {
     NotificationRepo.instance.markNotificationDelivered(notification.id);
   }
 
+  late AudioPlayer player = AudioPlayer();
+
   Future<void> playAudio() async {
-    final player = AudioPlayer(
-      source: "assets/sound/beep_sound.mp3",
-      onDelete: () {},
-    );
-    await player.createState().play();
+    player = AudioPlayer();
+    try{
+      await player.setSource(AssetSource("sound/beep_sound.mp3"));
+      await player.resume();
+    }catch(e){
+      debugPrint("Failed to play audio");
+    }
     if (await Vibration.hasCustomVibrationsSupport()) {
       Vibration.vibrate(duration: 1000);
     } else {
       Vibration.vibrate();
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       Vibration.vibrate();
     }
   }
