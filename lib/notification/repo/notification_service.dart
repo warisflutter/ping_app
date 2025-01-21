@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
@@ -9,6 +10,7 @@ import 'package:ping_app/file_path.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
+import 'package:ping_app/util/navigator.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
@@ -34,10 +36,10 @@ class FirebaseNotificationService {
 
   Future<void> playAudio() async {
     player = AudioPlayer();
-    try {
+    try{
       await player.setSource(AssetSource("sound/beep_sound.mp3"));
       await player.resume();
-    } catch (e) {
+    }catch(e){
       debugPrint("Failed to play audio");
     }
     if (await Vibration.hasCustomVibrationsSupport()) {
