@@ -16,7 +16,6 @@ final ValueNotifier<RemoteMessage?> currentMessage = ValueNotifier(null);
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-  await initializeService();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FcmRepo.instance.initialise();
   final notification = FirebaseNotificationService();
