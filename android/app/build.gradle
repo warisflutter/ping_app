@@ -5,6 +5,7 @@ plugins {
     // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+
 }
 
 
@@ -88,4 +89,14 @@ dependencies {
     wearApp project(':wear')
     implementation 'com.google.android.gms:play-services-wearable:18.2.0'
     implementation 'com.google.firebase:firebase-messaging-ktx:24.0.0'
+    // Firebase Authentication SDK
+    implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'  // For Firebase Authentication
+
+    // Firebase Firestore SDK
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.3.0'  // For Firebase Firestore
+
+    // Firebase BoM (for version management)
+    implementation platform('com.google.firebase:firebase-bom:32.2.3')  // Ensure this is included for version alignment
+
+
 }
