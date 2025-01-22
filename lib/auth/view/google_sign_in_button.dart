@@ -11,6 +11,8 @@ import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 
+import '../../notification/repo/notification_service.dart';
+
 class GoogleSignInButton extends StatelessWidget {
   final void Function() onSignedIn;
 
@@ -88,7 +90,7 @@ class GoogleSignInButton extends StatelessWidget {
           AppLifecycleService().reset();
           AppLifecycleService()
               .initialize(isMember: false, userId: firebaseUser.uid);
-          FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+          FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser.uid);
           replaceAll(const DashboardView());
         } else {
           push(CompleteProfileView(firebaseUser: firebaseUser));

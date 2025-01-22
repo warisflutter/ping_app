@@ -13,12 +13,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 final ValueNotifier<RemoteMessage?> currentMessage = ValueNotifier(null);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await EasyLocalization.ensureInitialized();
   await initializeService();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FcmRepo.instance.initialise();
   final notification = FirebaseNotificationService();
   FirebaseMessaging.onMessage.listen(
     (message) {
@@ -52,7 +52,11 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   ));
-  WatchConnectivity.instance.setupMethodChannel();
+  try {
+    WatchConnectivity.instance.setupMethodChannel();
+  } catch (e) {
+    PingLog.pingLog('WatchConnectivity setup failed: $e');
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -63,18 +67,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    PingLog.pingLog("MyApp initState");
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    PingLog.pingLog("MyApp dispose");
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<RemoteMessage?>(

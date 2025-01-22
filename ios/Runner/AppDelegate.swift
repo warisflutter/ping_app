@@ -31,7 +31,7 @@ import FirebaseAuth
     func updateTerminationStatus(isOnline: Bool) {
         print(isOnline)
         guard let userId = Auth.auth().currentUser?.uid else {
-            print("User mnot found")
+            print("User not found")
             return
         }
         print(userId)

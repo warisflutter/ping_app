@@ -189,7 +189,7 @@ class _LoginViewState extends State<LoginView> {
         AppLifecycleService().reset();
         AppLifecycleService().initialize(isMember: false, userId: uid);
         final firebaseUser = FirebaseAuth.instance.currentUser;
-        FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser!.uid);
+        FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser!.uid);
         replaceAll(const DashboardView());
       }
     } catch (e) {

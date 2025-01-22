@@ -56,7 +56,7 @@ class AppleSignInButton extends StatelessWidget {
         if (userDoc.exists) {
           AppLifecycleService().reset();
           AppLifecycleService().initialize(isMember: false, userId: firebaseUser.uid);
-          FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+          FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser.uid);
           replaceAll(const DashboardView());
         } else {
           push(CompleteProfileView(firebaseUser: firebaseUser));

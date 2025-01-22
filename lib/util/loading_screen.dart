@@ -54,7 +54,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
     String memberId = sp.getString("memberId") ?? "";
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (memberId.isEmpty && firebaseUser != null) {
-      FcmRepo.instance.updateTeamLeadFcmToken(firebaseUser.uid);
+      FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser.uid);
       AppLifecycleService().initialize(
         isMember: false,
         userId: firebaseUser.uid,
@@ -70,7 +70,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
           if (member != null) {
             final member = memberState.member;
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              FcmRepo.instance.updateMemberFcmToken(member!.id);
+              FirebaseNotificationService().updateMemberFcmToken(member!.id);
               AppLifecycleService().initialize(isMember: true, userId: member.id);
               replace(const MemberDashboard());
             });

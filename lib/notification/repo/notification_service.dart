@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
@@ -10,11 +11,15 @@ import 'package:ping_app/file_path.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
-import 'package:ping_app/util/navigator.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
+
+  FirebaseNotificationService() {
+    requestPermission();
+  }
+
   void _showNotificationAndDeliver(
     BuildContext context,
     PingNotificationModel notification,
@@ -153,15 +158,45 @@ class FirebaseNotificationService {
     }
   }
 
-  Future<String?> getDeviceToken() async {
+
+  Future<void> requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    try {
-      String? token = await messaging.getToken();
-      return token;
-    } catch (e) {
-      PingLog.pingLog("Error retrieving FCM Token: $e");
-      return null;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+
+    if (kDebugMode) {
+      print('User granted permission: ${settings.authorizationStatus}');
+    }
+  }
+
+  Future<void> updateMemberFcmToken(String memberId) async {
+    String? token = await FirebaseMessaging.instance.getToken(
+      vapidKey: kIsWeb
+          ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM"
+          : null,
+    );
+    if (token != null) {
+      await MemberRepo.instance.updateFcmToken(memberId, token);
+    }
+  }
+
+  Future<void> updateTeamLeadFcmToken(String teamLeadId) async {
+    String? token = await FirebaseMessaging.instance.getToken(
+      vapidKey: kIsWeb
+          ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM"
+          : null,
+    );
+    if (token != null) {
+      await AuthRepo.instance.updateFcmToken(teamLeadId, token);
     }
   }
 }

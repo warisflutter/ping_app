@@ -58,7 +58,7 @@ class _JoinIdViewState extends State<JoinIdView> {
       final member = memberState.member;
       AppLifecycleService().reset();
       AppLifecycleService().initialize(isMember: true, userId: member!.id);
-      FcmRepo.instance.updateMemberFcmToken(member.id);
+      FirebaseNotificationService().updateMemberFcmToken(member.id);
       replaceAll(const MemberDashboard());
     } catch (e) {
       setState(() => loading = false);

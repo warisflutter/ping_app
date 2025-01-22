@@ -113,27 +113,10 @@ Future<void> initializeService() async {
   service.invoke("activeInBackground", {"state": "resumed"});
 }
 
-
-@pragma('vm:entry-point')
-Future<bool> onIosBackground(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-  debugPrint("This is my service status in Background");
-  return true;
-}
-
-void startBackgroundService() {
-  final service = FlutterBackgroundService();
-  service.startService();
-}
-
 @pragma('vm:entry-point')
 Future<bool> onStart(ServiceInstance service) async {
   service.on("activeInBackground").listen((event) async {
     debugPrint("state: ${event?["state"]}");
-    async.Timer.periodic(const Duration(seconds: 2), (timer) async {
-      debugPrint("This is my service active In Background ${event?["state"]}");
-    });
     if (event?["state"] == AppLifecycleState.detached.name) {
       await Firebase.initializeApp();
       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
@@ -144,17 +127,18 @@ Future<bool> onStart(ServiceInstance service) async {
         String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
         final users = FirebaseFirestore.instance.collection("users");
         users.doc(uid).update({"isOnline": false});
-        sendNotificationToTeamLead(fcmToken);
+        await sendNotificationToTeamLead(fcmToken);
       } else {
         FirebaseFirestore.instance.collection("members").doc(id).update({"isOnline": false});
-        sendNotificationToTeamLead(fcmToken);
+        await sendNotificationToTeamLead(fcmToken);
       }
+      service.stopSelf();
     }
   });
   return true;
 }
 
-void sendNotificationToTeamLead(String token) async {
+Future<void> sendNotificationToTeamLead(String token) async {
 
   final locale = window.locale;
   final languageCode = locale.languageCode;
@@ -167,7 +151,7 @@ void sendNotificationToTeamLead(String token) async {
   };
   final notificationBody = messages[languageCode] ?? messages['en'];
   final notificationService = FirebaseNotificationService();
-  notificationService.sendNotification(
+  await notificationService.sendNotification(
     title: "Ping App",
     body: "$notificationBody",
     token: token,

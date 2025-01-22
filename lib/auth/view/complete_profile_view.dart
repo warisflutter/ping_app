@@ -123,7 +123,7 @@ class _CompleteProfileViewState extends State<CompleteProfileView> {
         String uid = widget.firebaseUser.uid;
         AppLifecycleService().reset();
         AppLifecycleService().initialize(isMember: false, userId: uid);
-        FcmRepo.instance.updateTeamLeadFcmToken(uid);
+        FirebaseNotificationService().updateTeamLeadFcmToken(uid);
         replaceAll(const DashboardView());
       } catch (e) {
         snack('${'t_failedToUpdateProfile'.tr()}: $e');
