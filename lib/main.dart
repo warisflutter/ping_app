@@ -37,6 +37,11 @@ Future<void> main() async {
   } else {
     PingLog.pingLog('No message data');
   }
+  try {
+    WatchConnectivity.instance.setupMethodChannel();
+  } catch (e) {
+    PingLog.pingLog('WatchConnectivity setup failed: $e');
+  }
   runApp(EasyLocalization(
     supportedLocales: const [Locale('en'), Locale('de'), Locale('fr'), Locale('es'), Locale('it')],
     path: 'assets/translations',
@@ -52,11 +57,6 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   ));
-  try {
-    WatchConnectivity.instance.setupMethodChannel();
-  } catch (e) {
-    PingLog.pingLog('WatchConnectivity setup failed: $e');
-  }
 }
 
 class MyApp extends StatefulWidget {

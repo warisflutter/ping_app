@@ -32,52 +32,57 @@ class WatchConnectivity {
   }
 
   void _setupListeners() {
-    // Listen for auth state changes
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user == null) {
-        meId = "all";
-        teamLeadId = "all";
-      } else {
-        meId = user.uid;
-        teamLeadId = user.uid;
+    try {
+      FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+        if (user == null) {
+          meId = "all";
+          teamLeadId = "all";
+        } else {
+          meId = user.uid;
+          teamLeadId = user.uid;
+          sendMemberListToWatch();
+          debugPrint("TeamLead: cancelling ${user.uid}");
+          if (_notificationSubscription != null) {
+            await _notificationSubscription!.cancel();
+          }
+          debugPrint("TeamLead: Team lead sending members");
+          _notificationSubscription = NotificationRepo.instance.getNotificationsFromMe(user.uid).listen((notification) {
+            debugPrint("TeamLead: Sent");
+            sendMemberListToWatch();
+          });
+        }
+      });
+
+      // Listen for member state changes
+      MemberState.instance.addListener(() {
         sendMemberListToWatch();
-        debugPrint("TeamLead: cancelling ${user.uid}");
+      });
+
+      MemberState.instance.onMemberChanged = (MemberModel? member) async {
+        if (member != null) {
+          meId = member.id;
+          teamLeadId = member.teamLeadId;
+        }
+        debugPrint("TeamLead: 1 cancelling");
         if (_notificationSubscription != null) {
           await _notificationSubscription!.cancel();
         }
-        debugPrint("TeamLead: Team lead sending members");
-        _notificationSubscription = NotificationRepo.instance.getNotificationsFromMe(user.uid).listen((notification) {
-          debugPrint("TeamLead: Sent");
+        debugPrint("TeamLead: 1Member sending members");
+        _notificationSubscription = NotificationRepo.instance.getNotificationsFromMe(meId).listen((notification) {
+          debugPrint("TeamLead: 1 Sent");
           sendMemberListToWatch();
         });
-      }
-    });
+      };
 
-    // Listen for member state changes
-    MemberState.instance.addListener(() {
-      sendMemberListToWatch();
-    });
-
-    MemberState.instance.onMemberChanged = (MemberModel? member) async {
-      if (member != null) {
-        meId = member.id;
-        teamLeadId = member.teamLeadId;
-      }
-      debugPrint("TeamLead: 1 cancelling");
-      if (_notificationSubscription != null) {
-        await _notificationSubscription!.cancel();
-      }
-      debugPrint("TeamLead: 1Member sending members");
-      _notificationSubscription = NotificationRepo.instance.getNotificationsFromMe(meId).listen((notification) {
-        debugPrint("TeamLead: 1 Sent");
+      // Listen for member changes (add/delete/block)
+      MemberRepo.instance.memberChanges.listen((_) {
         sendMemberListToWatch();
       });
-    };
 
-    // Listen for member changes (add/delete/block)
-    MemberRepo.instance.memberChanges.listen((_) {
-      sendMemberListToWatch();
-    });
+    } catch (e) {
+      //
+    }
+
   }
 
   void _setupMessageTemplateListener() {
@@ -138,9 +143,13 @@ class WatchConnectivity {
   }
 
   Future<void> _handleRequestMessageTemplates() async {
-    List<WatchOSMessageTemplate> templates = await _fetchMessageTemplates();
-    if (templates.isNotEmpty) {
-      await platform.invokeMethod('sendMessageTemplates', {'templates': templates.map((t) => t.toJson()).toList()});
+    try {
+      List<WatchOSMessageTemplate> templates = await _fetchMessageTemplates();
+      if (templates.isNotEmpty) {
+        await platform.invokeMethod('sendMessageTemplates', {'templates': templates.map((t) => t.toJson()).toList()});
+      }
+    } catch (e) {
+      PingLog.pingLog('_handleRequestMessageTemplates failed: $e');
     }
   }
 
