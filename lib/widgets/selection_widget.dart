@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SelectionWidget extends StatelessWidget {
@@ -25,7 +26,7 @@ class SelectionWidget extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          text,
+          text.tr(),
           textAlign: TextAlign.center,
           style: TextStyle(
             color: (type == index) ? Colors.black : Colors.white,

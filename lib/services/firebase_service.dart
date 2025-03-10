@@ -15,6 +15,7 @@ class FirebaseService {
   CollectionReference<Map<String, dynamic>> get voucherCollection => firebaseFireStore.collection("vouchers");
 
   CollectionReference<Map<String, dynamic>> get usersCollection => firebaseFireStore.collection("users");
+
   Future<void> saveUserDetailsAfterBuySubscription({
     required PurChasedModel purchasedModel,
   }) async {
@@ -60,7 +61,7 @@ class FirebaseService {
       debugPrint("User subscription removed successfully!");
     } catch (e) {
       debugPrint("Error removing user subscription: $e");
-      // snack("Error removing subscription. Please try again.");
+      snack("Error removing subscription. Please try again.");
     }
   }
 }

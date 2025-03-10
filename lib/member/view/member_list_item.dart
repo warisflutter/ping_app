@@ -210,7 +210,7 @@ class _MemberListItemState extends State<MemberListItem> {
                     if (!selected.isBlocked)
                       ListTile(
                         leading: const Icon(Icons.phonelink_ring),
-                        title: const Text("Ping"),
+                        title: Text("t_ping".tr()),
                         onTap: () async {
                           final res = await isMemberBlocked(widget.currentUserModel.id);
                           pop();
@@ -219,11 +219,13 @@ class _MemberListItemState extends State<MemberListItem> {
                           } else {
                             if (context.mounted) {
                               bool confirmation = await context.showConfirmationDialog(
+                                    title: "t_sendPing".tr(),
                                     type: "Ping",
                                   ) ??
                                   false;
                               if (confirmation) {
-                                final data = await NotificationRepo.instance.sendPingNotification(me, selected);
+                                final data =
+                                    await NotificationRepo.instance.sendPingNotification(me, selected);
 
                                 final res = await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
@@ -256,17 +258,19 @@ class _MemberListItemState extends State<MemberListItem> {
                           if (res) {
                             snack("t_blockMemberCantSendMessage".tr(), info: false);
                           } else {
-                            String? message = await push<String>(const MessageListView(pickMessageMode: true));
+                            String? message =
+                                await push<String>(const MessageListView(pickMessageMode: true));
 
                             if (message != null) {
                               bool confirmation = await context.showConfirmationDialog(
+                                title: "t_sendMessage".tr(),
                                     message: message,
                                     type: "Message",
                                   ) ??
                                   false;
                               if (confirmation) {
-                                final data =
-                                    await NotificationRepo.instance.sendMessageNotification(me, selected, message);
+                                final data = await NotificationRepo.instance
+                                    .sendMessageNotification(me, selected, message);
                                 final res = await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
                                   type: "1",
@@ -308,7 +312,8 @@ class _MemberListItemState extends State<MemberListItem> {
                           final send = await push<bool>(VerifyAudioView(audioFile: file));
                           if (send ?? false) {
                             pop();
-                            final data = await NotificationRepo.instance.sendAudioNotification(me, selected, file);
+                            final data =
+                                await NotificationRepo.instance.sendAudioNotification(me, selected, file);
                             await FirebaseNotificationService().sendNotification(
                               messageData: data.data ?? "",
                               type: "2",
@@ -376,7 +381,9 @@ class _MemberListItemState extends State<MemberListItem> {
                           onYes: () async {
                             bool isInternet = await context.isInternetAvailable();
                             if (isInternet) {
-                              MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error));
+                              MemberRepo.instance
+                                  .removeMember(selected.id)
+                                  .catchError((error) => snack(error));
                             } else {
                               snack("t_noInternetPleaseConnectToTheInternet".tr());
                             }

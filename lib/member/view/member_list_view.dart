@@ -65,6 +65,7 @@ class _MemberListViewState extends State<MemberListView> {
       }
       return Scaffold(
         appBar: AppBar(
+          centerTitle: false,
           title: Text(isMember ? ifMember?.name ?? "" : 't_myTeam'.tr()),
           actions: [
             if (mode.isTeamLead)

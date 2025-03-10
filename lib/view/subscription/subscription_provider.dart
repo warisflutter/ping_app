@@ -105,6 +105,11 @@ class SubscriptionProvider extends ChangeNotifier {
 
   Future<void> init() async {
     PingLog.pingLog("---SubscriptionProvider init---");
+    if (kIsWeb) {
+      purChasedModel = await firebaseService.getUserSubscriptionDetails();
+      PingLog.pingLog("PurChase Details From Firebase ${purChasedModel!.toMap()}");
+      return;
+    }
     await showSubscriptions();
     await initLister();
     if (purChasedModel != null) {
@@ -166,7 +171,7 @@ class SubscriptionProvider extends ChangeNotifier {
           PingLog.pingLog("purchaseDetailsList length: ${purchaseDetailsList.length}");
           if (purchaseDetailsList.isEmpty) {
             PingLog.pingLog("No purchases in purchaseDetailsList.");
-            // firebaseService.removeUserSubscription();
+            firebaseService.removeUserSubscription();
           } else {
             for (var purchaseDetails in purchaseDetailsList) {
               PingLog.pingLog("purchase status ${purchaseDetails.status}");
@@ -476,22 +481,22 @@ class SubscriptionProvider extends ChangeNotifier {
     if (purChasedModel != null) {
       int currentPurchasedIndex = subscriptionIds.indexWhere((thisId) => thisId == purChasedModel!.id);
       if (currentPurchasedIndex == -1) {
-        subscribeBtnText = "t_subscribe".tr();
+        subscribeBtnText = "t_subscribe";
         return;
       }
       ProductDetails selectedProduct = getProduct(type: selectType, mode: subscriptionType, products: productsDetails);
       int currentSelectedProductIndex = subscriptionIds.indexWhere((thisId) => thisId == selectedProduct.id);
       if (currentSelectedProductIndex == -1) {
-        subscribeBtnText = "t_subscribe".tr();
+        subscribeBtnText = "t_subscribe";
         return;
       }
       if (currentSelectedProductIndex == currentPurchasedIndex) {
-        subscribeBtnText = "t_subscribed".tr();
+        subscribeBtnText = "t_subscribed";
       } else if (currentSelectedProductIndex > currentPurchasedIndex) {
         if (currentSelectedProductIndex == 5 || currentSelectedProductIndex == 4) {
-          subscribeBtnText = "t_get90DaysFreeTrail".tr();
+          subscribeBtnText = "t_get90DaysFreeTrail";
         } else {
-          subscribeBtnText = "t_upgrade".tr();
+          subscribeBtnText = "t_upgrade";
         }
       } else {
         subscribeBtnText = "t_downgrade".tr();

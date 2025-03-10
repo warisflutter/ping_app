@@ -10,7 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 extension PingUtils on BuildContext {
   double get screenHeight => MediaQuery.of(this).size.height;
+
   double get screenWidth => MediaQuery.of(this).size.width;
+
   Future<void> launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -68,6 +70,7 @@ extension PingUtils on BuildContext {
 
   Future<bool?> showConfirmationDialog({
     String message = "",
+    required String title,
     required String type,
   }) {
     return showDialog<bool>(
@@ -75,14 +78,14 @@ extension PingUtils on BuildContext {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            "Send $type",
+            title,
             style: const TextStyle(
               fontWeight: FontWeight.w600,
             ),
           ),
           content: (type == "Ping")
               ? Text(
-                  "Are you sure you want to send $type",
+                  "${"t_AreYouSureYouWantToSend".tr()} $type",
                   style: const TextStyle(
                     fontWeight: FontWeight.w400,
                   ),
@@ -96,11 +99,11 @@ extension PingUtils on BuildContext {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), // Cancel
-              child: const Text("Cancel"),
+              child:  Text("t_cancel".tr()),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true), // Confirm
-              child: const Text("Send"),
+              child:  Text("t_send".tr()),
             ),
           ],
         );

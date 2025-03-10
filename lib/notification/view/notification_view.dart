@@ -76,7 +76,7 @@ class NotificationView extends StatelessWidget {
                                 ? const Icon(Icons.done)
                                 : const Icon(Icons.pending_actions),
                     onTap: () {
-                      if (notification.response != null) {
+                      if (notification.type.name != "ping") {
                         showDialog(
                           context: context,
                           builder: (context) => NotificationResponseDialog(

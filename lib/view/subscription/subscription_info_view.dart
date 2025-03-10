@@ -390,7 +390,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
         },
         child: Text(
           textAlign: TextAlign.center,
-          subscriptionProvider.subscribeBtnText,
+          subscriptionProvider.subscribeBtnText.tr(),
           style: const TextStyle(color: Colors.white),
         ),
       ),

@@ -22,7 +22,7 @@ Future<void> main() async {
   final notification = FirebaseNotificationService();
   FirebaseMessaging.onMessage.listen(
     (message) {
-      notification.handleMessage(message);
+      notification.handleMessage(message,playSound: true);
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(
@@ -31,12 +31,6 @@ Future<void> main() async {
     },
   );
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-  if (initialMessage != null) {
-    notification.handleMessage(initialMessage);
-  } else {
-    PingLog.pingLog('No message data');
-  }
   try {
     WatchConnectivity.instance.setupMethodChannel();
   } catch (e) {

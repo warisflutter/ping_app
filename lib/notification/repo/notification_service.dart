@@ -15,21 +15,22 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
-
   FirebaseNotificationService() {
     requestPermission();
   }
 
-  void _showNotificationAndDeliver(
-    BuildContext context,
-    PingNotificationModel notification,
-  ) async {
+  void _showNotificationAndDeliver(BuildContext context, PingNotificationModel notification,
+      {bool playSound = false}) async {
     await showDialog(
       context: navigatorKey.currentState!.context,
       builder: (context) {
-        Future.delayed(const Duration(seconds: 30)).then((value) {
+        Future.delayed(const Duration(seconds: 40)).then((value) {
           safePop();
         });
+        if (playSound) {
+          playAudio();
+          startVibration();
+        }
         return NotificationResponseDialog(notification: notification);
       },
     );
@@ -41,14 +42,17 @@ class FirebaseNotificationService {
 
   Future<void> playAudio() async {
     player = AudioPlayer();
-    try{
+    try {
       await player.setSource(AssetSource("sound/beep_sound.mp3"));
       await player.resume();
-    }catch(e){
+    } catch (e) {
       debugPrint("Failed to play audio");
     }
+  }
+
+  Future<void> startVibration() async {
     if (await Vibration.hasCustomVibrationsSupport()) {
-      Vibration.vibrate(duration: 1000);
+      Vibration.vibrate(duration: 3000);
     } else {
       Vibration.vibrate();
       await Future.delayed(const Duration(milliseconds: 500));
@@ -141,7 +145,10 @@ class FirebaseNotificationService {
     return completer.future;
   }
 
-  Future<void> handleMessage(RemoteMessage message) async {
+  Future<void> handleMessage(
+    RemoteMessage message, {
+    bool playSound = false,
+  }) async {
     PingLog.pingLog("This is my type: ${message.data["type"]}");
     if (message.data["type"] == "Not Open") {
     } else {
@@ -154,10 +161,9 @@ class FirebaseNotificationService {
         fromId: message.data["fromId"],
         message: message.notification?.body ?? "",
       );
-      _showNotificationAndDeliver(context, notification);
+      _showNotificationAndDeliver(context, notification, playSound: playSound);
     }
   }
-
 
   Future<void> requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -171,7 +177,6 @@ class FirebaseNotificationService {
       provisional: false,
       sound: true,
     );
-
 
     if (kDebugMode) {
       print('User granted permission: ${settings.authorizationStatus}');

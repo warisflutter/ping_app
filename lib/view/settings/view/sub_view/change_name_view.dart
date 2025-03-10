@@ -65,7 +65,7 @@ class _ChangeNameViewState extends State<ChangeNameView> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("viewChangeName"),
-      appBar: AppBar(title: Text("${'t_changeYour'.tr()} ${widget.mode.title}")),
+      appBar: AppBar(title: Text("${widget.mode.title} ${'t_changeYour'.tr()}")),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),

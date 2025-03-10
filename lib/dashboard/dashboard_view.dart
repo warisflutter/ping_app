@@ -91,18 +91,22 @@ class _DashboardViewState extends State<DashboardView> {
                     ],
                   ),
                 ),
-                TabBar(
-                  indicator: const BoxDecoration(),
-                  dividerHeight: 0,
-                  tabs: [
-                    Tab(text: 't_team'.tr(), icon: const Icon(Icons.group)),
-                    Tab(text: 't_notifications'.tr(), icon: const Icon(Icons.notifications)),
-                    Tab(
-                      key: const Key("tabSettings"),
-                      text: 't_settings'.tr(),
-                      icon: const Icon(Icons.settings),
-                    ),
-                  ],
+                Localizations.override(
+                  context: context,
+                  locale: context.locale,
+                  child: TabBar(
+                    indicator: const BoxDecoration(),
+                    dividerHeight: 0,
+                    tabs: [
+                      Tab(text: 't_team'.tr(), icon: const Icon(Icons.group)),
+                      Tab(text: 't_notifications'.tr(), icon: const Icon(Icons.notifications)),
+                      Tab(
+                        key: const Key("tabSettings"),
+                        text: 't_settings'.tr(),
+                        icon: const Icon(Icons.settings),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
