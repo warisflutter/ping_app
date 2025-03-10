@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -21,7 +21,7 @@ class SubscriptionInfoView extends StatefulWidget {
 class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
   @override
   void initState() {
-    Provider.of<SubscriptionProvider>(context, listen: false).init();
+    // Provider.of<SubscriptionProvider>(context, listen: false).init();
     super.initState();
   }
 
@@ -78,10 +78,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                           ),
                           child: Text(
                             (subscriptionProvider.selectType == 0)
-                                ? subscriptionProvider.subscriptions[0].type
+                                ? subscriptionProvider.subscriptions[0].type.tr()
                                 : (subscriptionProvider.selectType == 1)
-                                    ? subscriptionProvider.subscriptions[1].type
-                                    : subscriptionProvider.subscriptions[2].type,
+                                    ? subscriptionProvider.subscriptions[1].type.tr()
+                                    : subscriptionProvider.subscriptions[2].type.tr(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -112,10 +112,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   const SizedBox(width: 10),
                                   Text(
                                     (subscriptionProvider.selectType == 0)
-                                        ? subscriptionProvider.subscriptions[0].teamMembers
+                                        ? subscriptionProvider.subscriptions[0].teamMembers.tr()
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider.subscriptions[1].teamMembers
-                                            : subscriptionProvider.subscriptions[2].teamMembers,
+                                            ? subscriptionProvider.subscriptions[1].teamMembers.tr()
+                                            : subscriptionProvider.subscriptions[2].teamMembers.tr(),
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -140,10 +140,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   const SizedBox(width: 10),
                                   Text(
                                     (subscriptionProvider.selectType == 0)
-                                        ? subscriptionProvider.subscriptions[0].numberOfMessages
+                                        ? subscriptionProvider.subscriptions[0].numberOfMessages.tr()
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider.subscriptions[1].numberOfMessages
-                                            : subscriptionProvider.subscriptions[2].numberOfMessages,
+                                            ? subscriptionProvider.subscriptions[1].numberOfMessages.tr()
+                                            : subscriptionProvider.subscriptions[2].numberOfMessages.tr(),
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -168,10 +168,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   const SizedBox(width: 10),
                                   Text(
                                     (subscriptionProvider.selectType == 0)
-                                        ? subscriptionProvider.subscriptions[0].numberOfVoiceMessages
+                                        ? subscriptionProvider.subscriptions[0].numberOfVoiceMessages.tr()
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider.subscriptions[1].numberOfVoiceMessages
-                                            : subscriptionProvider.subscriptions[2].numberOfVoiceMessages,
+                                            ? subscriptionProvider.subscriptions[1].numberOfVoiceMessages.tr()
+                                            : subscriptionProvider.subscriptions[2].numberOfVoiceMessages.tr(),
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -196,10 +196,10 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
                                   const SizedBox(width: 10),
                                   Text(
                                     (subscriptionProvider.selectType == 0)
-                                        ? subscriptionProvider.subscriptions[0].supportedPlatforms
+                                        ? subscriptionProvider.subscriptions[0].supportedPlatforms.tr()
                                         : (subscriptionProvider.selectType == 1)
-                                            ? subscriptionProvider.subscriptions[1].supportedPlatforms
-                                            : subscriptionProvider.subscriptions[2].supportedPlatforms,
+                                            ? subscriptionProvider.subscriptions[1].supportedPlatforms.tr()
+                                            : subscriptionProvider.subscriptions[2].supportedPlatforms.tr(),
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 12,
@@ -389,6 +389,7 @@ class _SubscriptionInfoViewState extends State<SubscriptionInfoView> {
           }
         },
         child: Text(
+          textAlign: TextAlign.center,
           subscriptionProvider.subscribeBtnText,
           style: const TextStyle(color: Colors.white),
         ),

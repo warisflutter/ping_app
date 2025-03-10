@@ -15,6 +15,7 @@ import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/util/ping_utils.dart';
+import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
@@ -37,6 +38,7 @@ class _MemberListViewState extends State<MemberListView> {
   bool showBlocked = false;
   bool loading = false;
   late SubscriptionProvider subscriptionProvider;
+
   @override
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -70,15 +72,21 @@ class _MemberListViewState extends State<MemberListView> {
                 onPressed: () async {
                   final isConnected = await context.isInternetAvailable();
                   if (isConnected) {
+                    // subscriptionProvider.init();
                     final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
                     if (subscriptionProvider.purChasedModel == null) {
                       PingLog.pingLog("purChasedModel is null");
                       if (context.mounted) {
-                        final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
-                        final voucherData = await voucherProvider.fetchVoucher();
-                        log("voucherData $voucherData");
+                        final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+                        final voucherData = await adminProvider.fetchVoucher();
+                        // log("voucherData $voucherData");
                         if (voucherData.isEmpty) {
+                          // if (!context.mounted) return;
+                          // if (kIsWeb || context.isWatch) {
+                          //   snack("you need to buy subscription from mobile app");
+                          // } else {
                           push(const SubscriptionInfoView());
+                          // }
                         } else {
                           subscriptionProvider.handleVoucherType(
                             voucherData: voucherData,
@@ -88,7 +96,6 @@ class _MemberListViewState extends State<MemberListView> {
                         }
                       }
                     } else {
-                      subscriptionProvider.init();
                       PingLog.pingLog("purChasedModel is not null");
                       subscriptionProvider.handleSubscription(
                         numberOfMembers: numberOfMembers,
@@ -194,7 +201,8 @@ class _MemberListViewState extends State<MemberListView> {
                           ? MemberListItem(
                               operationsBlocked: operationsBlocked,
                               isLoggedInAsMember: isMember,
-                              currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                              currentUserModel:
+                                  isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
                               listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
                             )
                           : const SizedBox.shrink(),
@@ -207,8 +215,9 @@ class _MemberListViewState extends State<MemberListView> {
                                           operationsBlocked: operationsBlocked,
                                           key: ValueKey(member.id),
                                           isLoggedInAsMember: isMember,
-                                          currentUserModel:
-                                              isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                          currentUserModel: isMember
+                                              ? ifMember!
+                                              : MemberModel.fromPingUserModel(myTeamLead),
                                           listTimeMemberModel: member,
                                         ))
                                     .toList(),
@@ -232,8 +241,9 @@ class _MemberListViewState extends State<MemberListView> {
                                           key: ValueKey(member.id),
                                           reOrderAble: true,
                                           isLoggedInAsMember: isMember,
-                                          currentUserModel:
-                                              (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                          currentUserModel: (isMember)
+                                              ? ifMember!
+                                              : MemberModel.fromPingUserModel(myTeamLead),
                                           listTimeMemberModel: member,
                                         );
                                       }
@@ -243,8 +253,9 @@ class _MemberListViewState extends State<MemberListView> {
                                         key: ValueKey(member.id),
                                         reOrderAble: true,
                                         isLoggedInAsMember: isMember,
-                                        currentUserModel:
-                                            (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                        currentUserModel: (isMember)
+                                            ? ifMember!
+                                            : MemberModel.fromPingUserModel(myTeamLead),
                                         listTimeMemberModel: member,
                                       );
                                     }
@@ -275,13 +286,13 @@ class _MemberListViewState extends State<MemberListView> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(teamName, style: Theme.of(context).textTheme.bodyLarge),
-              Text(
-                "${'t_online'.tr()} ($numberOfOnlineMembers)",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+              // Text(
+              //   "${'t_online'.tr()} ($numberOfOnlineMembers)",
+              //   style: Theme.of(context).textTheme.bodyLarge,
+              // ),
             ],
           ),
         );

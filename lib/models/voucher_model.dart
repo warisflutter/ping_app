@@ -6,8 +6,12 @@ class VoucherModel {
   final String createdAt;
   final String status;
   final String type;
+  final String code;
+  final bool isUsed;
   final PingUserModel pingUserModel;
   VoucherModel({
+    this.code = "",
+    this.isUsed = false,
     required this.type,
     required this.voucherId,
     required this.userId,

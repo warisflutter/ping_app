@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/view/settings/view/sub_view/message_template/message_add_edit_view.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -86,14 +87,19 @@ class _MessageListViewState extends State<MessageListView> {
                           onPressed: () async {
                             final isConnected = await context.isInternetAvailable();
                             if (isConnected) {
-                              subscriptionProvider.init();
+                              // subscriptionProvider.init();
                               final numberOfMessages = await SettingRepo.instance.getMessageCount();
                               if (subscriptionProvider.purChasedModel == null) {
                                 if (context.mounted) {
-                                  final voucherProvider = Provider.of<VoucherProvider>(context, listen: false);
-                                  final voucherData = await voucherProvider.fetchVoucher();
+                                  final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+                                  final voucherData = await adminProvider.fetchVoucher();
                                   if (voucherData.isEmpty) {
+                                    // if (!context.mounted) return;
+                                    // if (kIsWeb || context.isWatch) {
+                                    // snack("you need to buy subscription from mobile app");
+                                    // } else {
                                     push(const SubscriptionInfoView());
+                                    // }
                                   } else {
                                     subscriptionProvider.handleVoucherType(
                                       voucherData: voucherData,
@@ -103,6 +109,7 @@ class _MessageListViewState extends State<MessageListView> {
                                   }
                                 }
                               } else {
+                                PingLog.pingLog("purChasedModel is not null");
                                 subscriptionProvider.handleSubscription(
                                   numberOfMembers: numberOfMessages,
                                   type: "message",

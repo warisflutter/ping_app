@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:ping_app/services/firebase_service.dart';
+import 'package:ping_app/view/subscription/subscription_info_view.dart';
+import 'package:universal_io/io.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:ping_app/file_path.dart';
 
@@ -20,6 +22,25 @@ class PurChasedModel {
     required this.price,
     required this.perUsersAndMessages,
   });
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'price': price,
+      'details': details,
+      'perUsersAndMessages': perUsersAndMessages,
+    };
+  }
+
+  factory PurChasedModel.fromMap(Map<String, dynamic> map) {
+    return PurChasedModel(
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      price: map['price'] ?? '',
+      details: map['details'] ?? '',
+      perUsersAndMessages: map['perUsersAndMessages'] ?? 0,
+    );
+  }
 }
 
 List<String> subscriptionIds = <String>[
@@ -32,7 +53,8 @@ List<String> subscriptionIds = <String>[
 ];
 
 class SubscriptionProvider extends ChangeNotifier {
-  final _inAppPurchase = InAppPurchase.instance;
+  final inAppPurchase = InAppPurchase.instance;
+  final FirebaseService firebaseService = FirebaseService();
   PurChasedModel? purChasedModel;
   late ProductDetails selectProductDetails;
   List<PurchaseDetails> purchases = [];
@@ -47,33 +69,33 @@ class SubscriptionProvider extends ChangeNotifier {
   List<SubscriptionModel> subscriptions = <SubscriptionModel>[
     SubscriptionModel(
       details: "",
-      supportedPlatforms: "t_androidIOSAndWebVersion".tr(),
-      type: "t_basicSubscription".tr(),
+      supportedPlatforms: "t_androidIOSAndWebVersion",
+      type: "t_basicSubscription",
       annuallyPrice: "199.00",
       monthlyPrice: "19.00",
-      numberOfMessages: "t_upTo3MessageTemplates".tr(),
-      numberOfVoiceMessages: "t_unlimitedNumberOfVoiceMessages".tr(),
-      teamMembers: "t_upTo3UsersPerTeam".tr(),
+      numberOfMessages: "t_upTo3MessageTemplates",
+      numberOfVoiceMessages: "t_unlimitedNumberOfVoiceMessages",
+      teamMembers: "t_upTo3UsersPerTeam",
     ),
     SubscriptionModel(
       details: "",
-      type: "t_expertSubscription".tr(),
-      supportedPlatforms: "t_androidIOSAndWebVersion".tr(),
+      type: "t_expertSubscription",
+      supportedPlatforms: "t_androidIOSAndWebVersion",
       annuallyPrice: "249.00",
       monthlyPrice: "24.00",
-      numberOfMessages: "t_upTo5MessageTemplates".tr(),
-      numberOfVoiceMessages: "t_unlimitedNumberOfVoiceMessages".tr(),
-      teamMembers: "t_upTo5UsersPerTeam".tr(),
+      numberOfMessages: "t_upTo5MessageTemplates",
+      numberOfVoiceMessages: "t_unlimitedNumberOfVoiceMessages",
+      teamMembers: "t_upTo5UsersPerTeam",
     ),
     SubscriptionModel(
       details: "",
-      type: "t_proSubscription".tr(),
-      supportedPlatforms: "t_androidIOSAndWebVersion".tr(),
+      type: "t_proSubscription",
+      supportedPlatforms: "t_androidIOSAndWebVersion",
       annuallyPrice: "349.00",
       monthlyPrice: "34.00",
-      numberOfMessages: "t_upTo20MessageTemplates".tr(),
-      numberOfVoiceMessages: "t_unlimitedNumberOfVoiceMessages".tr(),
-      teamMembers: "t_upTo20UsersPerTeam".tr(),
+      numberOfMessages: "t_upTo20MessageTemplates",
+      numberOfVoiceMessages: "t_unlimitedNumberOfVoiceMessages",
+      teamMembers: "t_upTo20UsersPerTeam",
     ),
   ];
 
@@ -85,7 +107,6 @@ class SubscriptionProvider extends ChangeNotifier {
     PingLog.pingLog("---SubscriptionProvider init---");
     await showSubscriptions();
     await initLister();
-    await restorePurchases();
     if (purChasedModel != null) {
       PingLog.pingLog(".........transactionDate.......${purchases.first.transactionDate}...");
       PingLog.pingLog(".........productID.......${purchases.first.productID}...");
@@ -140,11 +161,12 @@ class SubscriptionProvider extends ChangeNotifier {
 
   Future<void> initLister() async {
     try {
-      _inAppPurchase.purchaseStream.listen(
+      inAppPurchase.purchaseStream.listen(
         (List<PurchaseDetails> purchaseDetailsList) async {
           PingLog.pingLog("purchaseDetailsList length: ${purchaseDetailsList.length}");
           if (purchaseDetailsList.isEmpty) {
             PingLog.pingLog("No purchases in purchaseDetailsList.");
+            // firebaseService.removeUserSubscription();
           } else {
             for (var purchaseDetails in purchaseDetailsList) {
               PingLog.pingLog("purchase status ${purchaseDetails.status}");
@@ -200,7 +222,7 @@ class SubscriptionProvider extends ChangeNotifier {
               }
               // Mark purchase as complete
               if (purchaseDetails.pendingCompletePurchase) {
-                _inAppPurchase.completePurchase(purchaseDetails);
+                inAppPurchase.completePurchase(purchaseDetails);
               }
             }
           }
@@ -215,7 +237,7 @@ class SubscriptionProvider extends ChangeNotifier {
     PingLog.pingLog("................initLister......end...........................");
   }
 
-  Future fetchDetailsAfterPurchase() async {
+  Future<void> fetchDetailsAfterPurchase() async {
     PingLog.pingLog("----fetchDetailsAfterPurchase Function Start----");
     PingLog.pingLog("----> ${purchases.first.productID} $subscriptionIds");
     try {
@@ -226,8 +248,8 @@ class SubscriptionProvider extends ChangeNotifier {
           PingLog.pingLog("----> price: ${productsDetails[0].price}");
           purChasedModel = PurChasedModel(
             perUsersAndMessages: 3,
-            title: "Basic Monthly",
-            details: "You have to purchase Subscription in every month",
+            title: "t_BasicMonthly",
+            details: "t_monthSubscriptionPurchase",
             id: id,
             price: productsDetails[0].price,
           );
@@ -236,10 +258,10 @@ class SubscriptionProvider extends ChangeNotifier {
         } else if (id == subscriptionIds[1]) {
           PingLog.pingLog("----> price: ${productsDetails[1].price}");
           purChasedModel = PurChasedModel(
-            title: "Basic Yearly",
+            title: "t_BasicYearly",
             perUsersAndMessages: 3,
             id: id,
-            details: "You have to purchase Subscription in every year",
+            details: "t_yearSubscriptionPurchase",
             price: productsDetails[1].price,
           );
           notifyListeners();
@@ -248,8 +270,8 @@ class SubscriptionProvider extends ChangeNotifier {
           purChasedModel = PurChasedModel(
             perUsersAndMessages: 5,
             id: id,
-            title: "Expert Monthly",
-            details: "You have to purchase Subscription in every month",
+            title: "t_ExpertMonthly",
+            details: "t_monthSubscriptionPurchase",
             price: productsDetails[2].price,
           );
           notifyListeners();
@@ -258,8 +280,8 @@ class SubscriptionProvider extends ChangeNotifier {
           purChasedModel = PurChasedModel(
             perUsersAndMessages: 5,
             id: id,
-            title: "Expert Yearly",
-            details: "You have to purchase Subscription in every year",
+            title: "t_ExpertYearly",
+            details: "t_yearSubscriptionPurchase",
             price: productsDetails[3].price,
           );
           notifyListeners();
@@ -267,9 +289,9 @@ class SubscriptionProvider extends ChangeNotifier {
           PingLog.pingLog("----> price: ${productsDetails[4].price}");
           purChasedModel = PurChasedModel(
             perUsersAndMessages: 20,
-            title: "Pro Monthly",
+            title: "t_ProMonthly",
             id: id,
-            details: "You have to purchase Subscription in every month",
+            details: "t_monthSubscriptionPurchase".tr(),
             price: productsDetails[4].price,
           );
           notifyListeners();
@@ -277,9 +299,9 @@ class SubscriptionProvider extends ChangeNotifier {
           PingLog.pingLog("----> price: ${productsDetails[5].price}");
           purChasedModel = PurChasedModel(
             perUsersAndMessages: 20,
-            title: "Pro Yearly",
+            title: "t_ProYearly",
             id: id,
-            details: "You have to purchase Subscription in every year",
+            details: "t_yearSubscriptionPurchase",
             price: productsDetails[5].price,
           );
           notifyListeners();
@@ -294,10 +316,14 @@ class SubscriptionProvider extends ChangeNotifier {
     }
     PingLog.pingLog("===> This is my purchase model => ${purChasedModel?.title}");
     PingLog.pingLog("----fetchDetailsAfterPurchase Function end----");
+    // if (purChasedModel == null) return;
+    // firebaseService.saveUserDetailsAfterBuySubscription(
+    //   purchasedModel: purChasedModel!,
+    // );
   }
 
   Future<List<ProductDetails>> fetchSubscriptionDetails() async {
-    final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(
+    final ProductDetailsResponse response = await inAppPurchase.queryProductDetails(
       subscriptionIds.toSet(),
     );
 
@@ -329,7 +355,7 @@ class SubscriptionProvider extends ChangeNotifier {
   Future<void> restorePurchases() async {
     try {
       PingLog.pingLog("----Restore Purchase Call----");
-      await _inAppPurchase.restorePurchases();
+      await inAppPurchase.restorePurchases();
     } catch (e) {
       debugPrint("Error restoring purchases: $e");
     }
@@ -351,7 +377,8 @@ class SubscriptionProvider extends ChangeNotifier {
     productsDetails = await fetchSubscriptionDetails();
     debugPrint("----showSubscriptions subscription length: ${productsDetails.length}----");
     debugPrint(
-        "----showSubscriptions subscription length: ${productsDetails.map((e) => "id:${e.id}-price:${e.price}").toList()}----");
+      "----showSubscriptions subscription length: ${productsDetails.map((e) => "id:${e.id}-price:${e.price}").toList()}----",
+    );
     notifyListeners();
   }
 
@@ -359,11 +386,9 @@ class SubscriptionProvider extends ChangeNotifier {
     try {
       loader = true;
       final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
-      await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
-      notifyListeners();
-    } catch (e, s) {
+      await inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+    } catch (e) {
       debugPrint("Error: $e");
-      debugPrint("st: $s");
     }
   }
 
@@ -374,6 +399,7 @@ class SubscriptionProvider extends ChangeNotifier {
   }) {
     String status = voucherData.split("|")[0];
     if (status == "Voucher is Expire") {
+      push(const SubscriptionInfoView());
       snack("Voucher is Expire");
       return;
     }
@@ -507,16 +533,6 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // String _compareDoubles(double value1, double value2) {
-  //   if (value1 > value2) {
-  //     return 'greater';
-  //   } else if (value1 < value2) {
-  //     return 'less';
-  //   } else {
-  //     return 'equal';
-  //   }
-  // }
-
   ProductDetails getProduct({
     required int type,
     required bool mode,
@@ -541,5 +557,10 @@ class SubscriptionProvider extends ChangeNotifier {
         return products.firstWhere((product) => product.id == subscriptionIds[5]);
       }
     }
+  }
+  @override
+  void dispose() {
+    log("subscription provider dispose");
+    super.dispose();
   }
 }

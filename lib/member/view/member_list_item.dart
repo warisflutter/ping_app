@@ -136,11 +136,11 @@ class _MemberListItemState extends State<MemberListItem> {
                               color: Colors.grey,
                             ),
                           const SizedBox(width: 8),
-                          if (widget.listTimeMemberModel.isOnline && !widget.listTimeMemberModel.isBlocked)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 8.0),
-                              child: Icon(Icons.circle, color: Colors.green, size: 12),
-                            ),
+                          // if (widget.listTimeMemberModel.isOnline && !widget.listTimeMemberModel.isBlocked)
+                          //   const Padding(
+                          //     padding: EdgeInsets.only(right: 8.0),
+                          //     child: Icon(Icons.circle, color: Colors.green, size: 12),
+                          //   ),
                           Text(widget.listTimeMemberModel.name),
                         ],
                       ),

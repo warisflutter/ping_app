@@ -12,6 +12,7 @@ import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
 import 'package:ping_app/util/ping_utils.dart';
+import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/settings/view/change_language/change_language_view.dart';
 import 'package:ping_app/view/settings/view/linked_profile_view.dart';
 import 'package:ping_app/view/settings/view/sub_view/activity_report.dart';
@@ -23,6 +24,7 @@ import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/update_password/update_password_view.dart';
 import 'package:ping_app/view/voucher/voucher_provider.dart';
+import 'package:ping_app/view/voucher/voucher_view.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -118,20 +120,16 @@ class _SettingViewState extends State<SettingView> {
                 ListTile(
                   title: Text('t_voucher'.tr()),
                   leading: const Icon(Icons.gif_box),
-                  onTap: () {
-                    final voucherP = Provider.of<VoucherProvider>(context, listen: false);
-                    PingDialogs.showVoucherDialog(
-                      controller: voucherP.codeTEC,
-                      context: context,
-                      applyVoucher: () async {
-                        final isInternet = await context.isInternetAvailable();
-                        if (isInternet) {
-                          await voucherP.applyForVoucher(context);
-                        } else {
-                          snack("t_noInternetPleaseConnectToTheInternet".tr());
-                        }
-                      },
-                    );
+                  onTap: () async{
+                    final adminP = Provider.of<AdminProvider>(context, listen: false);
+                    final voucherData = await adminP.fetchVoucher();
+                    print("voucherData $voucherData");
+                    if (voucherData.isEmpty || voucherData == "Voucher is Expire|Pro") {
+                      push(const VoucherView());
+                    } else {
+                      adminP.startCountDown();
+                      push(const PurchasedView());
+                    }
                   },
                 ),
                 ListTile(
@@ -164,7 +162,7 @@ class _SettingViewState extends State<SettingView> {
                   title: Text('t_shareApp'.tr()),
                   leading: const Icon(Icons.share),
                   onTap: () => Share.share(
-                    "Download the ping app now!! https://www.pingapp.ch",
+                    "${"t_DownloadThePingAppNow".tr()}!! https://www.pingapp.ch",
                   ),
                 ),
                 ListTile(
@@ -182,8 +180,6 @@ class _SettingViewState extends State<SettingView> {
                           replaceAll(const CreateAccountView());
                           FirebaseAuth.instance.signOut();
                         });
-                        // replaceAll(const CreateAccountView());
-                        // await FirebaseAuth.instance.signOut();
                       } else {
                         snack("t_noInternetPleaseConnectToTheInternet".tr());
                       }
