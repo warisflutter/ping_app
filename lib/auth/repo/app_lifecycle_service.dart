@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
+// import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
@@ -46,7 +46,7 @@ class AppLifecycleService with WidgetsBindingObserver {
     if (_userId == null) {
       return;
     }
-    service.invoke("activeInBackground", {"state": state.name});
+    // service.invoke("activeInBackground", {"state": state.name});
 
     if (state == AppLifecycleState.resumed) {
       setUserOnline();
@@ -88,55 +88,55 @@ class AppLifecycleService with WidgetsBindingObserver {
   }
 }
 
-final service = FlutterBackgroundService();
-
-Future<void> initializeService() async {
-  debugPrint("Trying to start background service");
-  await service.configure(
-    androidConfiguration: AndroidConfiguration(
-      onStart: onStart,
-      foregroundServiceTypes: [AndroidForegroundType.dataSync],
-      isForegroundMode: true,
-      autoStart: true,
-      autoStartOnBoot: true,
-      initialNotificationTitle: "Ping App",
-      initialNotificationContent: "Your app is running in the background.",
-      foregroundServiceNotificationId: 2000,
-    ),
-    iosConfiguration: IosConfiguration(
-      onForeground: onStart,
-      onBackground: onStart,
-      autoStart: true,
-    ),
-  );
-  service.startService();
-  service.invoke("activeInBackground", {"state": "resumed"});
-}
-
-@pragma('vm:entry-point')
-Future<bool> onStart(ServiceInstance service) async {
-  service.on("activeInBackground").listen((event) async {
-    debugPrint("state: ${event?["state"]}");
-    if (event?["state"] == AppLifecycleState.detached.name) {
-      await Firebase.initializeApp();
-      final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
-      final prefs = await SharedPreferences.getInstance();
-      final id = prefs.getString("memberId") ?? "";
-      PingLog.pingLog("member id $id");
-      if (id.isEmpty) {
-        String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-        final users = FirebaseFirestore.instance.collection("users");
-        users.doc(uid).update({"isOnline": false});
-        await sendNotificationToTeamLead(fcmToken);
-      } else {
-        FirebaseFirestore.instance.collection("members").doc(id).update({"isOnline": false});
-        await sendNotificationToTeamLead(fcmToken);
-      }
-      service.stopSelf();
-    }
-  });
-  return true;
-}
+// final service = FlutterBackgroundService();
+//
+// Future<void> initializeService() async {
+//   debugPrint("Trying to start background service");
+//   await service.configure(
+//     androidConfiguration: AndroidConfiguration(
+//       onStart: onStart,
+//       foregroundServiceTypes: [AndroidForegroundType.dataSync],
+//       isForegroundMode: true,
+//       autoStart: true,
+//       autoStartOnBoot: true,
+//       initialNotificationTitle: "Ping App",
+//       initialNotificationContent: "Your app is running in the background.",
+//       foregroundServiceNotificationId: 2000,
+//     ),
+//     iosConfiguration: IosConfiguration(
+//       onForeground: onStart,
+//       onBackground: onStart,
+//       autoStart: true,
+//     ),
+//   );
+//   service.startService();
+//   service.invoke("activeInBackground", {"state": "resumed"});
+// }
+//
+// @pragma('vm:entry-point')
+// Future<bool> onStart(ServiceInstance service) async {
+//   service.on("activeInBackground").listen((event) async {
+//     debugPrint("state: ${event?["state"]}");
+//     if (event?["state"] == AppLifecycleState.detached.name) {
+//       await Firebase.initializeApp();
+//       final fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
+//       final prefs = await SharedPreferences.getInstance();
+//       final id = prefs.getString("memberId") ?? "";
+//       PingLog.pingLog("member id $id");
+//       if (id.isEmpty) {
+//         String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
+//         final users = FirebaseFirestore.instance.collection("users");
+//         users.doc(uid).update({"isOnline": false});
+//         await sendNotificationToTeamLead(fcmToken);
+//       } else {
+//         FirebaseFirestore.instance.collection("members").doc(id).update({"isOnline": false});
+//         await sendNotificationToTeamLead(fcmToken);
+//       }
+//       service.stopSelf();
+//     }
+//   });
+//   return true;
+// }
 
 Future<void> sendNotificationToTeamLead(String token) async {
 

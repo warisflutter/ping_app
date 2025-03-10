@@ -1,7 +1,6 @@
 import UIKit
 import Flutter
 import WatchConnectivity
-import flutter_background_service_ios
 import FirebaseFirestore
 import FirebaseAuth
 
