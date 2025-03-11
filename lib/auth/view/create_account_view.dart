@@ -16,6 +16,8 @@ import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
 import 'package:ping_app/member/view/join_member_view/join_qr_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_styles.dart';
+import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/util/validator.dart';
 import 'package:provider/provider.dart';
@@ -274,7 +276,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     return Builder(builder: (context) {
       return Image.asset(
         'assets/images/ping_gif.gif',
-        height: 120,
+        height: (context.isWatch) ? PingStyles.watchLogoHeight : 120,
         fit: BoxFit.cover,
       );
     });

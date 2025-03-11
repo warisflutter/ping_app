@@ -12,7 +12,7 @@ extension PingUtils on BuildContext {
   double get screenHeight => MediaQuery.of(this).size.height;
 
   double get screenWidth => MediaQuery.of(this).size.width;
-
+  bool get isWatch => screenWidth <= 200 && screenHeight <= 200;
   Future<void> launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
