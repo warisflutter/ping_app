@@ -1,8 +1,6 @@
 import UIKit
 import Flutter
 import WatchConnectivity
-import FirebaseFirestore
-import FirebaseAuth
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, WCSessionDelegate {
@@ -20,34 +18,7 @@ import FirebaseAuth
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
-    
-    override func applicationWillTerminate(_ application: UIApplication) {
-        print("App is terminated")
-        updateTerminationStatus(isOnline: false)
 
-    }
-
-    func updateTerminationStatus(isOnline: Bool) {
-        print(isOnline)
-        guard let userId = Auth.auth().currentUser?.uid else {
-            print("User not found")
-            return
-        }
-        print(userId)
-        let usersRef = Firestore.firestore().collection("users").document(userId)
-        print(usersRef)
-        usersRef.updateData([
-            "isOnline": isOnline,
-            "lastActive": FieldValue.serverTimestamp()
-        ]) { error in
-            if let error = error {
-                print("Error updating termination status: \(error.localizedDescription)")
-            } else {
-                print("Termination status updated successfully")
-            }
-        }
-    }
-    
     //--------------------Platform Channel--------------------//
     let CHANNEL = "com.martin.pingApp/test"
     
