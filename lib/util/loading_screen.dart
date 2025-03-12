@@ -54,13 +54,16 @@ class _LoadingScreenState extends State<LoadingScreen> {
     String memberId = sp.getString("memberId") ?? "";
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (memberId.isEmpty && firebaseUser != null) {
-      FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser.uid);
-      AppLifecycleService().initialize(
-        isMember: false,
-        userId: firebaseUser.uid,
-      );
-      PingLog.pingLog("===============firebaseUser == null || pingUser == null && adminProvider.type == null---------");
-      replace(const DashboardView());
+      if (adminProvider.type == "user") {
+        FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser.uid);
+        AppLifecycleService().initialize(
+          isMember: false,
+          userId: firebaseUser.uid,
+        );
+        replace(const DashboardView());
+      } else {
+        replace(const AdminView());
+      }
     } else {
       if (mounted) {
         final memberState = Provider.of<MemberState>(context, listen: false);
