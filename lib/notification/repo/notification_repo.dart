@@ -69,18 +69,21 @@ class NotificationRepo {
     DocumentSnapshot membersDoc =
     await FirebaseFirestore.instance.collection('members').doc(toId).get();
     if (membersDoc.exists) {
-      token = membersDoc['fcm'];
-      receiverName = membersDoc['name'];
+      token = membersDoc['fcm'] ?? '';
+      receiverName = membersDoc['name'] ?? '';
     } else {
       DocumentSnapshot userDoc =
       await FirebaseFirestore.instance.collection('users').doc(toId).get();
       if (userDoc.exists) {
-        token = userDoc['fcm'];
-        receiverName = userDoc['fullName'];
+        token = userDoc['fcm'] ?? '';
+        receiverName = userDoc['fullName'] ?? '';
       }
     }
     debugPrint("response-------$n");
     debugPrint("token-------$token");
+    if (token == null || token.isEmpty) {
+      debugPrint("Token is missing for $toId");
+    }
     final newRes = await FirebaseNotificationService().sendNotification(
       messageData: newData.data ?? "",
       type: "${type.index}",
