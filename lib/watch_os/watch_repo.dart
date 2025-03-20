@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
@@ -38,7 +39,7 @@ class WatchConnectivity {
           final sp = await SharedPreferences.getInstance();
           String memberId = sp.getString("memberId") ?? "";
           meId = memberId;
-          teamLeadId = "all";
+          // teamLeadId = "all";
         } else {
           meId = user.uid;
           teamLeadId = user.uid;
