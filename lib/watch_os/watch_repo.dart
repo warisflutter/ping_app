@@ -4,15 +4,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/model/member_model.dart';
+import 'package:ping_app/member/repo/member_repo.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/watch_os/watch_model.dart';
-import 'package:ping_app/member/repo/member_repo.dart';
-import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WatchConnectivity {
@@ -25,7 +25,6 @@ class WatchConnectivity {
   String teamLeadId = "all";
 
   StreamSubscription? _notificationSubscription;
-
   WatchConnectivity._() {
     _setupListeners();
     _setupMessageTemplateListener();
@@ -38,7 +37,8 @@ class WatchConnectivity {
           final sp = await SharedPreferences.getInstance();
           String memberId = sp.getString("memberId") ?? "";
           meId = memberId;
-          teamLeadId = "all";
+          final data = await MemberRepo.instance.getMemberById(memberId);
+          teamLeadId = data.teamLeadId;
         } else {
           meId = user.uid;
           teamLeadId = user.uid;
@@ -80,11 +80,9 @@ class WatchConnectivity {
       MemberRepo.instance.memberChanges.listen((_) {
         sendMemberListToWatch();
       });
-
     } catch (e) {
       //
     }
-
   }
 
   void _setupMessageTemplateListener() {
@@ -213,7 +211,6 @@ class WatchConnectivity {
     );
   }
 
-
   Future<List<WatchOSTeamMember>> _fetchTeamMembers() async {
     final prefs = await SharedPreferences.getInstance();
     final memberId = prefs.getString("memberId");
@@ -221,8 +218,7 @@ class WatchConnectivity {
     if (memberId != null) {
       // Member login
       final memberModel = await MemberRepo.instance.getMemberById(memberId);
-      final teamLead =
-      await AuthRepo.instance.getUserById(memberModel.teamLeadId);
+      final teamLead = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
 
       if (teamLead == null) {
         throw Exception('t_teamLeadNotFound'.tr());
@@ -236,26 +232,22 @@ class WatchConnectivity {
       final members = await membersStream.first;
 
       // Create a list with the team lead first, then the other members
-      final recentTeamLeadNotification = await NotificationRepo.instance
-          .getMostRecentNotification(teamLead.userId)
-          .first;
+      final recentTeamLeadNotification =
+          await NotificationRepo.instance.getMostRecentNotification(teamLead.userId).first;
 
       List<WatchOSTeamMember> watchMembers = [
         WatchOSTeamMember(
           id: teamLead.userId,
           name: teamLead.fullName,
           status: _getColorStatus(teamLead.userId, recentTeamLeadNotification),
-          nextTicSec: (recentTeamLeadNotification?.nextTick()?.inSeconds ?? -1)
-              .toString(),
+          nextTicSec: (recentTeamLeadNotification?.nextTick()?.inSeconds ?? -1).toString(),
         )
       ];
 
       for (var member in members.where((member) => !member.isBlocked)) {
         // Check if member.id is not the same as memberId before adding
         if (member.id != memberId) {
-          final notification = await NotificationRepo.instance
-              .getMostRecentNotification(member.id)
-              .first;
+          final notification = await NotificationRepo.instance.getMostRecentNotification(member.id).first;
           watchMembers.add(WatchOSTeamMember(
             id: member.id,
             name: member.name,
@@ -287,9 +279,7 @@ class WatchConnectivity {
 
       List<WatchOSTeamMember> watchMembers = [];
       for (var member in members.where((member) => !member.isBlocked)) {
-        final notification = await NotificationRepo.instance
-            .getMostRecentNotification(member.id)
-            .first;
+        final notification = await NotificationRepo.instance.getMostRecentNotification(member.id).first;
         watchMembers.add(WatchOSTeamMember(
           id: member.id,
           name: member.name,
@@ -301,7 +291,6 @@ class WatchConnectivity {
       return watchMembers;
     }
   }
-
 
   String _getColorStatus(String memberId, PingNotificationModel? notification) {
     if (notification == null) {
