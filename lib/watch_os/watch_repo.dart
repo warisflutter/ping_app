@@ -37,6 +37,7 @@ class WatchConnectivity {
           final sp = await SharedPreferences.getInstance();
           String memberId = sp.getString("memberId") ?? "";
           meId = memberId;
+
           final data = await MemberRepo.instance.getMemberById(memberId);
           teamLeadId = data.teamLeadId;
         } else {
