@@ -10,6 +10,7 @@ import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/services/api_service.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
@@ -17,6 +18,7 @@ import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
+import 'package:ping_app/view/check_payment/check_payment_screen.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +48,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   Future<void> initLoadingScreen() async {
+    final res = await ApiService().checkPayment();
+    if (res) {
+      replace(const CheckPaymentScreen());
+      return;
+    }
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     AppLifecycleService().reset();
     await adminProvider.getAdmin();
