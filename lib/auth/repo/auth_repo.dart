@@ -77,13 +77,13 @@ class AuthRepo {
 
       if (docSnapshot.exists) {
         // Ensure the field exists before accessing it
-        List<dynamic> existingTokens = [];
+        List<String> existingTokens = [];
         if (docSnapshot.data() != null && docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
           existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
         }
 
         // Check if userId already exists
-        bool alreadyExists = existingTokens.any((entry) => entry is Map<String, dynamic> && entry["id"] == userId);
+        bool alreadyExists = existingTokens.contains(fcmToken);
 
         if (!alreadyExists) {
           await docRef.update({
