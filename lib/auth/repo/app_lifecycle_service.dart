@@ -1,18 +1,8 @@
-import 'dart:async' as async;
-import 'dart:ui';
-
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/util/ping_log.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLifecycleService with WidgetsBindingObserver {
   static final AppLifecycleService _instance = AppLifecycleService._internal();
@@ -138,27 +128,27 @@ class AppLifecycleService with WidgetsBindingObserver {
 //   return true;
 // }
 
-Future<void> sendNotificationToTeamLead(String token) async {
-
-  final locale = window.locale;
-  final languageCode = locale.languageCode;
-  final messages = {
-    'en': "Important: Ping App won’t work after you close it.",
-    'de': "Wichtig: Die Ping-App funktioniert nicht mehr, nachdem Sie sie geschlossen haben.",
-    'fr': "Important : L'application Ping ne fonctionnera plus après sa fermeture.",
-    'it': "Importante: L'app Ping non funzionerà dopo averla chiusa.",
-    'es': "Importante: La aplicación Ping no funcionará después de cerrarla.",
-  };
-  final notificationBody = messages[languageCode] ?? messages['en'];
-  final notificationService = FirebaseNotificationService();
-  await notificationService.sendNotification(
-    title: "Ping App",
-    body: "$notificationBody",
-    token: token,
-    fromId: "",
-    toId: "",
-    id: "",
-    type: "Not Open",
-    messageData: "",
-  );
-}
+// Future<void> sendNotificationToTeamLead(String token) async {
+//
+//   final locale = window.locale;
+//   final languageCode = locale.languageCode;
+//   final messages = {
+//     'en': "Important: Ping App won’t work after you close it.",
+//     'de': "Wichtig: Die Ping-App funktioniert nicht mehr, nachdem Sie sie geschlossen haben.",
+//     'fr': "Important : L'application Ping ne fonctionnera plus après sa fermeture.",
+//     'it': "Importante: L'app Ping non funzionerà dopo averla chiusa.",
+//     'es': "Importante: La aplicación Ping no funcionará después de cerrarla.",
+//   };
+//   final notificationBody = messages[languageCode] ?? messages['en'];
+//   final notificationService = FirebaseNotificationService();
+//   await notificationService.sendNotification(
+//     title: "Ping App",
+//     body: "$notificationBody",
+//     token: token,
+//     fromId: "",
+//     toId: "",
+//     id: "",
+//     type: "Not Open",
+//     messageData: "",
+//   );
+// }

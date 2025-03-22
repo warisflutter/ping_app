@@ -1,11 +1,10 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:ping_app/auth/model/ping_user_model.dart';
-import 'package:ping_app/auth/repo/auth_repo.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/model/member_model.dart';
-import 'package:ping_app/member/repo/member_repo.dart';
-import 'package:ping_app/util/ping_log.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MemberState extends ChangeNotifier {
@@ -110,11 +109,14 @@ class MemberState extends ChangeNotifier {
   Future<void> leaveTeam() async {
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getString("memberId") ?? "";
-    FirebaseFirestore.instance.collection("members").doc(id).update({
-      "isOnline": false,
-      "fcm": "",
-    });
-    // changeMemberOnlineStatus(id: id, status: false);
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null) {
+      FirebaseNotificationService().removeToken(
+        fcmToken: fcmToken,
+        uid: id,
+        collectionName: "members",
+      );
+    }
     await prefs.remove("memberId");
     _memberModel = null;
     notifyListeners();

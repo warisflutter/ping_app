@@ -1,13 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/broadcast/view/broadcast_list_view.dart';
-import 'package:ping_app/util/dialogs.dart';
+import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
@@ -23,7 +23,6 @@ import 'package:ping_app/view/subscription/purchased_view.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/update_password/update_password_view.dart';
-import 'package:ping_app/view/voucher/voucher_provider.dart';
 import 'package:ping_app/view/voucher/voucher_view.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -120,7 +119,7 @@ class _SettingViewState extends State<SettingView> {
                 ListTile(
                   title: Text('t_voucher'.tr()),
                   leading: const Icon(Icons.gif_box),
-                  onTap: () async{
+                  onTap: () async {
                     final adminP = Provider.of<AdminProvider>(context, listen: false);
                     final voucherData = await adminP.fetchVoucher();
                     print("voucherData $voucherData");
@@ -168,23 +167,48 @@ class _SettingViewState extends State<SettingView> {
                 ListTile(
                   title: Text('t_logout'.tr()),
                   leading: const Icon(Icons.logout),
+                  // onTap: () async {
+                  //   try {
+                  //     final isConnected = await context.isInternetAvailable();
+                  //     if (isConnected) {
+                  //       String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
+                  //       FirebaseFirestore.instance.collection("users").doc(uid).update({
+                  //         "isOnline": false,
+                  //         "fcm": "",
+                  //       }).then((data) {
+                  //         replaceAll(const CreateAccountView());
+                  //         FirebaseAuth.instance.signOut();
+                  //       });
+                  //     } else {
+                  //       snack("t_noInternetPleaseConnectToTheInternet".tr());
+                  //     }
+                  //   } catch (e) {
+                  //     snack(e);
+                  //   }
+                  // },
                   onTap: () async {
                     try {
                       final isConnected = await context.isInternetAvailable();
-                      if (isConnected) {
-                        String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-                        FirebaseFirestore.instance.collection("users").doc(uid).update({
-                          "isOnline": false,
-                          "fcm": "",
-                        }).then((data) {
-                          replaceAll(const CreateAccountView());
-                          FirebaseAuth.instance.signOut();
-                        });
-                      } else {
+                      if (!isConnected) {
                         snack("t_noInternetPleaseConnectToTheInternet".tr());
+                        return;
                       }
+
+                      String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
+                      String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+                      if (fcmToken != null) {
+                        FirebaseNotificationService().removeToken(
+                          fcmToken: fcmToken,
+                          uid: uid,
+                          collectionName: "users",
+                        );
+                      }
+
+                      replaceAll(const CreateAccountView());
+                      await FirebaseAuth.instance.signOut();
                     } catch (e) {
-                      snack(e);
+                      snack(e.toString());
                     }
                   },
                 ),

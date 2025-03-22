@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/model/member_model.dart';
 
@@ -90,9 +88,41 @@ class MemberRepo {
     return snapshot.size;
   }
 
-  Future<void> updateFcmToken(String memberId, String fcmToken) => _memberCollection.doc(memberId).update({
-        MemberModel.keyFcm: fcmToken,
-      });
+  // Future<void> updateFcmToken(String memberId, String fcmToken) async {
+  //   await _memberCollection.doc(memberId).update({
+  //     MemberModel.keyFcm: fcmToken,
+  //   });
+  // }
+  Future<void> updateFcmToken(String userId, String fcmToken) async {
+    try {
+      final docRef = _memberCollection.doc(userId);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // Ensure the field exists before accessing it
+        List<dynamic> existingTokens = [];
+        if (docSnapshot.data() != null && docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
+          existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
+        }
+
+        // Check if userId already exists
+        bool alreadyExists = existingTokens.any((entry) => entry is Map<String, dynamic> && entry["id"] == userId);
+
+        if (!alreadyExists) {
+          await docRef.update({
+            MemberModel.keyFcm: FieldValue.arrayUnion([fcmToken])
+          });
+        }
+      } else {
+        // If document doesn't exist, create it with the first entry
+        await docRef.set({
+          MemberModel.keyFcm: [fcmToken]
+        });
+      }
+    } catch (e) {
+      PingLog.pingLog("updateFcmToken: $e");
+    }
+  }
 
   Future<MemberModel> getMemberById(String memberId) async {
     final doc = await _memberCollection.doc(memberId).get();

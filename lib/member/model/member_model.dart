@@ -29,7 +29,7 @@ class MemberModel {
   final String teamLeadId;
   final String name;
   final String initials;
-  final String fcm;
+  final List<String> fcm;
   final bool isBlocked;
   final bool _isOnline;
   final DateTime lastSeen;
@@ -40,7 +40,7 @@ class MemberModel {
     required this.initials,
     required this.teamLeadId,
     this.memberColor,
-  })  : fcm = "",
+  })  : fcm = [],
         _id = "",
         _isOnline = false,
         lastSeen = DateTime(1800),
@@ -109,7 +109,7 @@ class MemberModel {
         _isOnline = json[keyMemberOnline] ?? false,
         lastSeen = (json[keyLastSeen] as Timestamp?)?.toDate() ?? DateTime(1800),
         isBlocked = json[keyIsBlocked],
-        fcm = json[keyFcm];
+        fcm = (json[keyFcm] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
 
   Map<String, dynamic> toJson() => {
         keyMemberName: name,

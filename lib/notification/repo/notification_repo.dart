@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../util/messenger.dart';
 import 'notification_service.dart';
@@ -61,19 +61,17 @@ class NotificationRepo {
       "deliveredAt": null,
       "response": null
     };
-    String? token;
+    List<String>? token;
     String? receiverName;
     final res = await notificationCollection.add(n);
     final doc = await notificationCollection.doc(res.id).get();
     final newData = PingNotificationModel.fromJson(res.id, doc.data()!);
-    DocumentSnapshot membersDoc =
-    await FirebaseFirestore.instance.collection('members').doc(toId).get();
+    DocumentSnapshot membersDoc = await FirebaseFirestore.instance.collection('members').doc(toId).get();
     if (membersDoc.exists) {
       token = membersDoc['fcm'] ?? '';
       receiverName = membersDoc['name'] ?? '';
     } else {
-      DocumentSnapshot userDoc =
-      await FirebaseFirestore.instance.collection('users').doc(toId).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(toId).get();
       if (userDoc.exists) {
         token = userDoc['fcm'] ?? '';
         receiverName = userDoc['fullName'] ?? '';
@@ -91,14 +89,14 @@ class NotificationRepo {
       title: (type.index == 0)
           ? "Ping"
           : (type.index == 1)
-          ? "Message"
-          : "Audio Message",
+              ? "Message"
+              : "Audio Message",
       body: (type.index == 0)
           ? "$receiverName ${'t_sentAPing'.tr()}"
           : (type.index == 1)
-          ? "$receiverName ${'t_sentYouAMessage'.tr()}"
-          : "$receiverName ${'t_sentYouAudioMessage'.tr()}",
-      token: token ?? "",
+              ? "$receiverName ${'t_sentYouAMessage'.tr()}"
+              : "$receiverName ${'t_sentYouAudioMessage'.tr()}",
+      tokens: token ?? [],
       fromId: fromId,
       toId: toId,
     );
@@ -107,8 +105,8 @@ class NotificationRepo {
         (type.index == 0)
             ? "t_pingSentSuccessfully".tr()
             : (type.index == 1)
-            ? "t_messageSentSuccessfully".tr()
-            : "t_audioMessageSendSuccessfully".tr(),
+                ? "t_messageSentSuccessfully".tr()
+                : "t_audioMessageSendSuccessfully".tr(),
         info: true,
       );
     } else {
@@ -116,8 +114,8 @@ class NotificationRepo {
         (type.index == 0)
             ? "t_pingSendingCancelled".tr()
             : (type.index == 1)
-            ? "t_messageSendingCancelled".tr()
-            : "t_messageSendingCancelled".tr(),
+                ? "t_messageSendingCancelled".tr()
+                : "t_messageSendingCancelled".tr(),
       );
     }
   }

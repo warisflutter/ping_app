@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +14,6 @@ import 'package:ping_app/member/view/add_member_view/member_qr_code.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
-import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:ping_app/util/audio/ping_audio_record.dart';
 import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -21,6 +21,7 @@ import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/record_web/audio_main.dart';
+import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
 import 'package:provider/provider.dart';
 
 class MemberListItem extends StatefulWidget {
@@ -224,8 +225,7 @@ class _MemberListItemState extends State<MemberListItem> {
                                   ) ??
                                   false;
                               if (confirmation) {
-                                final data =
-                                    await NotificationRepo.instance.sendPingNotification(me, selected);
+                                final data = await NotificationRepo.instance.sendPingNotification(me, selected);
 
                                 final res = await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
@@ -233,7 +233,7 @@ class _MemberListItemState extends State<MemberListItem> {
                                   id: data.id,
                                   title: "Ping",
                                   body: "${me.name} ${'t_sentAPing'.tr()}",
-                                  token: selected.fcm,
+                                  tokens: selected.fcm,
                                   fromId: me.id,
                                   toId: selected.id,
                                 );
@@ -258,26 +258,25 @@ class _MemberListItemState extends State<MemberListItem> {
                           if (res) {
                             snack("t_blockMemberCantSendMessage".tr(), info: false);
                           } else {
-                            String? message =
-                                await push<String>(const MessageListView(pickMessageMode: true));
+                            String? message = await push<String>(const MessageListView(pickMessageMode: true));
 
                             if (message != null) {
                               bool confirmation = await context.showConfirmationDialog(
-                                title: "t_sendMessage".tr(),
+                                    title: "t_sendMessage".tr(),
                                     message: message,
                                     type: "Message",
                                   ) ??
                                   false;
                               if (confirmation) {
-                                final data = await NotificationRepo.instance
-                                    .sendMessageNotification(me, selected, message);
+                                final data =
+                                    await NotificationRepo.instance.sendMessageNotification(me, selected, message);
                                 final res = await FirebaseNotificationService().sendNotification(
                                   messageData: data.data ?? "",
                                   type: "1",
                                   id: data.id,
                                   title: "Message",
                                   body: "${me.name} ${'t_sentYouAMessage'.tr()}",
-                                  token: selected.fcm,
+                                  tokens: selected.fcm,
                                   fromId: me.id,
                                   toId: selected.id,
                                 );
@@ -312,15 +311,14 @@ class _MemberListItemState extends State<MemberListItem> {
                           final send = await push<bool>(VerifyAudioView(audioFile: file));
                           if (send ?? false) {
                             pop();
-                            final data =
-                                await NotificationRepo.instance.sendAudioNotification(me, selected, file);
+                            final data = await NotificationRepo.instance.sendAudioNotification(me, selected, file);
                             await FirebaseNotificationService().sendNotification(
                               messageData: data.data ?? "",
                               type: "2",
                               id: data.id,
                               title: "Audio Message",
                               body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
-                              token: selected.fcm,
+                              tokens: selected.fcm,
                               fromId: me.id,
                               toId: selected.id,
                             );
@@ -381,9 +379,7 @@ class _MemberListItemState extends State<MemberListItem> {
                           onYes: () async {
                             bool isInternet = await context.isInternetAvailable();
                             if (isInternet) {
-                              MemberRepo.instance
-                                  .removeMember(selected.id)
-                                  .catchError((error) => snack(error));
+                              MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error));
                             } else {
                               snack("t_noInternetPleaseConnectToTheInternet".tr());
                             }

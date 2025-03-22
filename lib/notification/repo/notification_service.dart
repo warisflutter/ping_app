@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,6 @@ import 'package:ping_app/file_path.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
@@ -97,7 +98,7 @@ class FirebaseNotificationService {
   Future<bool> sendNotification({
     required String title,
     required String body,
-    required String token,
+    required List<String> tokens,
     required String fromId,
     required String toId,
     required String id,
@@ -108,35 +109,37 @@ class FirebaseNotificationService {
     try {
       String serverTokenKey = await getAccessToken();
       String endPoint = "https://fcm.googleapis.com/v1/projects/pingapp-94e13/messages:send";
-      Map<String, dynamic> message = {
-        "message": {
-          "token": token,
-          "notification": {"title": title, "body": body},
-          "data": {
-            "id": id,
-            "fromId": fromId,
-            "toId": toId,
-            "type": type,
-            "message": messageData,
+      for (String token in tokens) {
+        Map<String, dynamic> message = {
+          "message": {
+            "token": token,
+            "notification": {"title": title, "body": body},
+            "data": {
+              "id": id,
+              "fromId": fromId,
+              "toId": toId,
+              "type": type,
+              "message": messageData,
+            },
+          }
+        };
+        http.Response response = await http.post(
+          Uri.parse(endPoint),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $serverTokenKey',
           },
+          body: jsonEncode(message),
+        );
+        debugPrint('body: ${response.body}');
+        if (response.statusCode == 200) {
+          log('Notification sent successfully');
+          log(response.body);
+          completer.complete(true);
+        } else {
+          completer.complete(false);
+          log('Failed to send notification. Status code: ${response.statusCode}');
         }
-      };
-      http.Response response = await http.post(
-        Uri.parse(endPoint),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $serverTokenKey',
-        },
-        body: jsonEncode(message),
-      );
-      debugPrint('body: ${response.body}');
-      if (response.statusCode == 200) {
-        log('Notification sent successfully');
-        log(response.body);
-        completer.complete(true);
-      } else {
-        completer.complete(false);
-        log('Failed to send notification. Status code: ${response.statusCode}');
       }
     } catch (e, s) {
       completer.complete(false);
@@ -185,9 +188,8 @@ class FirebaseNotificationService {
 
   Future<void> updateMemberFcmToken(String memberId) async {
     String? token = await FirebaseMessaging.instance.getToken(
-      vapidKey: kIsWeb
-          ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM"
-          : null,
+      vapidKey:
+          kIsWeb ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM" : null,
     );
     if (token != null) {
       await MemberRepo.instance.updateFcmToken(memberId, token);
@@ -196,12 +198,39 @@ class FirebaseNotificationService {
 
   Future<void> updateTeamLeadFcmToken(String teamLeadId) async {
     String? token = await FirebaseMessaging.instance.getToken(
-      vapidKey: kIsWeb
-          ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM"
-          : null,
+      vapidKey:
+          kIsWeb ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM" : null,
     );
     if (token != null) {
       await AuthRepo.instance.updateFcmToken(teamLeadId, token);
+    }
+  }
+
+  Future<void> removeToken({
+    required String fcmToken,
+    required String uid,
+    required String collectionName,
+  }) async {
+    try {
+      final docRef = FirebaseFirestore.instance.collection(collectionName).doc(uid);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        List<dynamic> existingTokens = [];
+        if (docSnapshot.data() != null && docSnapshot.data()!.containsKey("fcm")) {
+          existingTokens = List.from(docSnapshot.get("fcm"));
+        }
+
+        // Remove the FCM token from the list
+        existingTokens.removeWhere((token) => token == fcmToken);
+
+        await docRef.update({
+          "isOnline": false,
+          "fcm": existingTokens,
+        });
+      }
+    } catch (e) {
+      debugPrint("remove token: $e");
     }
   }
 }

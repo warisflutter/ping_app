@@ -136,7 +136,7 @@ class BroadcastDetailView extends StatelessWidget {
                                         id: data.id,
                                         title: "Ping",
                                         body: "${me.name} ${'t_sentAPing'.tr()}",
-                                        token: member.fcm,
+                                        tokens: member.fcm,
                                         fromId: me.id,
                                         toId: member.id,
                                       );
@@ -160,7 +160,7 @@ class BroadcastDetailView extends StatelessWidget {
                                             id: data.id,
                                             title: "Message",
                                             body: "${me.name} ${'t_sentYouAMessage'.tr()}",
-                                            token: member.fcm,
+                                            tokens: member.fcm,
                                             fromId: me.id,
                                             toId: member.id,
                                           );
@@ -205,7 +205,7 @@ class BroadcastDetailView extends StatelessWidget {
                                           id: data.id,
                                           title: "Audio Message",
                                           body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
-                                          token: member.fcm,
+                                          tokens: member.fcm,
                                           fromId: me.id,
                                           toId: member.id,
                                         );

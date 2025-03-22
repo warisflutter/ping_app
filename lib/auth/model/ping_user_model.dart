@@ -15,7 +15,7 @@ class PingUserModel {
   final String email;
   final DateTime? _createdAt;
   final String? _userId;
-  final String fcm;
+  final List<String> fcm;
   final bool isDeleted;
   final bool _isOnline;
   final DateTime lastSeen;
@@ -33,7 +33,7 @@ class PingUserModel {
         _userId = null,
         _isOnline = false,
         lastSeen = DateTime(1800),
-        fcm = "",
+        fcm = [],
         isDeleted = false;
 
   DateTime get createdAt {
@@ -53,7 +53,7 @@ class PingUserModel {
   PingUserModel.fromJson(this._userId, Map<String, dynamic> json)
       : teamName = json[keyTeamName],
         fullName = json[keyFullName],
-        fcm = json[keyFcmToken] ?? "",
+        fcm = (json[keyFcmToken] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
         initials = json[keyInitials] ?? "",
         _isOnline = json[keyOnlineStatus] ?? false,
         lastSeen = (json['lastSeen'] as Timestamp?)?.toDate() ?? DateTime(1800),

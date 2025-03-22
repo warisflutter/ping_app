@@ -70,8 +70,35 @@ class AuthRepo {
     await usersCollection.doc(id).update({key: name});
   }
 
-  Future<void> updateFcmToken(String id, String fcmToken) async {
-    await usersCollection.doc(id).update({PingUserModel.keyFcmToken: fcmToken});
+  Future<void> updateFcmToken(String userId, String fcmToken) async {
+    try {
+      final docRef = usersCollection.doc(userId);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // Ensure the field exists before accessing it
+        List<dynamic> existingTokens = [];
+        if (docSnapshot.data() != null && docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
+          existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
+        }
+
+        // Check if userId already exists
+        bool alreadyExists = existingTokens.any((entry) => entry is Map<String, dynamic> && entry["id"] == userId);
+
+        if (!alreadyExists) {
+          await docRef.update({
+            PingUserModel.keyFcmToken: FieldValue.arrayUnion([fcmToken])
+          });
+        }
+      } else {
+        // If document doesn't exist, create it with the first entry
+        await docRef.set({
+          PingUserModel.keyFcmToken: [fcmToken]
+        });
+      }
+    } catch (e) {
+      PingLog.pingLog("updateFcmToken: $e");
+    }
   }
 
   Future<void> deleteUser() async {
