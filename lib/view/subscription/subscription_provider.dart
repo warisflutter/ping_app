@@ -104,7 +104,7 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    PingLog.pingLog("---SubscriptionProvider init---");
+    debugPrint("---SubscriptionProvider init---");
     if (kIsWeb) {
       purChasedModel = await firebaseService.getUserSubscriptionDetails();
       PingLog.pingLog("PurChase Details From Firebase ${purChasedModel!.toMap()}");
@@ -328,18 +328,19 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<List<ProductDetails>> fetchSubscriptionDetails() async {
+    debugPrint("Product ids => $subscriptionIds");
     final ProductDetailsResponse response = await inAppPurchase.queryProductDetails(
       subscriptionIds.toSet(),
     );
 
     // Check for IDs not found
     if (response.notFoundIDs.isNotEmpty) {
-      log("These IDs were not found: ${response.notFoundIDs}");
+      debugPrint("These IDs were not found: ${response.notFoundIDs}");
     }
 
     // Log if there is an error
     if (response.error != null) {
-      log("Error: ${response.error}");
+      debugPrint("Error: ${response.error}");
     }
 
     // // Log details of each subscription

@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
@@ -37,9 +38,7 @@ class WatchConnectivity {
           final sp = await SharedPreferences.getInstance();
           String memberId = sp.getString("memberId") ?? "";
           meId = memberId;
-
-          final data = await MemberRepo.instance.getMemberById(memberId);
-          teamLeadId = data.teamLeadId;
+          teamLeadId = "all";
         } else {
           meId = user.uid;
           teamLeadId = user.uid;
