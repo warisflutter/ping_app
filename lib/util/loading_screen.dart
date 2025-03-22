@@ -1,17 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
-import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/services/api_service.dart';
-import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
@@ -19,7 +14,6 @@ import 'package:ping_app/util/screen_manager/constants.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
 import 'package:ping_app/view/check_payment/check_payment_screen.dart';
-import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
