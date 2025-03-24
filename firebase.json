@@ -1,1 +1,53 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"pingapp-94e13","appId":"1:607056826389:android:56e1dab434cf5be2a6be1c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"pingapp-94e13","configurations":{"android":"1:607056826389:android:56e1dab434cf5be2a6be1c","ios":"1:607056826389:ios:dd486e80ca805ebaa6be1c","web":"1:607056826389:web:423f1ad4674d8c5ba6be1c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "pingapp-94e13",
+          "appId": "1:607056826389:android:56e1dab434cf5be2a6be1c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "pingapp-94e13",
+          "configurations": {
+            "android": "1:607056826389:android:56e1dab434cf5be2a6be1c",
+            "ios": "1:607056826389:ios:dd486e80ca805ebaa6be1c",
+            "web": "1:607056826389:web:423f1ad4674d8c5ba6be1c"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ],
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
