@@ -26,6 +26,7 @@ class WatchConnectivity {
   String teamLeadId = "all";
 
   StreamSubscription? _notificationSubscription;
+
   WatchConnectivity._() {
     _setupListeners();
     _setupMessageTemplateListener();
@@ -38,7 +39,12 @@ class WatchConnectivity {
           final sp = await SharedPreferences.getInstance();
           String memberId = sp.getString("memberId") ?? "";
           meId = memberId;
-          teamLeadId = "all";
+          if (memberId.isNotEmpty) {
+            final data = await MemberRepo.instance.getMemberById(memberId);
+            teamLeadId = data.teamLeadId;
+          } else {
+            teamLeadId = "all";
+          }
         } else {
           meId = user.uid;
           teamLeadId = user.uid;
@@ -48,7 +54,9 @@ class WatchConnectivity {
             await _notificationSubscription!.cancel();
           }
           debugPrint("TeamLead: Team lead sending members");
-          _notificationSubscription = NotificationRepo.instance.getNotificationsFromMe(user.uid).listen((notification) {
+          _notificationSubscription = NotificationRepo.instance
+              .getNotificationsFromMe(user.uid)
+              .listen((notification) {
             debugPrint("TeamLead: Sent");
             sendMemberListToWatch();
           });
@@ -70,7 +78,9 @@ class WatchConnectivity {
           await _notificationSubscription!.cancel();
         }
         debugPrint("TeamLead: 1Member sending members");
-        _notificationSubscription = NotificationRepo.instance.getNotificationsFromMe(meId).listen((notification) {
+        _notificationSubscription = NotificationRepo.instance
+            .getNotificationsFromMe(meId)
+            .listen((notification) {
           debugPrint("TeamLead: 1 Sent");
           sendMemberListToWatch();
         });
@@ -111,13 +121,16 @@ class WatchConnectivity {
             await _handleReceivedPing(call.arguments['userId']);
             break;
           case 'receiveTextMessage':
-            _handleReceivedTextMessage(call.arguments['userId'], call.arguments['message']);
+            _handleReceivedTextMessage(
+                call.arguments['userId'], call.arguments['message']);
             break;
           case 'receiveVoiceNote':
-            _handleReceivedVoiceNote(call.arguments['userId'], call.arguments['audioData']);
+            _handleReceivedVoiceNote(
+                call.arguments['userId'], call.arguments['audioData']);
             break;
           case 'receivePingResponse':
-            _handleReceivedPingResponse(call.arguments['notificationId'], call.arguments['response']);
+            _handleReceivedPingResponse(
+                call.arguments['notificationId'], call.arguments['response']);
             break;
         }
       });
@@ -134,7 +147,8 @@ class WatchConnectivity {
   Future<void> sendMemberListToWatch() async {
     try {
       List<WatchOSTeamMember> members = await _fetchTeamMembers();
-      await platform.invokeMethod('memberList', {'members': members.map((m) => m.toJson()).toList()});
+      await platform.invokeMethod(
+          'memberList', {'members': members.map((m) => m.toJson()).toList()});
       debugPrint("$debugKey Sent Members");
     } catch (e) {
       debugPrint('$debugKey Error fetching team members: $e');
@@ -146,7 +160,8 @@ class WatchConnectivity {
     try {
       List<WatchOSMessageTemplate> templates = await _fetchMessageTemplates();
       if (templates.isNotEmpty) {
-        await platform.invokeMethod('sendMessageTemplates', {'templates': templates.map((t) => t.toJson()).toList()});
+        await platform.invokeMethod('sendMessageTemplates',
+            {'templates': templates.map((t) => t.toJson()).toList()});
       }
     } catch (e) {
       PingLog.pingLog('_handleRequestMessageTemplates failed: $e');
@@ -170,7 +185,8 @@ class WatchConnectivity {
   }
 
   void _handleReceivedTextMessage(String userId, String message) async {
-    debugPrint('$debugKey Received text message from user: $userId, message: $message');
+    debugPrint(
+        '$debugKey Received text message from user: $userId, message: $message');
     await NotificationRepo.instance.sendWatchNotification(
       fromId: meId,
       toId: userId,
@@ -186,7 +202,8 @@ class WatchConnectivity {
     debugPrint(
       '$debugKey Received voice note from user: $userId, audio data length: ${audioData.length}',
     );
-    final url = await NotificationRepo.instance.uploadDataAndGetUrl(userId, audioData);
+    final url =
+        await NotificationRepo.instance.uploadDataAndGetUrl(userId, audioData);
     await NotificationRepo.instance.sendWatchNotification(
       fromId: meId,
       toId: userId,
@@ -198,7 +215,8 @@ class WatchConnectivity {
   }
 
   void _handleReceivedPingResponse(String notificationId, bool response) {
-    debugPrint('$debugKey Received ping response for notification: $notificationId, response: $response');
+    debugPrint(
+        '$debugKey Received ping response for notification: $notificationId, response: $response');
     NotificationRepo.instance.respondToNotification(notificationId, response);
   }
 
@@ -218,7 +236,8 @@ class WatchConnectivity {
     if (memberId != null) {
       // Member login
       final memberModel = await MemberRepo.instance.getMemberById(memberId);
-      final teamLead = await AuthRepo.instance.getUserById(memberModel.teamLeadId);
+      final teamLead =
+          await AuthRepo.instance.getUserById(memberModel.teamLeadId);
 
       if (teamLead == null) {
         throw Exception('t_teamLeadNotFound'.tr());
@@ -232,22 +251,26 @@ class WatchConnectivity {
       final members = await membersStream.first;
 
       // Create a list with the team lead first, then the other members
-      final recentTeamLeadNotification =
-          await NotificationRepo.instance.getMostRecentNotification(teamLead.userId).first;
+      final recentTeamLeadNotification = await NotificationRepo.instance
+          .getMostRecentNotification(teamLead.userId)
+          .first;
 
       List<WatchOSTeamMember> watchMembers = [
         WatchOSTeamMember(
           id: teamLead.userId,
           name: teamLead.fullName,
           status: _getColorStatus(teamLead.userId, recentTeamLeadNotification),
-          nextTicSec: (recentTeamLeadNotification?.nextTick()?.inSeconds ?? -1).toString(),
+          nextTicSec: (recentTeamLeadNotification?.nextTick()?.inSeconds ?? -1)
+              .toString(),
         )
       ];
 
       for (var member in members.where((member) => !member.isBlocked)) {
         // Check if member.id is not the same as memberId before adding
         if (member.id != memberId) {
-          final notification = await NotificationRepo.instance.getMostRecentNotification(member.id).first;
+          final notification = await NotificationRepo.instance
+              .getMostRecentNotification(member.id)
+              .first;
           watchMembers.add(WatchOSTeamMember(
             id: member.id,
             name: member.name,
@@ -279,7 +302,9 @@ class WatchConnectivity {
 
       List<WatchOSTeamMember> watchMembers = [];
       for (var member in members.where((member) => !member.isBlocked)) {
-        final notification = await NotificationRepo.instance.getMostRecentNotification(member.id).first;
+        final notification = await NotificationRepo.instance
+            .getMostRecentNotification(member.id)
+            .first;
         watchMembers.add(WatchOSTeamMember(
           id: member.id,
           name: member.name,
@@ -300,15 +325,18 @@ class WatchConnectivity {
       return 'transparent';
     }
 
-    final expiryTime = (notification.sentAt ?? DateTime.now()).add(PingNotificationModel.durationExpire);
+    final expiryTime = (notification.sentAt ?? DateTime.now())
+        .add(PingNotificationModel.durationExpire);
     if (expiryTime.isAfter(DateTime.now())) {
       if (notification.response != null) {
         return notification.response! ? 'green' : 'red';
-      } else if (notification.deliveredAt != null || notification.sentAt != null) {
+      } else if (notification.deliveredAt != null ||
+          notification.sentAt != null) {
         return 'grey';
       }
     } else {
-      final blackOutTime = expiryTime.add(PingNotificationModel.durationBlackOut);
+      final blackOutTime =
+          expiryTime.add(PingNotificationModel.durationBlackOut);
       if (blackOutTime.isAfter(DateTime.now())) {
         if (notification.response != null) {
           return notification.response! ? 'green' : 'red';
@@ -332,7 +360,8 @@ class WatchConnectivity {
   }
 
   // Methods to send data to the watch
-  Future<void> sendNotificationToNative(PingNotificationModel notification) async {
+  Future<void> sendNotificationToNative(
+      PingNotificationModel notification) async {
     debugPrint("$debugKey Sending notification to native");
     try {
       await platform.invokeMethod('sendNotificationToNative', <String, dynamic>{
@@ -345,7 +374,8 @@ class WatchConnectivity {
         'response': notification.response,
       });
     } on PlatformException catch (e) {
-      debugPrint("$debugKey Failed to send notification to native: '${e.message}'.");
+      debugPrint(
+          "$debugKey Failed to send notification to native: '${e.message}'.");
     }
   }
 }

@@ -24,7 +24,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
 
-        showNotification("Ping App", "Message");
+//        showNotification("Ping App", "Message");
     }
 
     private fun sendNotificationToWearOS(notificationData: JSONObject) {
