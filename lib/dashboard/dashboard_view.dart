@@ -7,7 +7,7 @@ import 'package:ping_app/notification/view/notification_view.dart';
 import 'package:ping_app/view/settings/view/setting_view.dart';
 import 'package:ping_app/util/ping_log.dart';
 
-import '../notification/repo/notification_service.dart';
+import '../services/notification_service.dart';
 
 Future<void> onPopInvoked(BuildContext context) async {
   final bool shouldPop = await showDialog(

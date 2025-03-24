@@ -1,26 +1,14 @@
-import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/model/ping_user_model.dart';
-import 'package:ping_app/auth/repo/auth_repo.dart';
-import 'package:ping_app/auth/repo/ping_auth_state.dart';
-import 'package:ping_app/auth/view/apple_sign_in_button.dart';
 import 'package:ping_app/auth/view/captcha_view.dart';
-import 'package:ping_app/auth/view/google_sign_in_button.dart';
 import 'package:ping_app/auth/view/login_view.dart';
 import 'package:ping_app/auth/view/verify_email_view.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
 import 'package:ping_app/member/view/join_member_view/join_qr_view.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_styles.dart';
-import 'package:ping_app/util/ping_utils.dart';
-import 'package:ping_app/util/screen_manager/constants.dart';
-import 'package:ping_app/util/validator.dart';
-import 'package:provider/provider.dart';
 
 class CreateAccountView extends StatefulWidget {
   const CreateAccountView({super.key});
@@ -62,7 +50,11 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                 child: Column(
                   children: [
                     if (kIsWeb && addTopPadding) SizedBox(height: mainSpacing),
-                    getLogo(context),
+                    Image.asset(
+                      'assets/images/ping_gif.gif',
+                      height: (context.isWatch) ? PingStyles.watchLogoHeight : 120,
+                      fit: BoxFit.cover,
+                    ),
                     SizedBox(height: mainSpacing),
                     Text(
                       't_createNewAccount'.tr(),
@@ -93,9 +85,12 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                             onPressed: loading ? null : () => _onJoinByIdClick(),
                             child: Text('t_joinById'.tr()),
                           ),
+                        const SizedBox(height: 8),
                         GoogleSignInButton(onSignedIn: () {}),
-                        const SizedBox(height: 4),
-                        (Platform.isIOS) ? AppleSignInButton(onSignedIn: () {}) : const SizedBox.shrink(),
+                        const SizedBox(height: 8),
+                        (defaultTargetPlatform == TargetPlatform.iOS)
+                            ? AppleSignInButton(onSignedIn: () {})
+                            : const SizedBox.shrink(),
                         const SizedBox(height: 12),
                         getAlreadyHaveAccount(context),
                         const SizedBox(height: 12),
@@ -270,16 +265,6 @@ class _CreateAccountViewState extends State<CreateAccountView> {
         ],
       ),
     );
-  }
-
-  Widget getLogo(BuildContext context) {
-    return Builder(builder: (context) {
-      return Image.asset(
-        'assets/images/ping_gif.gif',
-        height: (context.isWatch) ? PingStyles.watchLogoHeight : 120,
-        fit: BoxFit.cover,
-      );
-    });
   }
 
   void _onCreateAccountClicked() async {

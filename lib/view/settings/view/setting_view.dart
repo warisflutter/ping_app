@@ -1,13 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/auth/repo/auth_repo.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/broadcast/view/broadcast_list_view.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/services/notification_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_heading_card.dart';
@@ -97,6 +98,13 @@ class _SettingViewState extends State<SettingView> {
                   title: Text('t_subscriptions'.tr()),
                   leading: const Icon(Icons.payment),
                   onTap: () {
+                    if (kIsWeb || context.isWatch) {
+                      snack(
+                        "t_Checkoutthemobileversiontoviewyoursubscriptiondetails".tr(),
+                        backgroundColor: Colors.green,
+                      );
+                      return;
+                    }
                     if (subscriptionProvider.purchases.isEmpty) {
                       push(const SubscriptionInfoView());
                     } else {
@@ -109,6 +117,13 @@ class _SettingViewState extends State<SettingView> {
                   leading: const Icon(Icons.restore),
                   onTap: () async {
                     try {
+                      if (kIsWeb || context.isWatch) {
+                        snack(
+                          "t_CheckoutTheMobileVersionToRestorePurchase".tr(),
+                          backgroundColor: Colors.green,
+                        );
+                        return;
+                      }
                       await subscriptionProvider.restorePurchases();
                       snack('t_purchasesRestored'.tr(), info: true);
                     } catch (e) {
@@ -120,9 +135,16 @@ class _SettingViewState extends State<SettingView> {
                   title: Text('t_voucher'.tr()),
                   leading: const Icon(Icons.gif_box),
                   onTap: () async {
+                    if (kIsWeb || context.isWatch) {
+                      snack(
+                        "${"t_CheckOutTheMobileVersionToView".tr()} ${'t_voucher'.tr()}",
+                        backgroundColor: Colors.green,
+                      );
+                      return;
+                    }
                     final adminP = Provider.of<AdminProvider>(context, listen: false);
                     final voucherData = await adminP.fetchVoucher();
-                    print("voucherData $voucherData");
+                    debugPrint("voucherData $voucherData");
                     if (voucherData.isEmpty || voucherData == "Voucher is Expire|Pro") {
                       push(const VoucherView());
                     } else {

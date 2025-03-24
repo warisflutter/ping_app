@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 
+import '../../services/notification_service.dart';
 import '../../util/messenger.dart';
-import 'notification_service.dart';
 
 class NotificationRepo {
   static final instance = NotificationRepo._();

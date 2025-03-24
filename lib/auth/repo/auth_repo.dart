@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/util/ping_log.dart';
 
@@ -72,6 +73,7 @@ class AuthRepo {
 
   Future<void> updateFcmToken(String userId, String fcmToken) async {
     try {
+      debugPrint("fcm Token $fcmToken");
       final docRef = usersCollection.doc(userId);
       final docSnapshot = await docRef.get();
 
@@ -82,10 +84,12 @@ class AuthRepo {
           existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
         }
 
-        // Check if userId already exists
+        // Check if fcmToken already exists
         bool alreadyExists = existingTokens.contains(fcmToken);
 
-        if (!alreadyExists) {
+        if (alreadyExists) {
+          debugPrint("token is already exist");
+        } else {
           await docRef.update({
             PingUserModel.keyFcmToken: FieldValue.arrayUnion([fcmToken])
           });

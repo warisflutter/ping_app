@@ -22,7 +22,7 @@ class _AudioRecordWebState extends State<AudioRecordWeb> {
   Widget build(BuildContext context) {
     final audioPath = this.audioPath;
     return Scaffold(
-      appBar: AppBar(title:  Text('t_audioRecorder'.tr())),
+      appBar: AppBar(title: Text('t_audioRecorder'.tr())),
       body: Center(
         child: audioPath != null
             ? Padding(

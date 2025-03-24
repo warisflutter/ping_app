@@ -5,8 +5,9 @@ import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
 import 'package:ping_app/services/api_service.dart';
+import 'package:ping_app/services/notification_service.dart';
+import 'package:ping_app/services/sp_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
@@ -15,7 +16,6 @@ import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/admin/admin_view.dart';
 import 'package:ping_app/view/check_payment/check_payment_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoadingScreen extends StatefulWidget {
   final dynamic error;
@@ -51,8 +51,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
     AppLifecycleService().reset();
     await adminProvider.getAdmin();
     PingLog.pingLog("type: ${adminProvider.type}");
-    final sp = await SharedPreferences.getInstance();
-    String memberId = sp.getString("memberId") ?? "";
+    String memberId = await SPService().getMemberId();
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (memberId.isEmpty && firebaseUser != null) {
       if (adminProvider.type == "user") {

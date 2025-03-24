@@ -2,17 +2,15 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:ping_app/util/audio/amplitude_view.dart';
-import 'package:ping_app/util/messenger.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/util/navigator.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:ping_app/file_path.dart';
+import 'package:ping_app/util/audio/amplitude_view.dart';
+import 'package:ping_app/util/ping_styles.dart';
 import 'package:record/record.dart';
 
 class PingAudioRecord extends StatefulWidget {
-  const PingAudioRecord({
-    super.key,
-  });
+  const PingAudioRecord({super.key});
 
   @override
   State<PingAudioRecord> createState() => _PingAudioRecordState();
@@ -46,7 +44,12 @@ class _PingAudioRecordState extends State<PingAudioRecord> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:  Text('t_recordAudio'.tr())),
+      appBar: AppBar(
+        title: Text(
+          't_recordAudio'.tr(),
+          style: (context.isWatch) ? PingStyles.watchStyle : null,
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -71,13 +74,28 @@ class _PingAudioRecordState extends State<PingAudioRecord> {
         onTapUp: (_) => stopRecording(),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          height: recording ? 112 : 56,
-          width: recording ? 112 : 56,
+          height: (context.isWatch)
+              ? PingStyles.watchButtonHeight
+              : recording
+                  ? 112
+                  : 56,
+          width: (context.isWatch)
+              ? PingStyles.watchButtonHeight
+              : recording
+                  ? 112
+                  : 56,
           decoration: BoxDecoration(
             color: recording ? Colors.red : Colors.blue,
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.mic, size: recording ? 56 : 28),
+          child: Icon(
+            Icons.mic,
+            size: (context.isWatch)
+                ? PingStyles.watchIconSize
+                : recording
+                    ? 56
+                    : 28,
+          ),
         ),
       );
 
@@ -107,9 +125,7 @@ class _PingAudioRecordState extends State<PingAudioRecord> {
       amplitude = [];
     });
 
-    amplitudeSubscription = record
-        .onAmplitudeChanged(const Duration(milliseconds: 500))
-        .listen((event) {
+    amplitudeSubscription = record.onAmplitudeChanged(const Duration(milliseconds: 500)).listen((event) {
       setState(() {
         maxAmplitude = event.max;
         amplitude.add(event.current);

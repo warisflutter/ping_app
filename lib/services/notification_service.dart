@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ import 'package:ping_app/file_path.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
+import 'package:ping_app/services/firebase_service.dart';
+import 'package:ping_app/services/sp_service.dart';
 import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
@@ -105,10 +108,10 @@ class FirebaseNotificationService {
     required String type,
     required String messageData,
   }) async {
-    Completer<bool> completer = Completer<bool>();
     try {
       String serverTokenKey = await getAccessToken();
       String endPoint = "https://fcm.googleapis.com/v1/projects/pingapp-94e13/messages:send";
+
       for (String token in tokens) {
         Map<String, dynamic> message = {
           "message": {
@@ -123,6 +126,7 @@ class FirebaseNotificationService {
             },
           }
         };
+
         http.Response response = await http.post(
           Uri.parse(endPoint),
           headers: {
@@ -131,21 +135,37 @@ class FirebaseNotificationService {
           },
           body: jsonEncode(message),
         );
-        debugPrint('body: ${response.body}');
-        if (response.statusCode == 200) {
-          log('Notification sent successfully');
-          log(response.body);
-          completer.complete(true);
-        } else {
-          completer.complete(false);
+
+        debugPrint('Response body: ${response.body}');
+
+        if (response.statusCode != 200) {
           log('Failed to send notification. Status code: ${response.statusCode}');
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          if (responseData["error"]?["status"] == "NOT_FOUND" ||
+              responseData["error"]?["details"]?.any((d) => d["errorCode"] == "UNREGISTERED") == true) {
+            debugPrint("❌ Token Expired: $token");
+            String memberId = await SPService().getMemberId();
+            if (memberId.isNotEmpty) {
+              removeToken(
+                fcmToken: token,
+                uid: memberId,
+                collectionName: "members",
+              );
+            } else {
+              removeToken(
+                fcmToken: token,
+                uid: FirebaseAuth.instance.currentUser?.uid ?? "",
+                collectionName: "users",
+              );
+            }
+          }
         }
       }
+      return true;
     } catch (e, s) {
-      completer.complete(false);
       log('Error sending notification: $e $s');
+      return false;
     }
-    return completer.future;
   }
 
   Future<void> handleMessage(
@@ -187,20 +207,14 @@ class FirebaseNotificationService {
   }
 
   Future<void> updateMemberFcmToken(String memberId) async {
-    String? token = await FirebaseMessaging.instance.getToken(
-      vapidKey:
-          kIsWeb ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM" : null,
-    );
+    String? token = await getDeviceToken();
     if (token != null) {
       await MemberRepo.instance.updateFcmToken(memberId, token);
     }
   }
 
   Future<void> updateTeamLeadFcmToken(String teamLeadId) async {
-    String? token = await FirebaseMessaging.instance.getToken(
-      vapidKey:
-          kIsWeb ? "BDn_sSLC6I_v1As_3HGaoPdIhIZwrrDXmRFHk3S8P0o4aKdZsO1lTJVmhy97nyfjreVveDX8vZpj5zI8qoDT9lM" : null,
-    );
+    String? token = await getDeviceToken();
     if (token != null) {
       await AuthRepo.instance.updateFcmToken(teamLeadId, token);
     }
@@ -222,15 +236,64 @@ class FirebaseNotificationService {
         }
 
         // Remove the FCM token from the list
-        existingTokens.removeWhere((token) => token == fcmToken);
+        existingTokens.removeWhere((token) {
+          bool data = (token == fcmToken);
+          debugPrint("Remove the FCM token from the list1 $token");
+          debugPrint("Remove the FCM token from the list2 $fcmToken");
+          debugPrint("Remove the FCM token from the list $data");
+          return data;
+        });
 
         await docRef.update({
           "isOnline": false,
           "fcm": existingTokens,
         });
+        // 🔍 **Check if the token is removed**
+        final updatedDoc = await docRef.get();
+        List<dynamic> updatedTokens = updatedDoc.data()?["fcm"] ?? [];
+        if (!updatedTokens.contains(fcmToken)) {
+          debugPrint("✅ Token removed successfully!");
+        } else {
+          debugPrint("❌ Token still exists!");
+        }
       }
     } catch (e) {
       debugPrint("remove token: $e");
+    }
+  }
+
+  Future<String?> getDeviceToken({int maxRetires = 3}) async {
+    try {
+      String? token;
+      if (kIsWeb) {
+        // get the device fcm token
+        token = await FirebaseMessaging.instance.getToken(
+          vapidKey: FirebaseService().vapidKey,
+        );
+        if (kDebugMode) {
+          print("for web device token: $token");
+        }
+      } else {
+        // get the device fcm token
+        token = await FirebaseMessaging.instance.getToken();
+        if (kDebugMode) {
+          print("for android device token: $token");
+        }
+      }
+      return token;
+    } catch (e) {
+      if (kDebugMode) {
+        print("failed to get device token");
+      }
+      if (maxRetires > 0) {
+        if (kDebugMode) {
+          print("try after 10 sec");
+        }
+        await Future.delayed(const Duration(seconds: 10));
+        return getDeviceToken(maxRetires: maxRetires - 1);
+      } else {
+        return null;
+      }
     }
   }
 }

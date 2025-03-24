@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
 import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/services/notification_service.dart';
 import 'package:ping_app/util/fcm_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';

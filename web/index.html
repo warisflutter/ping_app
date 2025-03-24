@@ -18,42 +18,78 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Cross Platform Ping App">
+  <meta name="description" content="A new Flutter project.">
 
   <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="ping_app">
+  <meta name="apple-mobile-web-app-title" content="Ping App">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>ping_app</title>
+  <title>Ping App</title>
   <link rel="manifest" href="manifest.json">
-
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = null;
-  </script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
+  <style>
+    /* Preloader Styling */
+    body {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #121212; /* Dark background */
+    }
+    #preloader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+        background-color: #121212;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+    }
+    .spinner {
+        width: 45px;
+        height: 45px;
+        border: 6px solid rgba(255, 255, 255, 0.3);
+        border-top: 6px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
+<!-- Preloader -->
+<div id="preloader">
+  <div class="spinner"></div>
+</div>
+<script>
+  if ('serviceWorker' in navigator) {
+      // Service workers are supported. Use them.
+      window.addEventListener('load', function () {
+        // Register Firebase Messaging service worker.
+        navigator.serviceWorker.register('firebase-messaging-sw.js', {
+          scope: '/firebase-cloud-messaging-push-scope',
+        });
       });
-    });
-  </script>
+    }
+  // Hide Preloader when Flutter is ready
+      window.addEventListener("load", function () {
+          var preloader = document.getElementById("preloader");
+          if (preloader) {
+              preloader.style.display = "none";
+          }
+      });
+</script>
+<script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

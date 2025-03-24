@@ -1,17 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/view/complete_profile_view.dart';
 import 'package:ping_app/dashboard/dashboard_view.dart';
-import 'package:ping_app/util/fcm_repo.dart';
+import 'package:ping_app/services/firebase_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
 
-import '../../notification/repo/notification_service.dart';
+import '../../services/notification_service.dart';
 
 class GoogleSignInButton extends StatelessWidget {
   final void Function() onSignedIn;
@@ -62,7 +63,11 @@ class GoogleSignInButton extends StatelessWidget {
   Future<void> _handleGoogleSignIn(BuildContext context) async {
     PingLog.pingLog("---handleGoogleSignIn function start---");
     try {
-      final googleUser = await GoogleSignIn().signIn();
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: (kIsWeb) ? FirebaseService().webClientIdGetter : null,
+        scopes: ['email'],
+      );
+      final googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         PingLog.pingLog("---Google user is null. Sign-in canceled by user.---");
         return;
@@ -72,8 +77,7 @@ class GoogleSignInButton extends StatelessWidget {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       final firebaseUser = userCredential.user;
       if (firebaseUser == null) {
         PingLog.pingLog("---Firebase user is null after sign-in.---");
@@ -81,15 +85,11 @@ class GoogleSignInButton extends StatelessWidget {
       }
 
       if (context.mounted) {
-        final userDoc = await FirebaseFirestore.instance
-            .collection("users")
-            .doc(firebaseUser.uid)
-            .get();
+        final userDoc = await FirebaseFirestore.instance.collection("users").doc(firebaseUser.uid).get();
 
         if (userDoc.exists) {
           AppLifecycleService().reset();
-          AppLifecycleService()
-              .initialize(isMember: false, userId: firebaseUser.uid);
+          AppLifecycleService().initialize(isMember: false, userId: firebaseUser.uid);
           FirebaseNotificationService().updateTeamLeadFcmToken(firebaseUser.uid);
           replaceAll(const DashboardView());
         } else {

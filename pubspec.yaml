@@ -71,6 +71,7 @@ dependencies:
 #  flutter_background_service: ^5.1.0
   vibration: ^3.0.0
   universal_io: ^2.2.2
+  just_audio: ^0.9.46
 
 
 

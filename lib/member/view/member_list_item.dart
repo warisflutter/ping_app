@@ -13,7 +13,7 @@ import 'package:ping_app/member/view/add_member_view/member_manage_view.dart';
 import 'package:ping_app/member/view/add_member_view/member_qr_code.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
-import 'package:ping_app/notification/repo/notification_service.dart';
+import 'package:ping_app/services/notification_service.dart';
 import 'package:ping_app/util/audio/ping_audio_record.dart';
 import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';

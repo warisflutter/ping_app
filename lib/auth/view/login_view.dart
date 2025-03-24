@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -73,7 +72,9 @@ class _LoginViewState extends State<LoginView> {
                         const SizedBox(height: 40),
                         GoogleSignInButton(onSignedIn: () => pop()),
                         const SizedBox(height: 16),
-                        (Platform.isIOS) ? AppleSignInButton(onSignedIn: () => pop()) : const SizedBox.shrink(),
+                        (defaultTargetPlatform == TargetPlatform.iOS)
+                            ? AppleSignInButton(onSignedIn: () => pop())
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ],
