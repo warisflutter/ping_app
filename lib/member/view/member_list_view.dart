@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -7,9 +5,9 @@ import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/auth/repo/ping_auth_state.dart';
 import 'package:ping_app/auth/view/create_account_view.dart';
 import 'package:ping_app/dashboard/dashboard_mode.dart';
-import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/member/repo/member_repo.dart';
+import 'package:ping_app/member/repo/member_state.dart';
 import 'package:ping_app/member/view/member_list_item.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
@@ -18,8 +16,6 @@ import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
-import 'package:ping_app/view/voucher/voucher_provider.dart';
-import 'package:ping_app/watch_os/watch_repo.dart';
 import 'package:provider/provider.dart';
 
 class MemberListView extends StatefulWidget {
@@ -175,96 +171,98 @@ class _MemberListViewState extends State<MemberListView> {
                   teamName: myTeamLead.teamName,
                 ),
                 Expanded(
-                  child: Column(
-                    children: [
-                      (isTeamLead)
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ChoiceChip(
-                                    label: Text("${'t_members'.tr()} (${members.length})"),
-                                    selected: !showBlocked,
-                                    onSelected: (selected) => setState(() => showBlocked = false),
+                  child: LayoutBuilder(builder: (context, constraints) {
+                    double maxWidth = constraints.maxWidth > 800 ? 200.0 : 16.0;
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: maxWidth),
+                      child: Column(
+                        children: [
+                          (isTeamLead)
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ChoiceChip(
+                                        label: Text("${'t_members'.tr()} (${members.length})"),
+                                        selected: !showBlocked,
+                                        onSelected: (selected) => setState(() => showBlocked = false),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      ChoiceChip(
+                                        label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
+                                        selected: showBlocked,
+                                        onSelected: (selected) => setState(() => showBlocked = true),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 16),
-                                  ChoiceChip(
-                                    label: Text("${'t_blocked'.tr()} (${blockedMembers.length})"),
-                                    selected: showBlocked,
-                                    onSelected: (selected) => setState(() => showBlocked = true),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                      (isMember)
-                          ? MemberListItem(
-                              operationsBlocked: operationsBlocked,
-                              isLoggedInAsMember: isMember,
-                              currentUserModel:
-                                  isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                              listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
-                            )
-                          : const SizedBox.shrink(),
-                      const Divider(),
-                      Expanded(
-                        child: (showBlocked)
-                            ? ListView(
-                                children: blockedMembers
-                                    .map((member) => MemberListItem(
-                                          operationsBlocked: operationsBlocked,
-                                          key: ValueKey(member.id),
-                                          isLoggedInAsMember: isMember,
-                                          currentUserModel: isMember
-                                              ? ifMember!
-                                              : MemberModel.fromPingUserModel(myTeamLead),
-                                          listTimeMemberModel: member,
-                                        ))
-                                    .toList(),
-                              )
-                            : ReorderableListView(
-                                onReorder: (oldIndex, newIndex) {
-                                  final currentIds = members.map((e) => e.id).toList();
-                                  memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
-                                },
-                                children: members.map(
-                                  (member) {
-                                    if (isMember) {
-                                      if (ifMember?.name == member.name) {
-                                        return KeyedSubtree(
-                                          key: ValueKey("SizedBox-${member.id}"),
-                                          child: const SizedBox.shrink(),
-                                        );
-                                      } else {
-                                        return MemberListItem(
-                                          operationsBlocked: operationsBlocked,
-                                          key: ValueKey(member.id),
-                                          reOrderAble: true,
-                                          isLoggedInAsMember: isMember,
-                                          currentUserModel: (isMember)
-                                              ? ifMember!
-                                              : MemberModel.fromPingUserModel(myTeamLead),
-                                          listTimeMemberModel: member,
-                                        );
-                                      }
-                                    } else {
-                                      return MemberListItem(
-                                        operationsBlocked: operationsBlocked,
-                                        key: ValueKey(member.id),
-                                        reOrderAble: true,
-                                        isLoggedInAsMember: isMember,
-                                        currentUserModel: (isMember)
-                                            ? ifMember!
-                                            : MemberModel.fromPingUserModel(myTeamLead),
-                                        listTimeMemberModel: member,
-                                      );
-                                    }
-                                  },
-                                ).toList()),
+                                )
+                              : const SizedBox.shrink(),
+                          (isMember)
+                              ? MemberListItem(
+                                  operationsBlocked: operationsBlocked,
+                                  isLoggedInAsMember: isMember,
+                                  currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                  listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
+                                )
+                              : const SizedBox.shrink(),
+                          const Divider(),
+                          Expanded(
+                            child: (showBlocked)
+                                ? ListView(
+                                    children: blockedMembers
+                                        .map((member) => MemberListItem(
+                                              operationsBlocked: operationsBlocked,
+                                              key: ValueKey(member.id),
+                                              isLoggedInAsMember: isMember,
+                                              currentUserModel:
+                                                  isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                              listTimeMemberModel: member,
+                                            ))
+                                        .toList(),
+                                  )
+                                : ReorderableListView(
+                                    onReorder: (oldIndex, newIndex) {
+                                      final currentIds = members.map((e) => e.id).toList();
+                                      memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
+                                    },
+                                    children: members.map(
+                                      (member) {
+                                        if (isMember) {
+                                          if (ifMember?.name == member.name) {
+                                            return KeyedSubtree(
+                                              key: ValueKey("SizedBox-${member.id}"),
+                                              child: const SizedBox.shrink(),
+                                            );
+                                          } else {
+                                            return MemberListItem(
+                                              operationsBlocked: operationsBlocked,
+                                              key: ValueKey(member.id),
+                                              reOrderAble: true,
+                                              isLoggedInAsMember: isMember,
+                                              currentUserModel:
+                                                  (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                              listTimeMemberModel: member,
+                                            );
+                                          }
+                                        } else {
+                                          return MemberListItem(
+                                            operationsBlocked: operationsBlocked,
+                                            key: ValueKey(member.id),
+                                            reOrderAble: true,
+                                            isLoggedInAsMember: isMember,
+                                            currentUserModel:
+                                                (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                            listTimeMemberModel: member,
+                                          );
+                                        }
+                                      },
+                                    ).toList()),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  }),
                 ),
               ],
             );

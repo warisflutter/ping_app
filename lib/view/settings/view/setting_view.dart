@@ -46,225 +46,230 @@ class _SettingViewState extends State<SettingView> {
       appBar: AppBar(title: Text('t_settings'.tr())),
       body: Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, widget) {
         return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                getUserCard(pingUser),
-                const SizedBox(height: 24),
-                PingHeadingCard(title: 't_messageTemplate'.tr()),
-                ListTile(
-                  title: Text('t_allMessages'.tr()),
-                  leading: const Icon(Icons.message),
-                  onTap: () => push(const MessageListView()),
-                ),
-                ListTile(
-                  title: Text('t_broadcastGroups'.tr()),
-                  leading: const Icon(Icons.group),
-                  onTap: () => push(const BroadcastListView()),
-                ),
-                PingHeadingCard(title: 't_personalInformation'.tr()),
-                ListTile(
-                  title: Text('t_changeYourName'.tr()),
-                  leading: const Icon(Icons.person),
-                  onTap: () => push(const ChangeNameView(mode: ChangeNameMode.fullName)),
-                ),
-                ListTile(
-                  title: Text('t_changeTeamName'.tr()),
-                  leading: const Icon(Icons.group),
-                  onTap: () => push(const ChangeNameView(mode: ChangeNameMode.teamName)),
-                ),
-                ListTile(
-                  title: Text('t_changePassword'.tr()),
-                  leading: const Icon(Icons.lock),
-                  onTap: () => push(const UpdatePasswordView()),
-                ),
-                ListTile(
-                  title: Text('t_linkedProfiles'.tr()),
-                  leading: const Icon(Icons.link),
-                  onTap: () => push(const LinkedProfilesScreen()),
-                ),
-                ListTile(
-                  title: Text('t_changeLanguage'.tr()),
-                  leading: const Icon(Icons.language),
-                  onTap: () async {
-                    await push(const ChangeLanguageView());
-                    setState(() {});
-                  },
-                ),
-                PingHeadingCard(title: 't_payments'.tr()),
-                ListTile(
-                  title: Text('t_subscriptions'.tr()),
-                  leading: const Icon(Icons.payment),
-                  onTap: () {
-                    if (kIsWeb || context.isWatch) {
-                      snack(
-                        "t_Checkoutthemobileversiontoviewyoursubscriptiondetails".tr(),
-                        backgroundColor: Colors.green,
-                      );
-                      return;
-                    }
-                    if (subscriptionProvider.purchases.isEmpty) {
-                      push(const SubscriptionInfoView());
-                    } else {
-                      push(const PurchasedView());
-                    }
-                  },
-                ),
-                ListTile(
-                  title: Text('t_restorePurchase'.tr()),
-                  leading: const Icon(Icons.restore),
-                  onTap: () async {
-                    try {
+          child: LayoutBuilder(builder: (context, constraints) {
+            double maxWidth = constraints.maxWidth > 800 ? 200.0 : 16.0;
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: (kIsWeb) ? maxWidth : 16.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  getUserCard(pingUser),
+                  const SizedBox(height: 24),
+                  PingHeadingCard(title: 't_messageTemplate'.tr()),
+                  ListTile(
+                    title: Text('t_allMessages'.tr()),
+                    leading: const Icon(Icons.message),
+                    onTap: () => push(const MessageListView()),
+                  ),
+                  ListTile(
+                    title: Text('t_broadcastGroups'.tr()),
+                    leading: const Icon(Icons.group),
+                    onTap: () => push(const BroadcastListView()),
+                  ),
+                  PingHeadingCard(title: 't_personalInformation'.tr()),
+                  ListTile(
+                    title: Text('t_changeYourName'.tr()),
+                    leading: const Icon(Icons.person),
+                    onTap: () => push(const ChangeNameView(mode: ChangeNameMode.fullName)),
+                  ),
+                  ListTile(
+                    title: Text('t_changeTeamName'.tr()),
+                    leading: const Icon(Icons.group),
+                    onTap: () => push(const ChangeNameView(mode: ChangeNameMode.teamName)),
+                  ),
+                  ListTile(
+                    title: Text('t_changePassword'.tr()),
+                    leading: const Icon(Icons.lock),
+                    onTap: () => push(const UpdatePasswordView()),
+                  ),
+                  ListTile(
+                    title: Text('t_linkedProfiles'.tr()),
+                    leading: const Icon(Icons.link),
+                    onTap: () => push(const LinkedProfilesScreen()),
+                  ),
+                  ListTile(
+                    title: Text('t_changeLanguage'.tr()),
+                    leading: const Icon(Icons.language),
+                    onTap: () async {
+                      await push(const ChangeLanguageView());
+                      setState(() {});
+                    },
+                  ),
+                  PingHeadingCard(title: 't_payments'.tr()),
+                  ListTile(
+                    title: Text('t_subscriptions'.tr()),
+                    leading: const Icon(Icons.payment),
+                    onTap: () {
                       if (kIsWeb || context.isWatch) {
                         snack(
-                          "t_CheckoutTheMobileVersionToRestorePurchase".tr(),
+                          "t_Checkoutthemobileversiontoviewyoursubscriptiondetails".tr(),
                           backgroundColor: Colors.green,
                         );
                         return;
                       }
-                      await subscriptionProvider.restorePurchases();
-                      snack('t_purchasesRestored'.tr(), info: true);
-                    } catch (e) {
-                      snack(e);
-                    }
-                  },
-                ),
-                ListTile(
-                  title: Text('t_voucher'.tr()),
-                  leading: const Icon(Icons.gif_box),
-                  onTap: () async {
-                    if (kIsWeb || context.isWatch) {
-                      snack(
-                        "${"t_CheckOutTheMobileVersionToView".tr()} ${'t_voucher'.tr()}",
-                        backgroundColor: Colors.green,
-                      );
-                      return;
-                    }
-                    final adminP = Provider.of<AdminProvider>(context, listen: false);
-                    final voucherData = await adminP.fetchVoucher();
-                    debugPrint("voucherData $voucherData");
-                    if (voucherData.isEmpty || voucherData == "Voucher is Expire|Pro") {
-                      push(const VoucherView());
-                    } else {
-                      adminP.startCountDown();
-                      push(const PurchasedView());
-                    }
-                  },
-                ),
-                ListTile(
-                  title: Text('t_generateActivityReport'.tr()),
-                  leading: const Icon(Icons.newspaper),
-                  onTap: () async {
-                    final teamLead = context.read<PingAuthState>().currentPingUser;
-                    if (teamLead == null) {
-                      snack('t_teamLeadTheApp'.tr());
-                      return;
-                    }
-                    push(ActivityReportProgress(teamLeadId: teamLead.userId));
-                  },
-                ),
-                PingHeadingCard(title: 't_help'.tr()),
-                ListTile(
-                  title: Text('t_contactSupport'.tr()),
-                  leading: const Icon(Icons.help),
-                  onTap: () => push(const ContactSupport()),
-                ),
-                ListTile(
-                  title: Text('t_privacyPolicy'.tr()),
-                  leading: const Icon(Icons.privacy_tip),
-                  onTap: () {
-                    String url = "https://sites.google.com/view/pingsapp/privacy-policy";
-                    context.launchURL(url);
-                  },
-                ),
-                ListTile(
-                  title: Text('t_shareApp'.tr()),
-                  leading: const Icon(Icons.share),
-                  onTap: () => Share.share(
-                    "${"t_DownloadThePingAppNow".tr()}!! https://www.pingapp.ch",
+                      if (subscriptionProvider.purchases.isEmpty) {
+                        push(const SubscriptionInfoView());
+                      } else {
+                        push(const PurchasedView());
+                      }
+                    },
                   ),
-                ),
-                ListTile(
-                  title: Text('t_logout'.tr()),
-                  leading: const Icon(Icons.logout),
-                  // onTap: () async {
-                  //   try {
-                  //     final isConnected = await context.isInternetAvailable();
-                  //     if (isConnected) {
-                  //       String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-                  //       FirebaseFirestore.instance.collection("users").doc(uid).update({
-                  //         "isOnline": false,
-                  //         "fcm": "",
-                  //       }).then((data) {
-                  //         replaceAll(const CreateAccountView());
-                  //         FirebaseAuth.instance.signOut();
-                  //       });
-                  //     } else {
-                  //       snack("t_noInternetPleaseConnectToTheInternet".tr());
-                  //     }
-                  //   } catch (e) {
-                  //     snack(e);
-                  //   }
-                  // },
-                  onTap: () async {
-                    try {
-                      final isConnected = await context.isInternetAvailable();
-                      if (!isConnected) {
-                        snack("t_noInternetPleaseConnectToTheInternet".tr());
+                  ListTile(
+                    title: Text('t_restorePurchase'.tr()),
+                    leading: const Icon(Icons.restore),
+                    onTap: () async {
+                      try {
+                        if (kIsWeb || context.isWatch) {
+                          snack(
+                            "t_CheckoutTheMobileVersionToRestorePurchase".tr(),
+                            backgroundColor: Colors.green,
+                          );
+                          return;
+                        }
+                        await subscriptionProvider.restorePurchases();
+                        snack('t_purchasesRestored'.tr(), info: true);
+                      } catch (e) {
+                        snack(e);
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: Text('t_voucher'.tr()),
+                    leading: const Icon(Icons.gif_box),
+                    onTap: () async {
+                      if (kIsWeb || context.isWatch) {
+                        snack(
+                          "${"t_CheckOutTheMobileVersionToView".tr()} ${'t_voucher'.tr()}",
+                          backgroundColor: Colors.green,
+                        );
                         return;
                       }
-
-                      String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-                      String? fcmToken = await FirebaseMessaging.instance.getToken();
-
-                      if (fcmToken != null) {
-                        FirebaseNotificationService().removeToken(
-                          fcmToken: fcmToken,
-                          uid: uid,
-                          collectionName: "users",
-                        );
+                      final adminP = Provider.of<AdminProvider>(context, listen: false);
+                      final voucherData = await adminP.fetchVoucher();
+                      debugPrint("voucherData $voucherData");
+                      if (voucherData.isEmpty || voucherData == "Voucher is Expire|Pro") {
+                        push(const VoucherView());
+                      } else {
+                        adminP.startCountDown();
+                        push(const PurchasedView());
                       }
-
-                      replaceAll(const CreateAccountView());
-                      await FirebaseAuth.instance.signOut();
-                    } catch (e) {
-                      snack(e.toString());
-                    }
-                  },
-                ),
-                ListTile(
-                  title: Text(
-                    't_deleteAccount'.tr(),
-                    style: const TextStyle(color: Colors.red),
+                    },
                   ),
-                  leading: const Icon(Icons.delete_outline, color: Colors.red),
-                  onTap: () {
-                    sureDialog(
-                      context: context,
-                      title: 't_deleteAccount'.tr(),
-                      message: 't_areYouSameEmail'.tr(),
-                      onYes: () async {
-                        try {
-                          final isConnected = await context.isInternetAvailable();
-                          if (isConnected) {
-                            replaceAll(const CreateAccountView());
-                            await AuthRepo.instance.deleteUser();
-                            snack('t_accountDeletedSuccessfully'.tr());
-                          } else {
-                            snack("t_noInternetPleaseConnectToTheInternet".tr());
-                          }
-                        } catch (e) {
-                          snack(e);
+                  ListTile(
+                    title: Text('t_generateActivityReport'.tr()),
+                    leading: const Icon(Icons.newspaper),
+                    onTap: () async {
+                      final teamLead = context.read<PingAuthState>().currentPingUser;
+                      if (teamLead == null) {
+                        snack('t_teamLeadTheApp'.tr());
+                        return;
+                      }
+                      push(ActivityReportProgress(teamLeadId: teamLead.userId));
+                    },
+                  ),
+                  PingHeadingCard(title: 't_help'.tr()),
+                  ListTile(
+                    title: Text('t_contactSupport'.tr()),
+                    leading: const Icon(Icons.help),
+                    onTap: () => push(const ContactSupport()),
+                  ),
+                  ListTile(
+                    title: Text('t_privacyPolicy'.tr()),
+                    leading: const Icon(Icons.privacy_tip),
+                    onTap: () {
+                      String url = "https://sites.google.com/view/pingsapp/privacy-policy";
+                      context.launchURL(url);
+                    },
+                  ),
+                  ListTile(
+                    title: Text('t_shareApp'.tr()),
+                    leading: const Icon(Icons.share),
+                    onTap: () => Share.share(
+                      "${"t_DownloadThePingAppNow".tr()}!! https://www.pingapp.ch",
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('t_logout'.tr()),
+                    leading: const Icon(Icons.logout),
+                    // onTap: () async {
+                    //   try {
+                    //     final isConnected = await context.isInternetAvailable();
+                    //     if (isConnected) {
+                    //       String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
+                    //       FirebaseFirestore.instance.collection("users").doc(uid).update({
+                    //         "isOnline": false,
+                    //         "fcm": "",
+                    //       }).then((data) {
+                    //         replaceAll(const CreateAccountView());
+                    //         FirebaseAuth.instance.signOut();
+                    //       });
+                    //     } else {
+                    //       snack("t_noInternetPleaseConnectToTheInternet".tr());
+                    //     }
+                    //   } catch (e) {
+                    //     snack(e);
+                    //   }
+                    // },
+                    onTap: () async {
+                      try {
+                        final isConnected = await context.isInternetAvailable();
+                        if (!isConnected) {
+                          snack("t_noInternetPleaseConnectToTheInternet".tr());
+                          return;
                         }
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+
+                        String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
+                        String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+                        if (fcmToken != null) {
+                          FirebaseNotificationService().removeToken(
+                            fcmToken: fcmToken,
+                            uid: uid,
+                            collectionName: "users",
+                          );
+                        }
+
+                        replaceAll(const CreateAccountView());
+                        await FirebaseAuth.instance.signOut();
+                      } catch (e) {
+                        snack(e.toString());
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                      't_deleteAccount'.tr(),
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    leading: const Icon(Icons.delete_outline, color: Colors.red),
+                    onTap: () {
+                      sureDialog(
+                        context: context,
+                        title: 't_deleteAccount'.tr(),
+                        message: 't_areYouSameEmail'.tr(),
+                        onYes: () async {
+                          try {
+                            final isConnected = await context.isInternetAvailable();
+                            if (isConnected) {
+                              replaceAll(const CreateAccountView());
+                              await AuthRepo.instance.deleteUser();
+                              snack('t_accountDeletedSuccessfully'.tr());
+                            } else {
+                              snack("t_noInternetPleaseConnectToTheInternet".tr());
+                            }
+                          } catch (e) {
+                            snack(e);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            );
+          }),
         );
       }),
     );
