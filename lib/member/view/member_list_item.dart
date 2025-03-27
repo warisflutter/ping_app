@@ -90,7 +90,7 @@ class _MemberListItemState extends State<MemberListItem> {
   Widget build(BuildContext context) {
     final color = widget.listTimeMemberModel.memberColor;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
@@ -113,13 +113,14 @@ class _MemberListItemState extends State<MemberListItem> {
                   ),
                 ),
                 child: Center(
-                    child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Text(
-                    widget.listTimeMemberModel.initials,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Text(
+                      widget.listTimeMemberModel.initials,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                )),
+                ),
               ),
               Expanded(
                 child: Padding(
