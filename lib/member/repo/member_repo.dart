@@ -17,13 +17,11 @@ class MemberRepo {
   MemberRepo._();
 
   final _memberCollection = FirebaseFirestore.instance.collection('members');
-  final _memberOrder = FirebaseFirestore.instance
-      .collection("members_order")
-      .doc(FirebaseAuth.instance.currentUser?.uid ?? "all");
+  final _memberOrder =
+      FirebaseFirestore.instance.collection("members_order").doc(FirebaseAuth.instance.currentUser?.uid ?? "all");
 
   //save members order (list of string)
-  Future<void> saveMemberOrder(List<String> order) =>
-      _memberOrder.set({"order": order});
+  Future<void> saveMemberOrder(List<String> order) => _memberOrder.set({"order": order});
 
   Future<List<String>> getMemberOrder() async {
     final doc = await _memberOrder.get();
@@ -70,7 +68,20 @@ class MemberRepo {
   Stream<List<MemberModel>> getMembers({
     required PingUserModel ofTeamLead,
     required String? ifMemberId,
+    String? myMemberName,
   }) {
+    // // if (myMemberName != null) {
+    // return _memberCollection
+    //     .where(MemberModel.keyTeamLeadId, isEqualTo: ofTeamLead.userId)
+    //     .where(MemberModel.keyMemberName, isEqualTo: myMemberName)
+    //     .snapshots()
+    //     .map((snapshot) {
+    //   final rawData = snapshot.docs.map((doc) {
+    //     return MemberModel.fromJson(doc.id, doc.data());
+    //   }).toList();
+    //   return rawData;
+    // });
+    // }
     return _memberCollection
         .where(
           MemberModel.keyTeamLeadId,
@@ -86,9 +97,7 @@ class MemberRepo {
   }
 
   Future<int> getMemberCount(String teamLeadId) async {
-    final snapshot = await _memberCollection
-        .where(MemberModel.keyTeamLeadId, isEqualTo: teamLeadId)
-        .get();
+    final snapshot = await _memberCollection.where(MemberModel.keyTeamLeadId, isEqualTo: teamLeadId).get();
     return snapshot.size;
   }
 
@@ -105,10 +114,8 @@ class MemberRepo {
       if (docSnapshot.exists) {
         // Ensure the field exists before accessing it
         List<String> existingTokens = [];
-        if (docSnapshot.data() != null &&
-            docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
-          existingTokens =
-              List.from(docSnapshot.get(PingUserModel.keyFcmToken));
+        if (docSnapshot.data() != null && docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
+          existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
         }
 
         // Check if userId already exists
@@ -151,8 +158,7 @@ class MemberRepo {
   Future<List<MemberModel>> getMembersByIds(List<String> memberIds) async {
     if (memberIds.isEmpty) return [];
 
-    final snapshots = await Future.wait(
-        memberIds.map((id) => _memberCollection.doc(id).get()));
+    final snapshots = await Future.wait(memberIds.map((id) => _memberCollection.doc(id).get()));
 
     return snapshots
         .where((doc) => doc.exists && doc.data() != null)

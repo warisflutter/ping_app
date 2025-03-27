@@ -122,6 +122,7 @@ class _MemberListViewState extends State<MemberListView> {
           stream: MemberRepo.instance.getMembers(
             ofTeamLead: myTeamLead,
             ifMemberId: ifMember?.id,
+            myMemberName: ifMember?.name ?? "",
           ),
           builder: (context, snap) {
             if (snap.hasError) {
@@ -226,26 +227,20 @@ class _MemberListViewState extends State<MemberListView> {
                                       final currentIds = members.map((e) => e.id).toList();
                                       memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
                                     },
-                                    children: members.map(
+                                    children: members.where((element) => ifMember?.name != element.name).map(
                                       (member) {
                                         if (isMember) {
-                                          if (ifMember?.name == member.name) {
-                                            return KeyedSubtree(
-                                              key: ValueKey("SizedBox-${member.id}"),
-                                              child: const SizedBox.shrink(),
-                                            );
-                                          } else {
-                                            return MemberListItem(
-                                              operationsBlocked: operationsBlocked,
-                                              key: ValueKey(member.id),
-                                              reOrderAble: true,
-                                              isLoggedInAsMember: isMember,
-                                              currentUserModel:
-                                                  (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                              listTimeMemberModel: member,
-                                            );
-                                          }
+                                          return MemberListItem(
+                                            operationsBlocked: operationsBlocked,
+                                            key: ValueKey(member.id),
+                                            reOrderAble: true,
+                                            isLoggedInAsMember: isMember,
+                                            currentUserModel:
+                                                (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                            listTimeMemberModel: member,
+                                          );
                                         } else {
+                                          debugPrint("===========members ${members.length}");
                                           return MemberListItem(
                                             operationsBlocked: operationsBlocked,
                                             key: ValueKey(member.id),

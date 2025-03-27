@@ -1,12 +1,13 @@
 import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/view/check_payment/check_payment_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:ping_app/file_path.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -23,7 +24,7 @@ Future<void> main() async {
   final notification = FirebaseNotificationService();
   FirebaseMessaging.onMessage.listen(
     (message) {
-      notification.handleMessage(message,playSound: true);
+      notification.handleMessage(message, playSound: true);
     },
   );
   FirebaseMessaging.onMessageOpenedApp.listen(
@@ -97,7 +98,7 @@ class _MyAppState extends State<MyApp> {
 /*
 for team lead
 funzoftapple786@gmail.com
-Fun112233
+Ping112233
 for admin
 apptweak.hafiz@gmail.com
 Ping123456
