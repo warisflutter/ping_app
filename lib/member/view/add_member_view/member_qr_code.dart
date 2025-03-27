@@ -70,9 +70,9 @@ class MemberQrCode extends StatelessWidget {
                 OutlinedButton(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: memberId));
-                    snack('t_idCopied'.tr(), info: true);
+                    snack("${'t_idCopied'.tr()}: $memberId", info: true);
                   },
-                  child: Text('t_copyUserId'.tr()),
+                  child: Text("${'t_copyUserId'.tr()}: $memberId"),
                 ),
               ],
             ),
