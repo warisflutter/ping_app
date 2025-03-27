@@ -283,5 +283,6 @@
   "t_BasicMonthly": "Basic Monthly",
   "t_BasicYearly": "Basic Yearly",
   "t_ProMonthly": "Pro Monthly",
-  "t_ProYearly": "Pro Yearly"
+  "t_ProYearly": "Pro Yearly",
+  "t_noNotificationsFound": "No Notifications Found"
 }

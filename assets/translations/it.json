@@ -279,5 +279,6 @@
   "t_BasicMonthly": "Base Mensile",
   "t_BasicYearly": "Base Annuale",
   "t_ProMonthly": "Pro Mensile",
-  "t_ProYearly": "Pro Annuale"
+  "t_ProYearly": "Pro Annuale",
+  "t_noNotificationsFound": "Nessuna notifica trovata"
 }
