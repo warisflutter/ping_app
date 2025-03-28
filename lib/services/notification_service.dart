@@ -4,7 +4,6 @@ import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +14,6 @@ import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
 import 'package:ping_app/services/firebase_service.dart';
-import 'package:ping_app/services/sp_service.dart';
 import 'package:vibration/vibration.dart';
 
 class FirebaseNotificationService {
@@ -141,25 +139,23 @@ class FirebaseNotificationService {
         if (response.statusCode != 200) {
           log('Failed to send notification. Status code: ${response.statusCode}');
           Map<String, dynamic> responseData = jsonDecode(response.body);
-          if (responseData["error"]?["status"] == "NOT_FOUND" ||
-              responseData["error"]?["details"]?.any((d) => d["errorCode"] == "UNREGISTERED") == true) {
-            debugPrint("❌ Token Expired: $token");
-            String memberId = await SPService().getMemberId();
-            if (memberId.isNotEmpty) {
-              removeToken(
-                fcmToken: token,
-                uid: memberId,
-                collectionName: "members",
-              );
-            } else {
-              removeToken(
-                fcmToken: token,
-                uid: FirebaseAuth.instance.currentUser?.uid ?? "",
-                collectionName: "users",
-              );
-            }
+          // if (responseData["error"]?["status"] == "NOT_FOUND" ||
+          //     responseData["error"]?["details"]?.any((d) => d["errorCode"] == "UNREGISTERED") == true) {
+          debugPrint("❌ Token Expired: $token");
+          bool isMember = false;
+          final user = await FirebaseFirestore.instance.doc(toId).get();
+          if (user.exists) {
+            isMember = false;
+          } else {
+            isMember = true;
           }
+          await removeToken(
+            fcmToken: token,
+            uid: toId,
+            collectionName: (isMember) ? "members" : "users",
+          );
         }
+        // }
       }
       return true;
     } catch (e, s) {
