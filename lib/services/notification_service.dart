@@ -139,23 +139,23 @@ class FirebaseNotificationService {
         if (response.statusCode != 200) {
           log('Failed to send notification. Status code: ${response.statusCode}');
           Map<String, dynamic> responseData = jsonDecode(response.body);
-          // if (responseData["error"]?["status"] == "NOT_FOUND" ||
-          //     responseData["error"]?["details"]?.any((d) => d["errorCode"] == "UNREGISTERED") == true) {
-          debugPrint("❌ Token Expired: $token");
-          bool isMember = false;
-          final user = await FirebaseFirestore.instance.doc(toId).get();
-          if (user.exists) {
-            isMember = false;
-          } else {
-            isMember = true;
+          if (responseData["error"]?["status"] == "NOT_FOUND" ||
+              responseData["error"]?["details"]?.any((d) => d["errorCode"] == "UNREGISTERED") == true) {
+            debugPrint("❌ Token Expired: $token");
+            bool isMember = false;
+            final user = await FirebaseFirestore.instance.doc(toId).get();
+            if (user.exists) {
+              isMember = false;
+            } else {
+              isMember = true;
+            }
+            await removeToken(
+              fcmToken: token,
+              uid: toId,
+              collectionName: (isMember) ? "members" : "users",
+            );
           }
-          await removeToken(
-            fcmToken: token,
-            uid: toId,
-            collectionName: (isMember) ? "members" : "users",
-          );
         }
-        // }
       }
       return true;
     } catch (e, s) {
