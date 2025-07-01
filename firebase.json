@@ -3,19 +3,28 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "pingapp-94e13",
-          "appId": "1:607056826389:android:56e1dab434cf5be2a6be1c",
+          "projectId": "ping-5657e",
+          "appId": "1:565573250233:android:018644332fe6f0c572ff68",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "pingapp-94e13",
+          "projectId": "ping-5657e",
           "configurations": {
-            "android": "1:607056826389:android:56e1dab434cf5be2a6be1c",
-            "ios": "1:607056826389:ios:dd486e80ca805ebaa6be1c",
-            "web": "1:607056826389:web:423f1ad4674d8c5ba6be1c"
+            "android": "1:565573250233:android:018644332fe6f0c572ff68",
+            "ios": "1:565573250233:ios:8c32c74b96979ca572ff68",
+            "web": "1:565573250233:web:8902c48665d3d66c72ff68",
+            "windows": "1:565573250233:web:392ffec2e9d2d53872ff68"
           }
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "ping-5657e",
+          "appId": "1:565573250233:ios:8c32c74b96979ca572ff68",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       }
     }
