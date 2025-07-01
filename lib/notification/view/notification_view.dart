@@ -7,7 +7,10 @@ import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
+import 'package:ping_app/widgets/base_widget.dart';
 import 'package:provider/provider.dart';
+
+import '../../util/ping_styles.dart';
 
 class NotificationView extends StatelessWidget {
   final DashboardMode mode;
@@ -33,8 +36,12 @@ class NotificationView extends StatelessWidget {
       member = m;
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text("t_notifications".tr())),
+    return BaseWidget(
+      showBackIcon: false,
+      title: Text(
+        "t_notifications".tr(),
+        style: (context.isWatch) ? PingStyles.watchStyle : null,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -59,34 +66,111 @@ class NotificationView extends StatelessWidget {
               return LayoutBuilder(builder: (context, constraints) {
                 double maxWidth = constraints.maxWidth > 800 ? 200.0 : 16.0;
                 return ListView.builder(
-                  padding: (kIsWeb) ? EdgeInsets.symmetric(vertical: 8.0, horizontal: maxWidth) : EdgeInsets.zero,
+                  padding: (kIsWeb) ? EdgeInsets.symmetric(vertical: 8.0, horizontal: maxWidth) : context.isWatch ? const EdgeInsets.symmetric(horizontal: 15)
+                      : EdgeInsets.zero,
                   itemCount: data.length,
                   itemBuilder: (context, index) {
                     final notification = data[index];
-                    return ListTile(
-                      leading: Icon(notification.type.icon),
-                      title: Text(notification.type.title),
-                      subtitle: Text(notification.message),
-                      trailing: notification.isResponded
-                          ? notification.response!
-                              ? const Icon(Icons.check_circle, color: Colors.green)
-                              : const Icon(Icons.cancel, color: Colors.red)
-                          : notification.isDelivered
-                              ? const Icon(Icons.done_all)
-                              : notification.sentAt != null
-                                  ? const Icon(Icons.done)
-                                  : const Icon(Icons.pending_actions),
-                      onTap: () {
-                        if (notification.type.name != "ping") {
-                          showDialog(
-                            context: context,
-                            builder: (context) => NotificationResponseDialog(
-                              notification: notification,
+                    return (context.isWatch)
+                        ? InkWell(
+                            onTap: () {
+                              // if (notification.type.name != "ping") {
+                              showDialog(
+                                context: context,
+                                builder: (context) => NotificationResponseDialog(
+                                  notification: notification,
+                                  isFromNotification: true,
+                                ),
+                              );
+                              // }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          notification.type.icon,
+                                          size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                notification.type.title,
+                                                style: (context.isWatch) ? PingStyles.watchStyle : null,
+                                              ),
+                                              Text(
+                                                softWrap: true,
+                                                notification.message,
+                                                style: (context.isWatch) ? PingStyles.watchStyle : null,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  notification.isResponded
+                                      ? notification.response!
+                                          ? Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                            )
+                                          : Icon(
+                                              Icons.cancel,
+                                              color: Colors.red,
+                                              size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                            )
+                                      : notification.isDelivered
+                                          ? Icon(
+                                              Icons.done_all,
+                                              size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                            )
+                                          : notification.sentAt != null
+                                              ? Icon(
+                                                  Icons.done,
+                                                  size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                                )
+                                              : Icon(
+                                                  Icons.pending_actions,
+                                                  size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                                ),
+                                ],
+                              ),
                             ),
+                          )
+                        : ListTile(
+                            leading: Icon(notification.type.icon),
+                            title: Text(notification.type.title),
+                            subtitle: Text(notification.message),
+                            trailing: notification.isResponded
+                                ? notification.response!
+                                    ? const Icon(Icons.check_circle, color: Colors.green)
+                                    : const Icon(Icons.cancel, color: Colors.red)
+                                : notification.isDelivered
+                                    ? const Icon(Icons.done_all)
+                                    : notification.sentAt != null
+                                        ? const Icon(Icons.done)
+                                        : const Icon(Icons.pending_actions),
+                            onTap: () {
+                              if (notification.type.name != "ping") {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => NotificationResponseDialog(
+                                    notification: notification,
+                                    isFromNotification: true,
+                                  ),
+                                );
+                              }
+                            },
                           );
-                        }
-                      },
-                    );
                   },
                 );
               });

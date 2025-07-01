@@ -9,6 +9,7 @@ class PingListTile extends StatelessWidget {
   final double? verticalH;
   final Color? iconColor, textColor;
 
+
   const PingListTile({
     super.key,
     required this.title,
@@ -27,7 +28,7 @@ class PingListTile extends StatelessWidget {
         builder: (context) => Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: (iconData == null) ? Colors.white.withOpacity(0.1) : null,
+            color: (iconData == null) ? Colors.white.withValues(alpha: .1) : null, 
             borderRadius: BorderRadius.circular(4),
           ),
           child: Padding(

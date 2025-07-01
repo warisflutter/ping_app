@@ -2,11 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/util/ping_log.dart';
-import 'package:ping_app/util/ping_utils.dart';
-import 'package:ping_app/view/settings/repo/setting_repo.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_styles.dart';
+import 'package:ping_app/util/ping_utils.dart';
+import 'package:ping_app/view/settings/repo/setting_repo.dart';
+import 'package:ping_app/widgets/base_widget.dart';
+import 'package:ping_app/widgets/global_layout_builder.dart';
+import 'package:ping_app/widgets/ping_text_field.dart';
 
 class MessageAddEditView extends StatefulWidget {
   final String? originalMessage;
@@ -31,46 +35,51 @@ class _MessageAddEditViewState extends State<MessageAddEditView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseWidget(
       key: const Key("messageAddEditView"),
-      appBar: AppBar(
-        title: Text(
-          isEditing ? 't_editMessageTemplate'.tr() : 't_addMessageTemplate'.tr(),
-        ),
+      title: Text(
+        isEditing ? 't_editMessageTemplate'.tr() : 't_addMessageTemplate'.tr(),
+        style: (context.isWatch) ? PingStyles.watchStyle : null,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                key: const Key("textFieldMessage"),
-                decoration: InputDecoration(
+        child: GlobalLayoutBuilder(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PingTextField(
+                  key: const Key("textFieldMessage"),
                   hintText: 't_enterYourMessageHere'.tr(),
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  controller: message,
+                  readOnly: loading,
                 ),
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.done,
-                controller: message,
-                readOnly: loading,
-              ),
-              const SizedBox(height: 32),
-              (loading)
-                  ? getLoader()
-                  : ElevatedButton(
-                      key: const Key("buttonAddUpdate"),
-                      onPressed: () async {
-                        final isConnected = await context.isInternetAvailable();
-                        if (isConnected) {
-                          addOrUpdateMessageAction();
-                        } else {
-                          snack("t_noInternetPleaseConnectToTheInternet".tr());
-                        }
-                      },
-                      child: Text(isEditing ? 't_update'.tr() : 't_add'.tr()),
-                    ),
-            ],
+                SizedBox(height: (context.isWatch) ? 10.0 : 32),
+                (loading)
+                    ? getLoader()
+                    : SizedBox(
+                        height: (context.isWatch) ? PingStyles.watchButtonHeight : null,
+                        child: ElevatedButton(
+                          key: const Key("buttonAddUpdate"),
+                          onPressed: () async {
+                            final isConnected = await context.isInternetAvailable();
+                            if (isConnected) {
+                              addOrUpdateMessageAction();
+                            } else {
+                              snack("t_noInternetPleaseConnectToTheInternet".tr());
+                            }
+                          },
+                          child: Text(
+                            isEditing ? 't_update'.tr() : 't_add'.tr(),
+                            style: (context.isWatch) ? PingStyles.watchStyle : null,
+                          ),
+                        ),
+                      ),
+              ],
+            ),
           ),
         ),
       ),

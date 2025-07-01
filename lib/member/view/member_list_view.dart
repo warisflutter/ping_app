@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
@@ -12,10 +13,10 @@ import 'package:ping_app/member/view/member_list_item.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_styles.dart';
 import 'package:ping_app/util/ping_utils.dart';
-import 'package:ping_app/view/admin/admin_provider.dart';
-import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
+import 'package:ping_app/widgets/base_widget.dart';
 import 'package:provider/provider.dart';
 
 class MemberListView extends StatefulWidget {
@@ -45,24 +46,27 @@ class _MemberListViewState extends State<MemberListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, _) {
-      final authState = context.watch<PingAuthState>();
-      final memberState = context.watch<MemberState>();
-      final mode = widget.mode;
-      final isTeamLead = mode.isTeamLead;
-      final isMember = mode.isMember;
-      final myTeamLead = isTeamLead ? authState.currentPingUser : memberState.teamLead;
-      final ifMember = memberState.member;
-      if (isMember && ifMember == null) {
-        return getErrorMessage(context, "");
-      }
-      if (myTeamLead == null) {
-        return getErrorMessage(context, "");
-      }
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-          title: Text(isMember ? ifMember?.name ?? "" : 't_myTeam'.tr()),
+    return Consumer<SubscriptionProvider>(
+      builder: (context, subscriptionProvider, _) {
+        final authState = context.watch<PingAuthState>();
+        final memberState = context.watch<MemberState>();
+        final mode = widget.mode;
+        final isTeamLead = mode.isTeamLead;
+        final isMember = mode.isMember;
+        final myTeamLead = isTeamLead ? authState.currentPingUser : memberState.teamLead;
+        final ifMember = memberState.member;
+        if (isMember && ifMember == null) {
+          return getErrorMessage(context, "");
+        }
+        if (myTeamLead == null) {
+          return getErrorMessage(context, "");
+        }
+        return BaseWidget(
+          showBackIcon: false,
+          title: Text(
+            isMember ? ifMember?.name ?? "" : 't_myTeam'.tr(),
+            style: (context.isWatch) ? PingStyles.watchStyle : null,
+          ),
           actions: [
             if (mode.isTeamLead)
               TextButton.icon(
@@ -70,41 +74,58 @@ class _MemberListViewState extends State<MemberListView> {
                   final isConnected = await context.isInternetAvailable();
                   if (isConnected) {
                     // subscriptionProvider.init();
+
+                    // Added to skip subscription
                     final numberOfMembers = await MemberRepo.instance.getMemberCount(myTeamLead.userId);
-                    if (subscriptionProvider.purChasedModel == null) {
-                      PingLog.pingLog("purChasedModel is null");
-                      if (context.mounted) {
-                        final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-                        final voucherData = await adminProvider.fetchVoucher();
-                        // log("voucherData $voucherData");
-                        if (voucherData.isEmpty) {
-                          // if (!context.mounted) return;
-                          // if (kIsWeb || context.isWatch) {
-                          //   snack("you need to buy subscription from mobile app");
-                          // } else {
-                          push(const SubscriptionInfoView());
-                          // }
-                        } else {
-                          subscriptionProvider.handleVoucherType(
-                            voucherData: voucherData,
-                            numberOfMembers: numberOfMembers,
-                            type: "",
-                          );
-                        }
-                      }
-                    } else {
-                      PingLog.pingLog("purChasedModel is not null");
-                      subscriptionProvider.handleSubscription(
-                        numberOfMembers: numberOfMembers,
-                        type: "",
-                      );
-                    }
-                  } else {
+                    subscriptionProvider.purChasedModel = PurChasedModel(title: 'Test', id: 'basicmonthly', details: 'Test', price: '0', perUsersAndMessages: 100);
+                    PingLog.pingLog("purChasedModel is not null");
+                    subscriptionProvider.handleSubscription(
+                      numberOfMembers: numberOfMembers,
+                      type: "",
+                    );
+
+
+                    // if (subscriptionProvider.purChasedModel == null) {
+                    //   PingLog.pingLog("purChasedModel is null");
+                    //   if (context.mounted) {
+                    //     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+                    //     final voucherData = await adminProvider.fetchVoucher();
+                    //     // log("voucherData $voucherData");
+                    //     if (voucherData.isEmpty) {
+                    //       if (!context.mounted) return;
+                    //       if (kIsWeb || context.isWatch) {
+                    //         snack("you need to buy subscription from mobile app");
+                    //       } else {
+                    //         push(const SubscriptionInfoView());
+                    //       }
+                    //     } else {
+                    //       subscriptionProvider.handleVoucherType(
+                    //         voucherData: voucherData,
+                    //         numberOfMembers: numberOfMembers,
+                    //         type: "",
+                    //       );
+                    //     }
+                    //   }
+                    // } else {
+                    //   PingLog.pingLog("purChasedModel is not null");
+                    //   subscriptionProvider.handleSubscription(
+                    //     numberOfMembers: numberOfMembers,
+                    //     type: "",
+                    //   );
+                    // }
+                  }
+                  else {
                     snack("t_noInternetPleaseConnectToTheInternetToViewSubscriptionPlans".tr());
                   }
                 },
-                icon: const Icon(Icons.add),
-                label: Text('t_addMembers'.tr()),
+                icon: Icon(
+                  Icons.add,
+                  size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                ),
+                label: Text(
+                  't_addMembers'.tr(),
+                  style: (context.isWatch) ? PingStyles.watchStyle : null,
+                ),
               ),
             if (mode.isMember)
               TextButton.icon(
@@ -113,73 +134,114 @@ class _MemberListViewState extends State<MemberListView> {
                   memberState.leaveTeam();
                   replaceAll(const CreateAccountView());
                 },
-                label: Text('t_leaveTeam'.tr()),
-                icon: const Icon(Icons.exit_to_app),
+                label: Text(
+                  't_leaveTeam'.tr(),
+                  style: (context.isWatch) ? PingStyles.watchStyle : null,
+                ),
+                icon: Icon(
+                  Icons.exit_to_app,
+                  size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                ),
               ),
           ],
-        ),
-        body: StreamBuilder<List<MemberModel>>(
-          stream: MemberRepo.instance.getMembers(
-            ofTeamLead: myTeamLead,
-            ifMemberId: ifMember?.id,
-            myMemberName: ifMember?.name ?? "",
-          ),
-          builder: (context, snap) {
-            if (snap.hasError) {
-              return getErrorMessage(context, snap.error);
-            }
-            final data = snap.data;
-            if (data == null) {
-              return getLoader();
-            }
-            if (data.isEmpty && !isMember) {
-              return getErrorMessage(context, 't_noMembersFound'.tr());
-            }
-            final operationsBlocked = (20) <= data.length;
-            final members = data.where((member) => !member.isBlocked).toList();
-            int numberOfOnlineMembersForTL = members.where((member) => member.isOnline).toList().length;
-            int numberOfOnlineMembers = 0;
-            if (isMember) {
-              numberOfOnlineMembers = members
-                  .where((member) => member.isOnline)
-                  .where((member) => member.id != memberState.member!.id)
-                  .toList()
-                  .length;
-              if (myTeamLead.isOnline == true) {
-                numberOfOnlineMembers++;
+          body: StreamBuilder<List<MemberModel>>(
+            stream: MemberRepo.instance.getMembers(
+              ofTeamLead: myTeamLead,
+              ifMemberId: ifMember?.id,
+              myMemberName: ifMember?.name ?? "",
+            ),
+            builder: (context, snap) {
+              if (snap.hasError) {
+                return getErrorMessage(context, snap.error);
               }
-            }
-            final blockedMembers = data.where((member) => member.isBlocked).toList();
-            final sortIds = memberState.idOrder;
-            if (sortIds != null) {
-              final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();
-              members.sort(
-                (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
-              );
-              members.sort(
-                (a, b) => availIds.contains(a.id)
-                    ? -1
-                    : availIds.contains(b.id)
-                        ? 1
-                        : 0,
-              );
-            }
+              final data = snap.data;
+              if (data == null) {
+                return getLoader();
+              }
+              if (data.isEmpty && !isMember) {
+                return getErrorMessage(context, 't_noMembersFound'.tr());
+              }
+              final operationsBlocked = (20) <= data.length;
+              final members = data.where((member) => !member.isBlocked).toList();
+              int numberOfOnlineMembersForTL = members.where((member) => member.isOnline).toList().length;
+              int numberOfOnlineMembers = 0;
+              if (isMember) {
+                numberOfOnlineMembers = members
+                    .where((member) => member.isOnline)
+                    .where((member) => member.id != memberState.member!.id)
+                    .toList()
+                    .length;
+                if (myTeamLead.isOnline == true) {
+                  numberOfOnlineMembers++;
+                }
+              }
+              final blockedMembers = data.where((member) => member.isBlocked).toList();
+              final sortIds = memberState.idOrder;
+              if (sortIds != null) {
+                final availIds = sortIds.where((id) => members.any((m) => m.id == id)).toList();
+                members.sort(
+                  (a, b) => availIds.indexOf(a.id) - availIds.indexOf(b.id),
+                );
+                members.sort(
+                  (a, b) => availIds.contains(a.id)
+                      ? -1
+                      : availIds.contains(b.id)
+                          ? 1
+                          : 0,
+                );
+              }
 
-            return Column(
-              children: [
-                getTeamCard(
-                  numberOfOnlineMembers: mode.isTeamLead ? numberOfOnlineMembersForTL : numberOfOnlineMembers,
-                  teamName: myTeamLead.teamName,
-                ),
-                Expanded(
-                  child: LayoutBuilder(builder: (context, constraints) {
-                    double maxWidth = constraints.maxWidth > 800 ? 200.0 : 16.0;
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: maxWidth),
-                      child: Column(
-                        children: [
-                          (isTeamLead)
-                              ? Padding(
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  double maxWidth = constraints.maxWidth > 800 ? 200.0 : 16.0;
+                  return ListView(
+                    children: [
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     FirebaseNotificationService().removeToken(
+                      //       fcmToken:
+                      //           "f5BkB_fUT0cjj8Pm_f3lxi:APA91bHw4WGPZOMyKGXbq7cgjnqpoGo7BBfmJ0cKfdWMSF4b77gmQNbmJUIjVqjSVxGdv53lh3gPrzhHuy690npnhG-6igNwxoCU1qh_IeVZP6OVMwzeHYU",
+                      //       uid: "cTLDmAFAvLPSxn2tby6D",
+                      //       collectionName: "members",
+                      //     );
+                      //   },
+                      //   child: Text(""),
+                      // ),
+                      getTeamCard(
+                        numberOfOnlineMembers: mode.isTeamLead ? numberOfOnlineMembersForTL : numberOfOnlineMembers,
+                        teamName: myTeamLead.teamName,
+                      ),
+                      (isTeamLead)
+                          ? (context.isWatch)
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: ChoiceChip(
+                                        label: Text(
+                                          "${'t_members'.tr()} (${members.length})",
+                                          style:
+                                              (context.isWatch) ? PingStyles.watchStyle.copyWith(fontSize: 6.0) : null,
+                                        ),
+                                        selected: !showBlocked,
+                                        onSelected: (selected) => setState(() => showBlocked = false),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Expanded(
+                                      child: ChoiceChip(
+                                        label: Text(
+                                          "${'t_blocked'.tr()} (${blockedMembers.length})",
+                                          style:
+                                              (context.isWatch) ? PingStyles.watchStyle.copyWith(fontSize: 6.0) : null,
+                                        ),
+                                        selected: showBlocked,
+                                        onSelected: (selected) => setState(() => showBlocked = true),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -198,73 +260,76 @@ class _MemberListViewState extends State<MemberListView> {
                                     ],
                                   ),
                                 )
-                              : const SizedBox.shrink(),
-                          (isMember)
-                              ? MemberListItem(
-                                  operationsBlocked: operationsBlocked,
-                                  isLoggedInAsMember: isMember,
-                                  currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                  listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
-                                )
-                              : const SizedBox.shrink(),
-                          const Divider(),
-                          Expanded(
-                            child: (showBlocked)
-                                ? ListView(
-                                    children: blockedMembers
-                                        .map((member) => MemberListItem(
-                                              operationsBlocked: operationsBlocked,
-                                              key: ValueKey(member.id),
-                                              isLoggedInAsMember: isMember,
-                                              currentUserModel:
-                                                  isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                              listTimeMemberModel: member,
-                                            ))
-                                        .toList(),
-                                  )
-                                : ReorderableListView(
-                                    onReorder: (oldIndex, newIndex) {
-                                      final currentIds = members.map((e) => e.id).toList();
-                                      memberState.reorderIdOrder(currentIds, oldIndex, newIndex);
-                                    },
-                                    children: members.where((element) => ifMember?.name != element.name).map(
-                                      (member) {
-                                        if (isMember) {
-                                          return MemberListItem(
-                                            operationsBlocked: operationsBlocked,
-                                            key: ValueKey(member.id),
-                                            reOrderAble: true,
-                                            isLoggedInAsMember: isMember,
-                                            currentUserModel:
-                                                (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                            listTimeMemberModel: member,
-                                          );
-                                        } else {
-                                          debugPrint("===========members ${members.length}");
-                                          return MemberListItem(
-                                            operationsBlocked: operationsBlocked,
-                                            key: ValueKey(member.id),
-                                            reOrderAble: true,
-                                            isLoggedInAsMember: isMember,
-                                            currentUserModel:
-                                                (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
-                                            listTimeMemberModel: member,
-                                          );
-                                        }
-                                      },
-                                    ).toList()),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-    });
+                          : const SizedBox.shrink(),
+                      (isMember)
+                          ? MemberListItem(
+                              operationsBlocked: operationsBlocked,
+                              isLoggedInAsMember: isMember,
+                              currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                              listTimeMemberModel: MemberModel.fromPingUserModel(myTeamLead),
+                            )
+                          : const SizedBox.shrink(),
+                      const Divider(),
+                      if (showBlocked)
+                        ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: (!kIsWeb) ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: maxWidth),
+                          children: blockedMembers
+                              .map((member) => MemberListItem(
+                                    operationsBlocked: operationsBlocked,
+                                    key: ValueKey(member.id),
+                                    isLoggedInAsMember: isMember,
+                                    currentUserModel: isMember ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                    listTimeMemberModel: member,
+                                  ))
+                              .toList(),
+                        ),
+                      if (!showBlocked)
+                        ReorderableListView(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: (!kIsWeb) ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: maxWidth),
+                            onReorder: (oldIndex, newIndex) {
+                              final currentIds = members.where((e) => e.id != memberState.member?.id).map((e) => e.id).toList();
+
+                              memberState.reorderIdOrder(currentIds, oldIndex, newIndex, memberState.member?.id ?? '');
+                            },
+                            children: members.where((element) => ifMember?.name != element.name).map(
+                              (member) {
+                                if (isMember) {
+                                  return MemberListItem(
+                                    operationsBlocked: operationsBlocked,
+                                    key: ValueKey(member.id),
+                                    reOrderAble: true,
+                                    isLoggedInAsMember: isMember,
+                                    currentUserModel:
+                                        (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                    listTimeMemberModel: member,
+                                  );
+                                } else {
+                                  debugPrint("===========members ${members.length}");
+                                  return MemberListItem(
+                                    operationsBlocked: operationsBlocked,
+                                    key: ValueKey(member.id),
+                                    reOrderAble: true,
+                                    isLoggedInAsMember: isMember,
+                                    currentUserModel:
+                                        (isMember) ? ifMember! : MemberModel.fromPingUserModel(myTeamLead),
+                                    listTimeMemberModel: member,
+                                  );
+                                }
+                              },
+                            ).toList()),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   Widget getTeamCard({
@@ -275,14 +340,17 @@ class _MemberListViewState extends State<MemberListView> {
       builder: (context, memberState, _) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: .1),
             borderRadius: BorderRadius.circular(4),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(teamName, style: Theme.of(context).textTheme.bodyLarge),
+              Text(
+                teamName,
+                style: (context.isWatch) ? PingStyles.watchStyle : Theme.of(context).textTheme.bodyLarge,
+              ),
               // Text(
               //   "${'t_online'.tr()} ($numberOfOnlineMembers)",
               //   style: Theme.of(context).textTheme.bodyLarge,

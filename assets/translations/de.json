@@ -284,5 +284,7 @@
   "t_BasicYearly": "Basis Jährlich",
   "t_ProMonthly": "Pro Monatlich",
   "t_ProYearly": "Pro Jährlich",
-  "t_noNotificationsFound": " Keine Benachrichtigungen gefunden"
+  "t_noNotificationsFound": " Keine Benachrichtigungen gefunden",
+  "t_appSettings": "App-Einstellungen",
+  "t_dialogTimer": "Dialog-Timer"
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:ping_app/file_path.dart';
+import 'package:ping_app/member/model/member_model.dart';
 import 'package:ping_app/notification/model/ping_notification_model.dart';
 import 'package:ping_app/notification/repo/notification_repo.dart';
 import 'package:ping_app/notification/view/notification_response_dialog.dart';
@@ -26,12 +26,11 @@ class FirebaseNotificationService {
     await showDialog(
       context: navigatorKey.currentState!.context,
       builder: (context) {
-        Future.delayed(const Duration(seconds: 40)).then((value) {
-          safePop();
-        });
         if (playSound) {
           playAudio();
-          startVibration();
+          if(!kIsWeb){
+            startVibration();
+          }
         }
         return NotificationResponseDialog(notification: notification);
       },
@@ -65,17 +64,15 @@ class FirebaseNotificationService {
   Future<String> getAccessToken() async {
     Map<String, String> serviceAccountJson = {
       "type": "service_account",
-      "project_id": "pingapp-94e13",
-      "private_key_id": "c16b07386e4e3bfee1d966b0f1fc2711cc4d9013",
-      "private_key":
-          "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDe4nOL/UM6YaZs\nzLul6EsuvTkE4nf0B/wqjg86A5ZY+we2pzBXMIi8ryiorVaNWuCGBI/BPUrW/pxF\nmY8Ympi4ztWEwvOyENBuxgoUXdqEjY4N1biJrVU8rMk6eMjO8CwAVDIN73o9r7Vm\nUGTYnNEFBN51sydWYHptKx8TKQugj65BEjnLdaLkElH6baJLLQreSGzvqNrwtyai\naAPOvstK/dHIYAYPfZJ3JH82cEMQpzQePEO89SyDppZl6v4R7Vt/9g6n/nXx0hbf\nf0TQr/QwL8LURUYMYbnE7BqHRrCQoBney6OfufUGLZB2N1BZO9oAShneO7xvCwXX\n5W/RKcSjAgMBAAECggEAJ7EeMKTmjwQK1j9Tf4Uxtl4eRF9sSzoMzytDTOqMoMX7\npqx5cF2FTEzJKdjMnBm9+D/hteELbeQjwkVJdXE6l1bGMYFiUqip5cBA1UWtf4OR\n86bG2UXT8x02LMKLyEZ/H4Pe8hpeo5Oh81mHzAeJNaKbV0yTSc+enchbHVdm6a23\nm/d665NO7TsV2mn+jv5xMEjrdu33E32H9BqjynORuOhAZIJswG3YAF5cARlKniBD\nL04H4fkz5NEtBtZoLFed2sTdN30K0ndLMcP2zP1UcfCOng93yr8agU+U5DOYexR1\n1PO7ilOAdvKUT0Dk1sUNNNfpJFj/EsdHgxzsf8mpEQKBgQDqm/Oh+0rAx1TAdy2a\n011QRLT6QPJWvVy3lXZTN7//X4Kb9/DSBNWNjKT7v5Z+9mIFUPe/0UznBqdLtRJc\n9b4Qw4gwlWYxqAvGaVcwJS/+nMdCtU6G+Uk+H3NBiXATHhZ1D0tJwF9ZGFZ+ZZxT\n1BFP5cOMAf94ChLMuSyIB2wrmQKBgQDzNNVxeFX+8dBi9M84NQrLihwQFtl67yUZ\nzGCScxSNTsfBek0AWD+Ogf5EG1UiD89dW1WCtsr0ABl2mpKt504EpW0DKBAtT7dn\n+WkPlQOO2YLxBvzCfeBH3xIZ23S6Nf/JPCzsLPreYaHqyJE+0HLQmqTHzl6hLuSQ\nMTQkpCm3mwKBgQDNl2KWJVepvkQn8Yh2cBkK2VrbHwT/PCw++OxbGrTW/oS/VzSj\nZvcZdxGxR4CDvDfDvuONJcZFghAjCQeRjQxFNoRnRtTqWQAQnIl6OGxprEv1ylqJ\nb3VeykK/QMiFCE3XwVJRzBICSpCpbTPkRifxo0CMtceBExrMas16Wz7QqQKBgHSw\nIMi0h+4ub2FLPDEnoepOdXByxh3pp89c8+jQNkgmSElYOKG1tajWTfy3cH1LQJ72\nN2zj7zRq58y0FTRDCnfINymQi1JyMPk9/V5wjKh5TA4A4D0gz/8r1C97z+GYDwWq\nTZNzcVpJVbqkSKvur2fPCsijB1wmd5uHQBFkgm+JAoGBAM55ugk6XIdemkjt9JX9\nmF+JIq2P47gC2oWYBXCXg+BtskOLfsGVidLcaQumd9Exj+fYAoPc0tKnGQPiMpty\nmryKtqhNDdHtabIJWLS6S9p1Fs9HOI8gutVHBvb6e04cyfHvTO4XGo0txdA3fysu\nIIIZU8QUtRwZxN9nGnoROCrN\n-----END PRIVATE KEY-----\n",
-      "client_email": "firebase-adminsdk-ydvcm@pingapp-94e13.iam.gserviceaccount.com",
-      "client_id": "100676089515935679871",
+      "project_id": "ping-5657e",
+      "private_key_id": "3e6c7873a3b65af94b2203f6627b9d3247d88ecc",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCbDbDPjjK6X+FZ\nsjPV3VX3A3j/ZthG/elZ50Elj00TTLr/1erEbRskiPHPfBBW4yIbOFDB/AwB8fQA\n5BSn7b4YzSPINKD/fS4c5zPfsW7Fd2n35zInxABpu8wZKCejzRq7rLjJtVaBgzRd\nwk8AAue8P28pWHJV5yBJsH9PBfHBxsBSdUBsZwZ3zKPbJqsvW2cuw+wWKzw04khs\n37HPushCgDBoPnZ4NV09jZh3Fj1SxX86Cmje1PPDFuf3ahd8lkwYCyok5NLd3ZVd\nrJGjusXKBQoJPTCa/mqbFcFR200jATnsyVa4icy+n46qc0yQHIGDeQpTscEH5J8o\nC0bGOPyjAgMBAAECggEAJUJedRnaFdA5gkjgzOkhobiLaHBJ05FrdEeub3ymjFc5\nboX0otwHFDn2RaIt+PsetITNXzgWmJcQR/CHCC2Iq0QMb6057PsjTB3A6OWl1TzT\nUZeUhVrDsKTIsFjmYaXFYUjppMr3LSset9McEcgg8KsbpsdSvlLKfvqzNQWcKTCe\nPczjLofkS+0LIwcZnPR+uyvpxcNBSnBJeA8QtBWDVKOR2NdPmWBIOIkOXrKl1tYZ\nUvK+jmrn5FDXtMThD2ZD20B3EGwzNqO8ChsGBA6wlesQWuesm/2uRdY/+6CUfT5w\nSoE3H6B8UoXl5obiJd2v+B/3r0syzngrIvDbpUg2eQKBgQDKckl+7E3pvAkO5Jzb\ncHT0oqb7lHSfT3Ija9cYl6Zhh/twH5VJYBPCrIuJ2MjokjLslcpUavrfsrkjYKlk\n/Fdx7ucRyZOVvOlZwQUGeDx+fN2PpPZzCa3BNqkbSGI7e3YABi5P61qSi8GhKY3U\ng6/+yZYaEaqBzPE+XcgzlZhjmQKBgQDEEfF2wC8sfO5O+Ugau0Pr+StA3Owum4f1\n23/BXBDd+gGPqj+OkULcaZFRicd5cwbQO6UbnEerBGX+LBc8fVBx0wvrBZsX8E9s\nY6Mg11wIsQaSjlhaZe653fEw3HGx+B+lh40ka+8f4YEkexrTKBoAFWXfJQ4ECozg\nkJZoT0eHmwKBgEilHCR0bTzrYaC7fmHsB7vlReBPFE46du2o++VyPZ0P67T/UFWl\nKVIZEnVjmiyCkc19rr3+KYnuGytLu11mg4Z5wOcMG26G/IFdlw0MRkDpU6QBAQKk\nvXnwwFvu7HkFw4Ectq+s97JQfinzvFY+7v+RnNA7+KBdR1Am3PlNvAI5AoGAUsaQ\nfmXchJeptEWhn0d4AWOMUzHxtCuNVsp4QRWxOUWW6yQg+PtyksMuypG0WR2qvrav\nmdx8lUKiHJBYrvzovWUwHuSa+ZxGq6fU8sR44mJ6N91Ih8GI64c7kDlA9rWeBrAX\nckzvAzKc5t3iEUtYzrg57d8i76nUl+ny1c7CkAkCgYEAoMMlI7A+7irFqM5ObtZP\nWbazc/sKJMCP7XOK+wIpeN2iAGKvLdzxydr3RBhUiIXYBfNDOU2OX5gEA5Op/j1T\nw9tjKFEFlyaK1dRYzNICeG7WQ6KDf+dV2Ytlh6iv/m8+lzz6PaPLkbfwAWLC4zvz\nwZhUjqAChRcos4//qCthjWw=\n-----END PRIVATE KEY-----\n",
+      "client_email": "firebase-adminsdk-fbsvc@ping-5657e.iam.gserviceaccount.com",
+      "client_id": "114541638195834457984",
       "auth_uri": "https://accounts.google.com/o/oauth2/auth",
       "token_uri": "https://oauth2.googleapis.com/token",
       "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-      "client_x509_cert_url":
-          "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ydvcm%40pingapp-94e13.iam.gserviceaccount.com",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40ping-5657e.iam.gserviceaccount.com",
       "universe_domain": "googleapis.com"
     };
     List<String> scopes = [
@@ -99,7 +96,7 @@ class FirebaseNotificationService {
   Future<bool> sendNotification({
     required String title,
     required String body,
-    required List<String> tokens,
+    required List<FcmEntity> tokens,
     required String fromId,
     required String toId,
     required String id,
@@ -108,19 +105,33 @@ class FirebaseNotificationService {
   }) async {
     try {
       String serverTokenKey = await getAccessToken();
-      String endPoint = "https://fcm.googleapis.com/v1/projects/pingapp-94e13/messages:send";
+      String endPoint = "https://fcm.googleapis.com/v1/projects/ping-5657e/messages:send";
 
-      for (String token in tokens) {
+      for (var token in tokens) {
         Map<String, dynamic> message = {
           "message": {
-            "token": token,
-            "notification": {"title": title, "body": body},
+            "token": token.token,
+            if(token.device != 'Web')
+            "notification": {
+              "title": title, "body": body},
             "data": {
               "id": id,
+              "title": title,
+              "body": body,
               "fromId": fromId,
               "toId": toId,
               "type": type,
               "message": messageData,
+              "click_action": "https://ping-5657e.web.app/?showDialog=true"
+                  "&type=$type"
+                  "&body=$body"
+                  "&message=${Uri.encodeComponent(messageData)}"
+                  "&id=$id"
+                  "&fromId=$fromId"
+                  "&toId=$toId"
+            },
+            "android": {
+              "priority": "high",
             },
           }
         };
@@ -141,16 +152,16 @@ class FirebaseNotificationService {
           Map<String, dynamic> responseData = jsonDecode(response.body);
           if (responseData["error"]?["status"] == "NOT_FOUND" ||
               responseData["error"]?["details"]?.any((d) => d["errorCode"] == "UNREGISTERED") == true) {
-            debugPrint("❌ Token Expired: $token");
+            debugPrint("❌ Token Expired: ${token.token} | Device: ${token.device}");
             bool isMember = false;
-            final user = await FirebaseFirestore.instance.doc(toId).get();
+            final user = await FirebaseFirestore.instance.doc('members/$toId').get();
             if (user.exists) {
-              isMember = false;
-            } else {
               isMember = true;
+            } else {
+              isMember = false;
             }
             await removeToken(
-              fcmToken: token,
+              fcmToken: token.token,
               uid: toId,
               collectionName: (isMember) ? "members" : "users",
             );
@@ -178,7 +189,7 @@ class FirebaseNotificationService {
         type: NotificationType.values[int.parse(message.data["type"])],
         toId: message.data["toId"],
         fromId: message.data["fromId"],
-        message: message.notification?.body ?? "",
+        message: message.data['body'] ?? message.data['message'] ?? ''
       );
       _showNotificationAndDeliver(context, notification, playSound: playSound);
     }
@@ -226,15 +237,22 @@ class FirebaseNotificationService {
       final docSnapshot = await docRef.get();
 
       if (docSnapshot.exists) {
-        List<dynamic> existingTokens = [];
-        if (docSnapshot.data() != null && docSnapshot.data()!.containsKey("fcm")) {
-          existingTokens = List.from(docSnapshot.get("fcm"));
+        List<FcmEntity> existingTokens = [];
+        // if (docSnapshot.data() != null && docSnapshot.data()!.containsKey("fcm")) {
+        //   existingTokens = List.from(docSnapshot.get("fcm"));
+        // }
+        if (docSnapshot.data() != null &&
+            docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
+          List<dynamic> rawList = docSnapshot.get(PingUserModel.keyFcmToken);
+          existingTokens = rawList
+              .map((item) => FcmEntity.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
         }
 
         // Remove the FCM token from the list
         existingTokens.removeWhere((token) {
-          bool data = (token == fcmToken);
-          debugPrint("Remove the FCM token from the list1 $token");
+          bool data = (token.token == fcmToken);
+          debugPrint("Remove the FCM token from the list1 ${token.token}");
           debugPrint("Remove the FCM token from the list2 $fcmToken");
           debugPrint("Remove the FCM token from the list $data");
           return data;
@@ -242,12 +260,24 @@ class FirebaseNotificationService {
 
         await docRef.update({
           "isOnline": false,
-          "fcm": existingTokens,
+          "fcm": existingTokens.map((e) => e.toJson()).toList(),
         });
         // 🔍 **Check if the token is removed**
         final updatedDoc = await docRef.get();
+        // List<dynamic> updatedTokens = updatedDoc.data()?["fcm"] ?? [];
+        // if (!updatedTokens.contains(fcmToken)) {
+        //   debugPrint("✅ Token removed successfully!");
+        // } else {
+        //   debugPrint("❌ Token still exists!");
+        // }
         List<dynamic> updatedTokens = updatedDoc.data()?["fcm"] ?? [];
-        if (!updatedTokens.contains(fcmToken)) {
+
+        bool tokenStillExists = updatedTokens.any((item) {
+          final map = Map<String, dynamic>.from(item);
+          return map['token'] == fcmToken;
+        });
+
+        if (!tokenStillExists) {
           debugPrint("✅ Token removed successfully!");
         } else {
           debugPrint("❌ Token still exists!");
@@ -292,4 +322,34 @@ class FirebaseNotificationService {
       }
     }
   }
+
+  // void checkNotificationPayloadForWeb() {
+  //   final uri = Uri.base;
+  //
+  //   if (uri.queryParameters['showDialog'] == 'true') {
+  //     final type = uri.queryParameters['type'];
+  //     final message = uri.queryParameters['message'];
+  //     final id = uri.queryParameters['id'] ?? '';
+  //     final fromId = uri.queryParameters['fromId'] ?? '';
+  //     final toId = uri.queryParameters['toId'] ?? '';
+  //
+  //     final notification = PingNotificationModel(
+  //       data: message,
+  //       id: id,
+  //       type: NotificationType.values[int.parse(type!)],
+  //       toId: toId,
+  //       fromId: fromId,
+  //       message: message ?? '',
+  //     );
+  //
+  //     // Make sure navigatorKey is already set and context is available
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       final context = navigatorKey.currentState!.context;
+  //       _showNotificationAndDeliver(context, notification);
+  //       html.window.history.replaceState(null, 'Ping', Uri.base.path);
+  //     });
+  //   }
+  // }
+
+
 }

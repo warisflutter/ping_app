@@ -1,12 +1,11 @@
 import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/file_path.dart';
 import 'package:ping_app/util/audio/ping_audio_player.dart';
 import 'package:ping_app/util/audio/ping_audio_player_web.dart';
-import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_styles.dart';
+import 'package:wear_plus/wear_plus.dart';
 
 class VerifyAudioView extends StatelessWidget {
   final File? audioFile;
@@ -17,7 +16,7 @@ class VerifyAudioView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: context.isWatch ? null : AppBar(
         centerTitle: false,
         title: Text(
           't_sendAudioMessage'.tr(),
@@ -30,8 +29,41 @@ class VerifyAudioView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    (url != null) ? PingAudioPlayerWeb(url: url) : PingAudioPlayer(file: audioFile),
                     const SizedBox(height: 8.0),
+                    WatchShape(
+                      builder: (context, shape , _) => shape == WearShape.square ? Row(
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: const Icon(Icons.arrow_back, size: 16,)),
+                              Expanded(
+                                child: Text(
+                                  't_sendAudioMessage'.tr(),
+                                  style: PingStyles.watchStyle,
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      )
+                          : Column(
+                        children: [
+                          GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: const Icon(Icons.arrow_back, size: 16,)),
+                          const SizedBox(height: 5,),
+                          Text(
+                            't_sendAudioMessage'.tr(),
+                            style: PingStyles.watchStyle,
+                          )
+                        ],
+                      ) ,
+                    ),
+                    (url != null) ? PingAudioPlayerWeb(url: url) : PingAudioPlayer(file: audioFile),
+                    const SizedBox(height: 2,),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
@@ -43,7 +75,7 @@ class VerifyAudioView extends StatelessWidget {
                                 onPressed: () => pop(data: true),
                                 style: ElevatedButton.styleFrom(
                                   textStyle: context.isWatch ? PingStyles.watchStyle : null,
-                                  padding: context.isWatch ? EdgeInsets.symmetric(vertical: 4.0) : null,
+                                  padding: context.isWatch ? const EdgeInsets.symmetric(vertical: 4.0) : null,
                                 ),
                                 child: Text('t_send'.tr()),
                               ),
@@ -57,7 +89,7 @@ class VerifyAudioView extends StatelessWidget {
                                 onPressed: () => pop(data: false),
                                 style: OutlinedButton.styleFrom(
                                   textStyle: context.isWatch ? PingStyles.watchStyle : null,
-                                  padding: context.isWatch ? EdgeInsets.symmetric(vertical: 4.0) : null,
+                                  padding: context.isWatch ? const EdgeInsets.symmetric(vertical: 4.0) : null,
                                 ),
                                 child: Text('t_cancel'.tr()),
                               ),

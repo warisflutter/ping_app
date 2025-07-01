@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,7 +14,7 @@ import 'package:ping_app/broadcast/view/broadcast_list_view.dart';
 import 'package:ping_app/services/notification_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
-import 'package:ping_app/util/ping_heading_card.dart';
+import 'package:ping_app/util/ping_styles.dart';
 import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/view/admin/admin_provider.dart';
 import 'package:ping_app/view/settings/view/change_language/change_language_view.dart';
@@ -25,8 +28,12 @@ import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:ping_app/view/update_password/update_password_view.dart';
 import 'package:ping_app/view/voucher/voucher_view.dart';
+import 'package:ping_app/widgets/base_widget.dart';
+import 'package:ping_app/widgets/ping_list_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+
+import '../../../widgets/numeric_list_tile.dart';
 
 class SettingView extends StatefulWidget {
   const SettingView({super.key});
@@ -36,14 +43,27 @@ class SettingView extends StatefulWidget {
 }
 
 class _SettingViewState extends State<SettingView> {
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final pingUser = context.watch<PingAuthState>().currentPingUser;
     if (pingUser == null) {
       return getErrorMessage(context, "");
     }
-    return Scaffold(
-      appBar: AppBar(title: Text('t_settings'.tr())),
+    // controller.text = pingUser.dialogTimer.toString();
+    return BaseWidget(
+      showBackIcon: false,
+      title: Text(
+        "t_settings".tr(),
+        style: (context.isWatch) ? PingStyles.watchStyle : null,
+      ),
       body: Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, widget) {
         return SingleChildScrollView(
           child: LayoutBuilder(builder: (context, constraints) {
@@ -56,51 +76,51 @@ class _SettingViewState extends State<SettingView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   getUserCard(pingUser),
-                  const SizedBox(height: 24),
-                  PingHeadingCard(title: 't_messageTemplate'.tr()),
-                  ListTile(
-                    title: Text('t_allMessages'.tr()),
-                    leading: const Icon(Icons.message),
+                  SizedBox(height: (context.isWatch) ? 8.0 : 24),
+                  PingListTile(title: 't_messageTemplate'.tr()),
+                  PingListTile(
+                    title: 't_allMessages'.tr(),
+                    iconData: Icons.message,
                     onTap: () => push(const MessageListView()),
                   ),
-                  ListTile(
-                    title: Text('t_broadcastGroups'.tr()),
-                    leading: const Icon(Icons.group),
+                  PingListTile(
+                    title: 't_broadcastGroups'.tr(),
+                    iconData: Icons.group,
                     onTap: () => push(const BroadcastListView()),
                   ),
-                  PingHeadingCard(title: 't_personalInformation'.tr()),
-                  ListTile(
-                    title: Text('t_changeYourName'.tr()),
-                    leading: const Icon(Icons.person),
+                  PingListTile(title: 't_personalInformation'.tr()),
+                  PingListTile(
+                    title: 't_changeYourName'.tr(),
+                    iconData: Icons.person,
                     onTap: () => push(const ChangeNameView(mode: ChangeNameMode.fullName)),
                   ),
-                  ListTile(
-                    title: Text('t_changeTeamName'.tr()),
-                    leading: const Icon(Icons.group),
+                  PingListTile(
+                    title: 't_changeTeamName'.tr(),
+                    iconData: Icons.group,
                     onTap: () => push(const ChangeNameView(mode: ChangeNameMode.teamName)),
                   ),
-                  ListTile(
-                    title: Text('t_changePassword'.tr()),
-                    leading: const Icon(Icons.lock),
+                  PingListTile(
+                    title: 't_changePassword'.tr(),
+                    iconData: Icons.lock,
                     onTap: () => push(const UpdatePasswordView()),
                   ),
-                  ListTile(
-                    title: Text('t_linkedProfiles'.tr()),
-                    leading: const Icon(Icons.link),
+                  PingListTile(
+                    title: 't_linkedProfiles'.tr(),
+                    iconData: Icons.link,
                     onTap: () => push(const LinkedProfilesScreen()),
                   ),
-                  ListTile(
-                    title: Text('t_changeLanguage'.tr()),
-                    leading: const Icon(Icons.language),
+                  PingListTile(
+                    title: 't_changeLanguage'.tr(),
+                    iconData: Icons.language,
                     onTap: () async {
                       await push(const ChangeLanguageView());
                       setState(() {});
                     },
                   ),
-                  PingHeadingCard(title: 't_payments'.tr()),
-                  ListTile(
-                    title: Text('t_subscriptions'.tr()),
-                    leading: const Icon(Icons.payment),
+                  PingListTile(title: 't_payments'.tr()),
+                  PingListTile(
+                    title: 't_subscriptions'.tr(),
+                    iconData: Icons.payment,
                     onTap: () {
                       if (kIsWeb || context.isWatch) {
                         snack(
@@ -116,9 +136,9 @@ class _SettingViewState extends State<SettingView> {
                       }
                     },
                   ),
-                  ListTile(
-                    title: Text('t_restorePurchase'.tr()),
-                    leading: const Icon(Icons.restore),
+                  PingListTile(
+                    title: 't_restorePurchase'.tr(),
+                    iconData: Icons.restore,
                     onTap: () async {
                       try {
                         if (kIsWeb || context.isWatch) {
@@ -135,9 +155,9 @@ class _SettingViewState extends State<SettingView> {
                       }
                     },
                   ),
-                  ListTile(
-                    title: Text('t_voucher'.tr()),
-                    leading: const Icon(Icons.gif_box),
+                  PingListTile(
+                    title: 't_voucher'.tr(),
+                    iconData: Icons.gif_box,
                     onTap: () async {
                       if (kIsWeb || context.isWatch) {
                         snack(
@@ -157,9 +177,9 @@ class _SettingViewState extends State<SettingView> {
                       }
                     },
                   ),
-                  ListTile(
-                    title: Text('t_generateActivityReport'.tr()),
-                    leading: const Icon(Icons.newspaper),
+                  PingListTile(
+                    title: 't_generateActivityReport'.tr(),
+                    iconData: Icons.newspaper,
                     onTap: () async {
                       final teamLead = context.read<PingAuthState>().currentPingUser;
                       if (teamLead == null) {
@@ -169,49 +189,49 @@ class _SettingViewState extends State<SettingView> {
                       push(ActivityReportProgress(teamLeadId: teamLead.userId));
                     },
                   ),
-                  PingHeadingCard(title: 't_help'.tr()),
-                  ListTile(
-                    title: Text('t_contactSupport'.tr()),
-                    leading: const Icon(Icons.help),
+                  PingListTile(title: 't_appSettings'.tr()),
+                StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance.collection('users').doc(pingUser.userId).snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const LinearProgressIndicator();
+
+                    final data = snapshot.data!.data() as Map<String, dynamic>;
+                    final dialogTimer = data['dialogTimer'] ?? 0;
+                    controller.text = dialogTimer.toString();
+                    return NumericListTile(
+                      title: "Dialog Timer",
+                      controller: controller,
+                      uid: pingUser.userId,
+                      iconData: Icons.timer,
+                      iconColor: Colors.white,
+                    );
+                  },
+                ),
+                  // NumericListTile(title: 't_dialogTimer'.tr(), iconData: Icons.access_alarm, controller: controller, uid: pingUser.userId,),
+                  PingListTile(title: 't_help'.tr()),
+                  PingListTile(
+                    title: 't_contactSupport'.tr(),
+                    iconData: Icons.help,
                     onTap: () => push(const ContactSupport()),
                   ),
-                  ListTile(
-                    title: Text('t_privacyPolicy'.tr()),
-                    leading: const Icon(Icons.privacy_tip),
+                  PingListTile(
+                    title: 't_privacyPolicy'.tr(),
+                    iconData: Icons.privacy_tip,
                     onTap: () {
                       String url = "https://sites.google.com/view/pingsapp/privacy-policy";
                       context.launchURL(url);
                     },
                   ),
-                  ListTile(
-                    title: Text('t_shareApp'.tr()),
-                    leading: const Icon(Icons.share),
+                  PingListTile(
+                    title: 't_shareApp'.tr(),
+                    iconData: Icons.share,
                     onTap: () => Share.share(
                       "${"t_DownloadThePingAppNow".tr()}!! https://www.pingapp.ch",
                     ),
                   ),
-                  ListTile(
-                    title: Text('t_logout'.tr()),
-                    leading: const Icon(Icons.logout),
-                    // onTap: () async {
-                    //   try {
-                    //     final isConnected = await context.isInternetAvailable();
-                    //     if (isConnected) {
-                    //       String uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-                    //       FirebaseFirestore.instance.collection("users").doc(uid).update({
-                    //         "isOnline": false,
-                    //         "fcm": "",
-                    //       }).then((data) {
-                    //         replaceAll(const CreateAccountView());
-                    //         FirebaseAuth.instance.signOut();
-                    //       });
-                    //     } else {
-                    //       snack("t_noInternetPleaseConnectToTheInternet".tr());
-                    //     }
-                    //   } catch (e) {
-                    //     snack(e);
-                    //   }
-                    // },
+                  PingListTile(
+                    title: 't_logout'.tr(),
+                    iconData: Icons.logout,
                     onTap: () async {
                       try {
                         final isConnected = await context.isInternetAvailable();
@@ -230,7 +250,6 @@ class _SettingViewState extends State<SettingView> {
                             collectionName: "users",
                           );
                         }
-
                         replaceAll(const CreateAccountView());
                         await FirebaseAuth.instance.signOut();
                       } catch (e) {
@@ -238,12 +257,9 @@ class _SettingViewState extends State<SettingView> {
                       }
                     },
                   ),
-                  ListTile(
-                    title: Text(
-                      't_deleteAccount'.tr(),
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  PingListTile(
+                    title: 't_deleteAccount'.tr(),
+                    iconData: Icons.delete_outline,
                     onTap: () {
                       sureDialog(
                         context: context,
@@ -281,11 +297,23 @@ class _SettingViewState extends State<SettingView> {
         alignment: Alignment.center,
         child: Column(
           children: [
-            const CircleAvatar(radius: 32, child: Icon(Icons.person, size: 40)),
+            CircleAvatar(
+              radius: (context.isWatch) ? PingStyles.watchIconSize : 32,
+              child: Icon(
+                Icons.person,
+                size: (context.isWatch) ? PingStyles.watchIconSize : 40,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(pingUser.fullName, style: Theme.of(context).textTheme.bodyLarge),
+            Text(
+              pingUser.fullName,
+              style: (context.isWatch) ? PingStyles.watchStyle : Theme.of(context).textTheme.bodyLarge,
+            ),
             const SizedBox(height: 4),
-            Text(pingUser.email, style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              pingUser.email,
+              style: (context.isWatch) ? PingStyles.watchStyle : Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
       ),

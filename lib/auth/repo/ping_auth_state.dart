@@ -32,7 +32,6 @@ class PingAuthState extends ChangeNotifier {
         _firebaseUser = user;
         _pingUser = await AuthRepo.instance.getUserById(user.uid);
       }
-
       _loading = false;
       notifyListeners();
     });

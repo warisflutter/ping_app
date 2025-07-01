@@ -30,10 +30,7 @@ class DefaultFirebaseOptions {
               'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -47,31 +44,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDcfFrP7s861I78UTBKX6EsBCExDAOCuZ0',
-    appId: '1:607056826389:web:423f1ad4674d8c5ba6be1c',
-    messagingSenderId: '607056826389',
-    projectId: 'pingapp-94e13',
-    authDomain: 'pingapp-94e13.firebaseapp.com',
-    storageBucket: 'pingapp-94e13.firebasestorage.app',
-    measurementId: 'G-3FMTLXTTL8',
+    apiKey: 'AIzaSyBZmTuB7UejW9oGNkR5-HeGNBY1a93fq9o',
+    appId: '1:565573250233:web:8902c48665d3d66c72ff68',
+    messagingSenderId: '565573250233',
+    projectId: 'ping-5657e',
+    authDomain: 'ping-5657e.firebaseapp.com',
+    storageBucket: 'ping-5657e.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAj-Ds-KrosuhllhHc78f0OlLOO94W22Dk',
-    appId: '1:607056826389:android:56e1dab434cf5be2a6be1c',
-    messagingSenderId: '607056826389',
-    projectId: 'pingapp-94e13',
-    storageBucket: 'pingapp-94e13.firebasestorage.app',
+    apiKey: 'AIzaSyBTAfaKmW87rLctyES4KOpBblruQ4lOngo',
+    appId: '1:565573250233:android:018644332fe6f0c572ff68',
+    messagingSenderId: '565573250233',
+    projectId: 'ping-5657e',
+    storageBucket: 'ping-5657e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCDfx4Eh2ZVajvd9yTnTKEKGScjIpiicJY',
-    appId: '1:607056826389:ios:dd486e80ca805ebaa6be1c',
-    messagingSenderId: '607056826389',
-    projectId: 'pingapp-94e13',
-    storageBucket: 'pingapp-94e13.firebasestorage.app',
-    androidClientId: '607056826389-st08hq2j8ald2eg2si8colt24mi4a5i8.apps.googleusercontent.com',
-    iosClientId: '607056826389-6dugrh1bl521559ga4nljlsjnub9nqi8.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBdniBQIIZknf6G43Oq87KJqXrEDYxi7Rc',
+    appId: '1:565573250233:ios:8c32c74b96979ca572ff68',
+    messagingSenderId: '565573250233',
+    projectId: 'ping-5657e',
+    storageBucket: 'ping-5657e.firebasestorage.app',
     iosBundleId: 'com.martin.pingapp.pingApp',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBZmTuB7UejW9oGNkR5-HeGNBY1a93fq9o',
+    appId: '1:565573250233:web:392ffec2e9d2d53872ff68',
+    messagingSenderId: '565573250233',
+    projectId: 'ping-5657e',
+    authDomain: 'ping-5657e.firebaseapp.com',
+    storageBucket: 'ping-5657e.firebasestorage.app',
+  );
+
 }

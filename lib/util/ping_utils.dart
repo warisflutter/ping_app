@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_styles.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 extension PingUtils on BuildContext {
@@ -41,7 +42,6 @@ extension PingUtils on BuildContext {
   }
 
   Future<bool> isInternetAvailable() async {
-    bool value = false;
     if (kIsWeb) {
       PingLog.pingLog("Running on the web, assuming network is available.");
       return true;
@@ -64,7 +64,7 @@ extension PingUtils on BuildContext {
         PingLog.pingLog('Unexpected error: $e');
         return false;
       }
-      return value;
+      // return value;
     }
   }
 
@@ -73,10 +73,58 @@ extension PingUtils on BuildContext {
     required String title,
     required String type,
   }) {
-    return showDialog<bool>(
+    return showAdaptiveDialog<bool>(
       context: navigatorKey.currentState!.context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return context.isWatch ?
+            Material(
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0),
+                    color: Colors.black,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400
+                        ),
+                      ),
+                      const SizedBox(height: 5,),
+                      type == "Ping"
+                          ? Text(
+                        "${"t_AreYouSureYouWantToSend".tr()} $type",
+                        style: PingStyles.watchStyle,
+                      )
+                          : Text(
+                        message,
+                        style: PingStyles.watchStyle,
+                      ),
+                      const SizedBox(height: 10,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          InkWell(
+                              onTap: () => Navigator.of(context).pop(false),
+                              child: Text("t_cancel".tr(), style: PingStyles.watchStyle,)),
+                          const SizedBox(width: 10,),
+                          InkWell(
+                              onTap: () => Navigator.of(context).pop(true),
+                              child: Text("t_send".tr(), style: PingStyles.watchStyle,)),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+        : AlertDialog(
           title: Text(
             title,
             style: const TextStyle(

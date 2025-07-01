@@ -4,6 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/file_path.dart';
+import 'package:ping_app/util/ping_styles.dart';
+import 'package:ping_app/widgets/ping_text_field.dart';
+
+import '../../widgets/base_widget.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -17,11 +21,11 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
 
   final email = TextEditingController(
-    text: kDebugMode ? "apptweak.hafiz@gmail.com" : "",
+    text: kDebugMode ? "hashirflutter@devvibe.com" : "",
   );
 
   final password = TextEditingController(
-    text: kDebugMode ? "Ping123456" : "",
+    text: kDebugMode ? "DevVibe123." : "",
   );
 
   @override
@@ -30,9 +34,9 @@ class _LoginViewState extends State<LoginView> {
     final screenHeight = context.screenHeight;
     bool addTopPadding = screenHeight > maxDesktopHeight;
 
-    return Scaffold(
+    return BaseWidget(
       key: const Key("loginView"),
-      appBar: AppBar(title: const Text("")),
+      // appBar: AppBar(title: const Text("")),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -46,11 +50,18 @@ class _LoginViewState extends State<LoginView> {
                 child: Column(
                   children: [
                     if (kIsWeb && addTopPadding) SizedBox(height: mainSpacing),
-                    getLogo(context),
+                    Image.asset(
+                      'assets/images/logo.png',
+                      height: (context.isWatch) ? PingStyles.watchLogoHeight : 120,
+                    ),
                     SizedBox(height: mainSpacing),
                     Text(
                       't_signInYourAccount'.tr(),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: (context.isWatch)
+                          ? PingStyles.watchStyle
+                          : Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     SizedBox(height: mainSpacing),
                     getForm(),
@@ -60,18 +71,35 @@ class _LoginViewState extends State<LoginView> {
                       children: [
                         loading
                             ? getLoader()
-                            : ElevatedButton(
-                                key: const Key("buttonSignIn"),
-                                onPressed: () => _onSignInClicked(),
-                                child: Text('t_signIn'.tr()),
+                            : SizedBox(
+                                height: context.isWatch ? 30 : null,
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    fixedSize: (context.isWatch)
+                                        ? WidgetStatePropertyAll(Size.fromHeight(PingStyles.watchButtonHeight))
+                                        : null,
+                                  ),
+                                  key: const Key("buttonSignIn"),
+                                  onPressed: () => _onSignInClicked(),
+                                  child: Text(
+                                    't_signIn'.tr(),
+                                    style: (context.isWatch) ? PingStyles.watchStyle : null,
+                                  ),
+                                ),
                               ),
-                        TextButton(
-                          onPressed: () => _onForgotPasswordClicked(),
-                          child: Text('t_forgotYourPassword'.tr()),
+                        SizedBox(
+                          height: context.isWatch ? 30 : null,
+                          child: TextButton(
+                            onPressed: () => _onForgotPasswordClicked(),
+                            child: Text(
+                              't_forgotYourPassword'.tr(),
+                              style: context.isWatch ? PingStyles.watchStyle : null,
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 40),
+                        SizedBox(height: context.isWatch ? 0.0 : 40),
                         GoogleSignInButton(onSignedIn: () => pop()),
-                        const SizedBox(height: 16),
+                        SizedBox(height: context.isWatch ? 10 : 16),
                         (defaultTargetPlatform == TargetPlatform.iOS)
                             ? AppleSignInButton(onSignedIn: () => pop())
                             : const SizedBox.shrink(),
@@ -132,12 +160,10 @@ class _LoginViewState extends State<LoginView> {
       key: _formKey,
       child: Column(
         children: [
-          TextFormField(
+          PingTextField(
             key: const Key("inputEmail"),
-            decoration: InputDecoration(
-              hintText: 't_email'.tr(),
-              prefixIcon: const Icon(Icons.email),
-            ),
+            hintText: 't_email'.tr(),
+            prefixIcon: Icons.email,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             validator: emailValidator,
@@ -145,12 +171,10 @@ class _LoginViewState extends State<LoginView> {
             readOnly: loading,
           ),
           const SizedBox(height: 8),
-          TextFormField(
+          PingTextField(
             key: const Key("inputPassword"),
-            decoration: InputDecoration(
-              hintText: 't_password'.tr(),
-              prefixIcon: const Icon(Icons.lock),
-            ),
+            hintText: 't_password'.tr(),
+            prefixIcon: Icons.lock,
             keyboardType: TextInputType.text,
             obscureText: true,
             textInputAction: TextInputAction.next,

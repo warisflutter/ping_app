@@ -39,7 +39,6 @@ class NotificationRepo {
     } catch (e, st) {
       log("Error: $e");
       log("Stack trace: $st");
-
       rethrow;
     }
   }
@@ -61,19 +60,19 @@ class NotificationRepo {
       "deliveredAt": null,
       "response": null
     };
-    List<String>? token;
+    List<FcmEntity>? token;
     String? receiverName;
     final res = await notificationCollection.add(n);
     final doc = await notificationCollection.doc(res.id).get();
     final newData = PingNotificationModel.fromJson(res.id, doc.data()!);
     DocumentSnapshot membersDoc = await FirebaseFirestore.instance.collection('members').doc(toId).get();
     if (membersDoc.exists) {
-      token = membersDoc['fcm'] ?? '';
+      token = membersDoc['fcm'] ?? [];
       receiverName = membersDoc['name'] ?? '';
     } else {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(toId).get();
       if (userDoc.exists) {
-        token = userDoc['fcm'] ?? '';
+        token = userDoc['fcm'] ?? [];
         receiverName = userDoc['fullName'] ?? '';
       }
     }
@@ -168,7 +167,26 @@ class NotificationRepo {
     }
   }
 
-  Future<void> sendDataAudioNotification(MemberModel fromMember, MemberModel toMember, Uint8List data) async {
+  // Future<void> sendDataAudioNotification(MemberModel fromMember, MemberModel toMember, Uint8List data) async {
+  //   final doc = notificationCollection.doc();
+  //   final fileUrl = await uploadDataAndGetUrl(doc.id, data);
+  //
+  //   final n = PingNotificationModel(
+  //     fromId: fromMember.id,
+  //     toId: toMember.id,
+  //     type: NotificationType.audioMessage,
+  //     message: "${fromMember.name} ${'t_sentYouAudioMessage'.tr()}",
+  //     data: fileUrl,
+  //   );
+  //
+  //   await doc.set(n.toJson());
+  // }
+
+  Future<({String data, String id})> sendDataAudioNotification(
+      MemberModel fromMember,
+      MemberModel toMember,
+      Uint8List data,
+      ) async {
     final doc = notificationCollection.doc();
     final fileUrl = await uploadDataAndGetUrl(doc.id, data);
 
@@ -181,6 +199,8 @@ class NotificationRepo {
     );
 
     await doc.set(n.toJson());
+
+    return (data: fileUrl, id: doc.id);
   }
 
   Future<void> respondToNotification(String id, bool response) async {
@@ -238,11 +258,13 @@ class NotificationRepo {
   }
 
   Future<String> uploadFileAndGetUrl(String id, File file) async {
-    final ref = audioStorage.child("$id.m4a");
-    final metadata = SettableMetadata(contentType: 'audio/m4a');
+    final ref = audioStorage.child("$id.wav");
+    final metadata = SettableMetadata(contentType: 'audio/wav');
     await ref.putFile(file, metadata);
     return ref.getDownloadURL();
   }
+
+
 
   Future<String> uploadDataAndGetUrl(String id, Uint8List data) async {
     final ref = audioStorage.child("$id.wav");

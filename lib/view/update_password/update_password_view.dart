@@ -116,11 +116,12 @@
 //     setState(() => loading = false);
 //   }
 // }
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/view/update_password/update_password_provider.dart';
+import 'package:ping_app/widgets/global_layout_builder.dart';
 import 'package:provider/provider.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class UpdatePasswordView extends StatelessWidget {
   const UpdatePasswordView({super.key});
@@ -133,67 +134,69 @@ class UpdatePasswordView extends StatelessWidget {
         key: const Key("viewUpdatePassword"),
         appBar: AppBar(title: Text('t_updatePassword'.tr())),
         body: SafeArea(
-          child: Consumer<UpdatePasswordProvider>(
-            builder: (context, provider, child) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: provider.formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        key: const Key("inputPassword"),
-                        decoration: InputDecoration(
-                          labelText: 't_password'.tr(),
-                          prefixIcon: const Icon(Icons.lock),
+          child: GlobalLayoutBuilder(
+            child: Consumer<UpdatePasswordProvider>(
+              builder: (context, provider, child) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: provider.formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextFormField(
+                          key: const Key("inputPassword"),
+                          decoration: InputDecoration(
+                            labelText: 't_password'.tr(),
+                            prefixIcon: const Icon(Icons.lock),
+                          ),
+                          keyboardType: TextInputType.text,
+                          obscureText: true,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 't_invalidPassword'.tr();
+                            }
+                            return null;
+                          },
+                          controller: provider.password,
+                          readOnly: provider.loading,
                         ),
-                        keyboardType: TextInputType.text,
-                        obscureText: true,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 't_invalidPassword'.tr();
-                          }
-                          return null;
-                        },
-                        controller: provider.password,
-                        readOnly: provider.loading,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        key: const Key("inputConfirmPassword"),
-                        decoration: InputDecoration(
-                          labelText: 't_confirmPassword'.tr(),
-                          prefixIcon: const Icon(Icons.lock_reset),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          key: const Key("inputConfirmPassword"),
+                          decoration: InputDecoration(
+                            labelText: 't_confirmPassword'.tr(),
+                            prefixIcon: const Icon(Icons.lock_reset),
+                          ),
+                          obscureText: true,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                          validator: (value) {
+                            if (value != provider.password.text) {
+                              return 't_passwordsDoNotMatch'.tr();
+                            }
+                            return null;
+                          },
+                          controller: provider.confirmPassword,
+                          readOnly: provider.loading,
                         ),
-                        obscureText: true,
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.done,
-                        validator: (value) {
-                          if (value != provider.password.text) {
-                            return 't_passwordsDoNotMatch'.tr();
-                          }
-                          return null;
-                        },
-                        controller: provider.confirmPassword,
-                        readOnly: provider.loading,
-                      ),
-                      const SizedBox(height: 24),
-                      provider.loading
-                          ? getLoader()
-                          : ElevatedButton(
-                              onPressed: () async {
-                                provider.updatePassword(context);
-                              },
-                              child: Text('t_updatePassword'.tr()),
-                            ),
-                    ],
+                        const SizedBox(height: 24),
+                        provider.loading
+                            ? getLoader()
+                            : ElevatedButton(
+                                onPressed: () async {
+                                  provider.updatePassword(context);
+                                },
+                                child: Text('t_updatePassword'.tr()),
+                              ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),

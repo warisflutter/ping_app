@@ -15,9 +15,9 @@ class FirebaseService {
   CollectionReference<Map<String, dynamic>> get voucherCollection => firebaseFireStore.collection("vouchers");
 
   CollectionReference<Map<String, dynamic>> get usersCollection => firebaseFireStore.collection("users");
-  String webClientId = "607056826389-lt27gkhq57p9il1uuv4dhejakjglg5l4.apps.googleusercontent.com";
+  String webClientId = "565573250233-b4kc3mid8u9prjldftss6q8jefsnnjbv.apps.googleusercontent.com";
   String get webClientIdGetter => webClientId;
-  String vapidKey = "BOm6F0VXPpwu-EaiO5ffa-AmfuYhQkRR49XQNXPBeCo0BWSUxYrtdO6_1AvOvh-6O8Mwx35pwwM8v_nP-BrKBj0";
+  String vapidKey = "BPwJA3iKctTT8t1LRA9TDvGW5iXax_h-0J5JQSXF2yblQSN4rpJW48qvsRdC_y7WIGci3KYT5_FxEloc3kGu_Jg";
   String get vapidKeyGetter => vapidKey;
   Future<void> saveUserDetailsAfterBuySubscription({
     required PurChasedModel purchasedModel,

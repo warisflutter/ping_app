@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ping_app/member/model/member_model.dart';
 
 class PingUserModel {
   static const keyFullName = 'fullName';
@@ -15,11 +16,12 @@ class PingUserModel {
   final String email;
   final DateTime? _createdAt;
   final String? _userId;
-  final List<String> fcm;
+  final List<FcmEntity> fcm;
   final bool isDeleted;
   final bool _isOnline;
   final DateTime lastSeen;
   final String type;
+  final int dialogTimer;
 
   bool get isOnline => _isOnline && lastSeen.isAfter(DateTime.now().subtract(const Duration(minutes: 10)));
 
@@ -34,7 +36,8 @@ class PingUserModel {
         _isOnline = false,
         lastSeen = DateTime(1800),
         fcm = [],
-        isDeleted = false;
+        isDeleted = false,
+        dialogTimer = 5;
 
   DateTime get createdAt {
     if (_createdAt == null) {
@@ -53,14 +56,16 @@ class PingUserModel {
   PingUserModel.fromJson(this._userId, Map<String, dynamic> json)
       : teamName = json[keyTeamName],
         fullName = json[keyFullName],
-        fcm = (json[keyFcmToken] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        fcm = (json[keyFcmToken] as List<dynamic>?)?.map((e) => FcmEntity.fromJson(e)).toList() ?? [],
         initials = json[keyInitials] ?? "",
         _isOnline = json[keyOnlineStatus] ?? false,
         lastSeen = (json['lastSeen'] as Timestamp?)?.toDate() ?? DateTime(1800),
         email = json['email'],
         isDeleted = json[keyIsDeleted] ?? false,
         type = json["type"],
-        _createdAt = (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+        _createdAt = (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        dialogTimer = json['dialogTimer'] ?? 5
+  ;
 
   Map<String, dynamic> toJson() {
     return {
@@ -74,6 +79,7 @@ class PingUserModel {
       keyFcmToken: fcm,
       keyIsDeleted: isDeleted,
       'createdAt': _createdAt ?? FieldValue.serverTimestamp(),
+      'dialogTimer': dialogTimer
     };
   }
 

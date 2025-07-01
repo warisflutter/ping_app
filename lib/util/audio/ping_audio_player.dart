@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/file_path.dart';
-import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/ping_styles.dart';
 
 class PingAudioPlayer extends StatefulWidget {
@@ -140,73 +139,141 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.secondary;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: IconButton(
-                key: const Key('play_button'),
-                onPressed: _isPlaying ? null : _play,
-                iconSize: context.isWatch ? 32.0 : 48.0,
-                icon: const Icon(Icons.play_arrow),
-                color: color,
+    return (context.isWatch)
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: IconButton(
+                      key: const Key('play_button'),
+                      onPressed: _isPlaying ? null : _play,
+                      iconSize: PingStyles.watchIconSize,
+                      icon: const Icon(Icons.play_arrow),
+                      color: color,
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      key: const Key('pause_button'),
+                      onPressed: _isPlaying ? _pause : null,
+                      iconSize: PingStyles.watchIconSize,
+                      icon: const Icon(Icons.pause),
+                      color: color,
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      key: const Key('stop_button'),
+                      onPressed: _isPlaying || _isPaused ? _stop : null,
+                      iconSize: PingStyles.watchIconSize,
+                      icon: const Icon(Icons.stop),
+                      color: color,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Expanded(
-              child: IconButton(
-                key: const Key('pause_button'),
-                onPressed: _isPlaying ? _pause : null,
-                iconSize: context.isWatch ? 32.0 : 48.0, // Adjusted for watch
-                icon: const Icon(Icons.pause),
-                color: color,
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 10,
+                child: Slider(
+                  onChanged: (value) {
+                    final duration = _duration;
+                    if (duration == null) {
+                      return;
+                    }
+                    final position = value * duration.inMilliseconds;
+                    player.seek(Duration(milliseconds: position.round()));
+                  },
+                  value: (_position != null &&
+                          _duration != null &&
+                          _position!.inMilliseconds > 0 &&
+                          _position!.inMilliseconds < _duration!.inMilliseconds)
+                      ? _position!.inMilliseconds / _duration!.inMilliseconds
+                      : 0.0,
+                ),
               ),
-            ),
-            Expanded(
-              child: IconButton(
-                key: const Key('stop_button'),
-                onPressed: _isPlaying || _isPaused ? _stop : null,
-                iconSize: context.isWatch ? 32.0 : 48.0, // Adjusted for watch
-                icon: const Icon(Icons.stop),
-                color: color,
+              Text(
+                _position != null
+                    ? '$_positionText / $_durationText'
+                    : _duration != null
+                        ? _durationText
+                        : '',
+                style: TextStyle(
+                  fontSize: PingStyles.watchIconSize,
+                ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: context.isWatch ? 20.0 : 30.0),
-        SizedBox(
-          height: context.isWatch ? 16.0 : 24.0,
-          child: Slider(
-            onChanged: (value) {
-              final duration = _duration;
-              if (duration == null) {
-                return;
-              }
-              final position = value * duration.inMilliseconds;
-              player.seek(Duration(milliseconds: position.round()));
-            },
-            value: (_position != null &&
-                    _duration != null &&
-                    _position!.inMilliseconds > 0 &&
-                    _position!.inMilliseconds < _duration!.inMilliseconds)
-                ? _position!.inMilliseconds / _duration!.inMilliseconds
-                : 0.0,
-          ),
-        ),
-        Text(
-          _position != null
-              ? '$_positionText / $_durationText'
-              : _duration != null
-                  ? _durationText
-                  : '',
-          style: TextStyle(
-            fontSize: context.isWatch ? 12.0 : 16.0, // Smaller text for watch
-          ),
-        ),
-      ],
-    );
+            ],
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: IconButton(
+                      key: const Key('play_button'),
+                      onPressed: _isPlaying ? null : _play,
+                      iconSize: context.isWatch ? 32.0 : 48.0,
+                      icon: const Icon(Icons.play_arrow),
+                      color: color,
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      key: const Key('pause_button'),
+                      onPressed: _isPlaying ? _pause : null,
+                      iconSize: context.isWatch ? 32.0 : 48.0, // Adjusted for watch
+                      icon: const Icon(Icons.pause),
+                      color: color,
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      key: const Key('stop_button'),
+                      onPressed: _isPlaying || _isPaused ? _stop : null,
+                      iconSize: context.isWatch ? 32.0 : 48.0, // Adjusted for watch
+                      icon: const Icon(Icons.stop),
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: context.isWatch ? 20.0 : 30.0),
+              SizedBox(
+                height: context.isWatch ? 16.0 : 24.0,
+                child: Slider(
+                  onChanged: (value) {
+                    final duration = _duration;
+                    if (duration == null) {
+                      return;
+                    }
+                    final position = value * duration.inMilliseconds;
+                    player.seek(Duration(milliseconds: position.round()));
+                  },
+                  value: (_position != null &&
+                          _duration != null &&
+                          _position!.inMilliseconds > 0 &&
+                          _position!.inMilliseconds < _duration!.inMilliseconds)
+                      ? _position!.inMilliseconds / _duration!.inMilliseconds
+                      : 0.0,
+                ),
+              ),
+              Text(
+                _position != null
+                    ? '$_positionText / $_durationText'
+                    : _duration != null
+                        ? _durationText
+                        : '',
+                style: TextStyle(
+                  fontSize: context.isWatch ? 12.0 : 16.0, // Smaller text for watch
+                ),
+              ),
+            ],
+          );
   }
 
   void _initStreams() {

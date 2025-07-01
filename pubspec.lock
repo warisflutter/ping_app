@@ -608,18 +608,18 @@ packages:
     dependency: transitive
     description:
       name: just_audio_platform_interface
-      sha256: "271b93b484c6f494ecd72a107fffbdb26b425f170c665b9777a0a24a726f2f24"
+      sha256: "4cd94536af0219fa306205a58e78d67e02b0555283c1c094ee41e402a14a5c4a"
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.0"
+    version: "4.5.0"
   just_audio_web:
     dependency: transitive
     description:
       name: just_audio_web
-      sha256: "58915be64509a7683c44bf11cd1a23c15a48de104927bee116e3c63c8eeea0d4"
+      sha256: "6ba8a2a7e87d57d32f0f7b42856ade3d6a9fbe0f1a11fabae0a4f00bb73f0663"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.14"
+    version: "0.4.16"
   leak_tracker:
     dependency: transitive
     description:
@@ -972,6 +972,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  reorderable_grid:
+    dependency: "direct main"
+    description:
+      name: reorderable_grid
+      sha256: "0b9cd95ef0f070ef99f92affe9cf85a4aa127099cd1334e5940950ce58cd981d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.10"
   rxdart:
     dependency: transitive
     description:
@@ -1121,6 +1129,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  smooth_page_indicator:
+    dependency: "direct main"
+    description:
+      name: smooth_page_indicator
+      sha256: b21ebb8bc39cf72d11c7cfd809162a48c3800668ced1c9da3aade13a32cf6c1c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   source_map_stack_trace:
     dependency: transitive
     description:
@@ -1345,6 +1361,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  wear_plus:
+    dependency: "direct main"
+    description:
+      name: wear_plus
+      sha256: "47551b85272ecaeaa5baa9e95ed14875fdd20443a25d1f7ca9272bab64bc44e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
   web:
     dependency: "direct main"
     description:

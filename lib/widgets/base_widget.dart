@@ -7,7 +7,6 @@ class BaseWidget extends StatelessWidget {
   final List<Widget>? actions;
   final bool showBackIcon;
   final Widget body;
-
   const BaseWidget({
     super.key,
     this.title,
@@ -25,8 +24,14 @@ class BaseWidget extends StatelessWidget {
         centerTitle: centerTitle,
         actions: actions,
         title: title,
-        leading: (showBackIcon) ? const BackButton() : const SizedBox.shrink(),
-        toolbarHeight: kToolbarHeight,
+        leading: (showBackIcon)
+            ? BackButton(
+                style: ButtonStyle(
+                  iconSize: WidgetStatePropertyAll((context.isWatch) ? 15 : null),
+                ),
+              )
+            : null,
+        toolbarHeight: (context.isWatch) ? 30 : kToolbarHeight,
       ),
       body: body,
       floatingActionButton: floatingActionButton,

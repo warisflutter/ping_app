@@ -1,8 +1,9 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/model/member_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,23 +39,33 @@ class MemberState extends ChangeNotifier {
   int onlineMembers = 0;
 
   void initIdOrder() async {
-    _idOrder = await MemberRepo.instance.getMemberOrder();
-    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString("memberId");
+    PingLog.pingLog("id: $id");
+    if(id != null){
+      final memberModel = await MemberRepo.instance.getMemberById(id);
+      _idOrder = await MemberRepo.instance.getMemberOrder(memberModel.id);
+      notifyListeners();
+    }
+    else if(FirebaseAuth.instance.currentUser != null){
+      _idOrder = await MemberRepo.instance.getMemberOrder(FirebaseAuth.instance.currentUser?.uid);
+      notifyListeners();
+    }
   }
 
-  void reorderIdOrder(List<String> nowIds, int oldIndex, int newIndex) {
+  void reorderIdOrder(List<String> nowIds, int oldIndex, int newIndex, String memberId) {
     _idOrder = nowIds;
     final id = _idOrder!.removeAt(oldIndex);
     final fixedNewIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
     _idOrder!.insert(fixedNewIndex, id);
-    MemberRepo.instance.saveMemberOrder(_idOrder!);
+    MemberRepo.instance.saveMemberOrder(_idOrder!, memberId);
     notifyListeners();
   }
 
-  MemberState() {
-    initIdOrder();
+  MemberState(){
     loadMemberIdFromPrefs();
     fetchOnlineMembers();
+    initIdOrder();
   }
 
   Future<bool> loadMemberIdFromPrefs() async {
@@ -95,7 +106,7 @@ class MemberState extends ChangeNotifier {
       notifyListeners();
     });
   }
-
+  //B1VcQLO7P1LrLNwjxixX
   Future<void> setMemberId(String memberId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("memberId", memberId);

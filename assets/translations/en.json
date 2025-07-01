@@ -284,5 +284,7 @@
   "t_BasicYearly": "Basic Yearly",
   "t_ProMonthly": "Pro Monthly",
   "t_ProYearly": "Pro Yearly",
-  "t_noNotificationsFound": "No Notifications Found"
+  "t_noNotificationsFound": "No Notifications Found",
+  "t_appSettings": "App Settings",
+  "t_dialogTimer": "Dialog Timer"
 }

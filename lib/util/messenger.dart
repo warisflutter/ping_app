@@ -3,7 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ping_app/file_path.dart';
 import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/util/ping_styles.dart';
 
 final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -38,6 +40,7 @@ void snack(
 }) {
   scaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(
+      padding: EdgeInsets.all(scaffoldMessengerKey.currentContext!.isWatch ? 5 : 15),
       key: key,
       backgroundColor: (backgroundColor != null)
           ? backgroundColor
@@ -46,7 +49,7 @@ void snack(
               : Colors.red,
       content: Text(
         _dynamicToMessage(message),
-        style: const TextStyle(color: Colors.white),
+        style: scaffoldMessengerKey.currentContext!.isWatch ? PingStyles.watchStyle.copyWith(color: Colors.white) :  const TextStyle(color: Colors.white),
       ),
       // behavior: behavior,
       // duration: (showNotification) ? const Duration(seconds: 10000) : const Duration(seconds: 2),
@@ -61,6 +64,43 @@ void snack(
       //       ),
     ),
   );
+}
+
+void dialog(
+    bool isSuccess,
+    BuildContext context,
+    dynamic message, {
+  bool info = false,
+  Key? key,
+  bool showNotification = false,
+  Color? circleColor,
+}){
+  showDialog(context: context, builder: (_) => Container(
+    width: double.infinity,
+    height: double.infinity,
+    color: Colors.black,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: circleColor ?? (isSuccess ? Colors.green : Colors.redAccent)
+            ),
+            child: Icon(isSuccess ? Icons.thumb_up : Icons.warning, color: Colors.white, size: 16,)),
+        const SizedBox(height: 5,),
+        Flexible(
+            child: Text(_dynamicToMessage(message), textAlign: TextAlign.center, style: PingStyles.watchStyle,)),
+        RawMaterialButton(
+          shape: const CircleBorder(),
+          fillColor: Colors.grey.withValues(alpha: 0.3),
+          onPressed: () => pop() , child: Text('Ok', style: PingStyles.watchStyle,),)
+      ],
+    ),
+  ));
 }
 
 void snackSync(ScaffoldMessengerState state, dynamic message, {bool info = false}) => state.showSnackBar(
@@ -173,7 +213,7 @@ Widget getErrorMessage(BuildContext context, dynamic error, {info = false}) => C
         _dynamicToMessage(error),
         textAlign: TextAlign.center,
         style:
-            Theme.of(context).textTheme.bodyLarge?.copyWith(color: info ? Theme.of(context).primaryColor : Colors.red),
+            context.isWatch ? PingStyles.watchStyle.copyWith(color: Colors.red) : Theme.of(context).textTheme.bodyLarge?.copyWith(color: info ? Theme.of(context).primaryColor : Colors.red),
       ),
     );
 

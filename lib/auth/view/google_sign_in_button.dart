@@ -11,6 +11,8 @@ import 'package:ping_app/services/firebase_service.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_styles.dart';
+import 'package:ping_app/util/ping_utils.dart';
 
 import '../../services/notification_service.dart';
 
@@ -21,39 +23,54 @@ class GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black54,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
+    return SizedBox(
+      height: context.isWatch ? 30 : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black54,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
           ),
-        ),
-        onPressed: () => _handleGoogleSignIn(context),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Image(
-                image: AssetImage("assets/images/google.png"),
-                height: 18.0,
-                width: 18.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, right: 8),
-                child: Text(
-                  't_signInWithGoogle'.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+          onPressed: () => _handleGoogleSignIn(context),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Image(
+                  image: AssetImage("assets/images/google.png"),
+                  height: 18.0,
+                  width: 18.0,
                 ),
-              ),
-            ],
+                (context.isWatch)
+                    ? Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4.0),
+                          child: Text(
+                            't_signInWithGoogle'.tr(),
+                            overflow: TextOverflow.ellipsis,
+                            style: PingStyles.watchStyle,
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 24, right: 8),
+                        child: Text(
+                          't_signInWithGoogle'.tr(),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,12 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_app/auth/repo/app_lifecycle_service.dart';
 import 'package:ping_app/dashboard/member_dashboard.dart';
-import 'package:ping_app/member/repo/member_state.dart';
-import 'package:ping_app/services/notification_service.dart';
-import 'package:ping_app/util/fcm_repo.dart';
-import 'package:ping_app/util/messenger.dart';
-import 'package:ping_app/util/navigator.dart';
+import 'package:ping_app/file_path.dart';
+import 'package:ping_app/util/ping_styles.dart';
+
 import 'package:provider/provider.dart';
 
 class JoinIdView extends StatefulWidget {
@@ -23,16 +20,20 @@ class _JoinIdViewState extends State<JoinIdView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('t_joinById'.tr())),
+      appBar: context.isWatch ? null : AppBar(title: Text('t_joinById'.tr())),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(context.isWatch ? 10 : 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if(context.isWatch)
+            Text('t_joinById'.tr(), style: PingStyles.watchStyle,),
+            const SizedBox(height: 10,),
             TextField(
               controller: memberIdController,
               decoration: InputDecoration(
                 labelText: 't_memberId'.tr(),
+                labelStyle: context.isWatch ? PingStyles.watchStyle : null
               ),
             ),
             const SizedBox(height: 16),
@@ -48,7 +49,12 @@ class _JoinIdViewState extends State<JoinIdView> {
 
   void actionJoinByQr(String? memberId) async {
     if (memberId == null || memberId.isEmpty) {
-      snack('t_pleaseEnterMemberId'.tr());
+      if(context.isWatch){
+        dialog(false, context, 't_pleaseEnterMemberId'.tr());
+      }
+      else{
+        snack('t_pleaseEnterMemberId'.tr());
+      }
       return;
     }
     final memberState = context.read<MemberState>();

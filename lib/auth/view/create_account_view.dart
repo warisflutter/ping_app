@@ -9,6 +9,7 @@ import 'package:ping_app/file_path.dart';
 import 'package:ping_app/member/view/join_member_view/join_id_view.dart';
 import 'package:ping_app/member/view/join_member_view/join_qr_view.dart';
 import 'package:ping_app/util/ping_styles.dart';
+import 'package:ping_app/widgets/ping_text_field.dart';
 
 class CreateAccountView extends StatefulWidget {
   const CreateAccountView({super.key});
@@ -58,7 +59,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                     SizedBox(height: mainSpacing),
                     Text(
                       't_createNewAccount'.tr(),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: (context.isWatch)
+                          ? PingStyles.watchStyle
+                          : Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: mainSpacing),
                     getForm(),
@@ -70,20 +73,38 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                         const SizedBox(height: 12),
                         (loading)
                             ? getLoader()
-                            : ElevatedButton(
-                                onPressed: () => _onCreateAccountClicked(),
-                                child: Text('t_createAccount'.tr()),
+                            : SizedBox(
+                                height: context.isWatch ? 30 : null,
+                                child: ElevatedButton(
+                                  onPressed: () => _onCreateAccountClicked(),
+                                  child: Text(
+                                    't_createAccount'.tr(),
+                                    style: (context.isWatch) ? PingStyles.watchStyle : null,
+                                  ),
+                                ),
                               ),
                         const SizedBox(height: 8),
                         if (!kIsWeb)
-                          OutlinedButton(
-                            onPressed: (loading) ? null : () => _onScanQrCodeClick(),
-                            child: Text('t_scanQrCode'.tr()),
+                          SizedBox(
+                            height: context.isWatch ? 30 : null,
+                            child: OutlinedButton(
+                              onPressed: (loading) ? null : () => _onScanQrCodeClick(),
+                              child: Text(
+                                't_scanQrCode'.tr(),
+                                style: (context.isWatch) ? PingStyles.watchStyle : null,
+                              ),
+                            ),
                           )
                         else
-                          OutlinedButton(
-                            onPressed: loading ? null : () => _onJoinByIdClick(),
-                            child: Text('t_joinById'.tr()),
+                          SizedBox(
+                            height: context.isWatch ? 30 : null,
+                            child: OutlinedButton(
+                              onPressed: loading ? null : () => _onJoinByIdClick(),
+                              child: Text(
+                                't_joinById'.tr(),
+                                style: (context.isWatch) ? PingStyles.watchStyle : null,
+                              ),
+                            ),
                           ),
                         const SizedBox(height: 8),
                         GoogleSignInButton(onSignedIn: () {}),
@@ -106,37 +127,103 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     );
   }
 
+  // Widget getTermsAndPolicy(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     child: RichText(
+  //       textAlign: TextAlign.center,
+  //       text: TextSpan(
+  //         style: (context.isWatch) ? PingStyles.watchStyle : Theme.of(context).textTheme.bodySmall,
+  //         children: [
+  //           TextSpan(
+  //             text: 't_byContinuingToOur'.tr(),
+  //             style: (context.isWatch) ? PingStyles.watchStyle : null,
+  //           ),
+  //           WidgetSpan(
+  //             child: InkWell(
+  //               onTap: loading ? null : () {},
+  //               child: Text(
+  //                 't_termsOfService'.tr(),
+  //                 style: (context.isWatch)
+  //                     ? PingStyles.watchStyle
+  //                     : Theme.of(context).textTheme.bodySmall?.copyWith(
+  //                   decoration: TextDecoration.underline,
+  //                   decorationColor: Colors.white,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           TextSpan(
+  //             text: ' ${"and".tr()} ',
+  //             style: (context.isWatch) ? PingStyles.watchStyle : null,
+  //           ),
+  //           WidgetSpan(
+  //             child: InkWell(
+  //               onTap: loading ? null : () {},
+  //               child: Text(
+  //                 't_privacyPolicy'.tr(),
+  //                 style: (context.isWatch)
+  //                     ? PingStyles.watchStyle
+  //                     : Theme.of(context).textTheme.bodySmall?.copyWith(
+  //                   decoration: TextDecoration.underline,
+  //                   decorationColor: Colors.white,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget getTermsAndPolicy(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: Theme.of(context).textTheme.bodySmall,
+          style: (context.isWatch) ? PingStyles.watchStyle : Theme.of(context).textTheme.bodySmall,
           children: [
-            TextSpan(text: 't_byContinuingToOur'.tr()),
+            TextSpan(
+              text: 't_byContinuingToOur'.tr(),
+              style: (context.isWatch) ? PingStyles.watchStyle : null,
+            ),
             WidgetSpan(
               child: InkWell(
                 onTap: loading ? null : () {},
                 child: Text(
                   't_termsOfService'.tr(),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
-                      ),
+                  style: (context.isWatch)
+                      ? PingStyles.watchStyle.copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                        )
+                      : Theme.of(context).textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          ),
                 ),
               ),
             ),
-            TextSpan(text: ' ${"and".tr()} '),
+            TextSpan(
+              text: ' ${"and".tr()} ',
+              style: (context.isWatch) ? PingStyles.watchStyle : null,
+            ),
             WidgetSpan(
               child: InkWell(
                 onTap: loading ? null : () {},
                 child: Text(
                   't_privacyPolicy'.tr(),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
-                      ),
+                  style: (context.isWatch)
+                      ? PingStyles.watchStyle.copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                        )
+                      : Theme.of(context).textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          ),
                 ),
               ),
             ),
@@ -152,17 +239,25 @@ class _CreateAccountViewState extends State<CreateAccountView> {
       text: TextSpan(
         style: Theme.of(context).textTheme.bodySmall,
         children: [
-          TextSpan(text: 't_alreadyHaveAnAccount'.tr()),
+          TextSpan(
+            text: 't_alreadyHaveAnAccount'.tr(),
+            style: (context.isWatch) ? PingStyles.watchStyle : null,
+          ),
           const TextSpan(text: ' '),
           WidgetSpan(
             child: InkWell(
               onTap: () => push(const LoginView()),
               child: Text(
                 't_login'.tr(),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.white,
-                    ),
+                style: (context.isWatch)
+                    ? PingStyles.watchStyle.copyWith(
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                      )
+                    : Theme.of(context).textTheme.bodySmall?.copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                        ),
               ),
             ),
           ),
@@ -176,11 +271,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
       key: _formKey,
       child: Column(
         children: [
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: 't_teamName'.tr(),
-              prefixIcon: const Icon(Icons.group),
-            ),
+          PingTextField(
+            hintText: 't_teamName'.tr(),
+            prefixIcon: Icons.group,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
             validator: mandatoryValidator,
@@ -192,11 +285,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
             children: [
               SizedBox(
                 width: 100,
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 't_initials'.tr(),
-                    counterText: '',
-                  ),
+                child: PingTextField(
+                  hintText: 't_initials'.tr(),
+                  counterText: '',
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
                   validator: (s) => s?.length == 3 ? null : 't_provide3CharacterInitial'.tr(),
@@ -207,10 +298,8 @@ class _CreateAccountViewState extends State<CreateAccountView> {
               ),
               const SizedBox(width: 4),
               Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 't_fullName'.tr(),
-                  ),
+                child: PingTextField(
+                  hintText: 't_fullName'.tr(),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
                   validator: mandatoryValidator,
@@ -221,11 +310,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
             ],
           ),
           const SizedBox(height: 8),
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: 't_email'.tr(),
-              prefixIcon: const Icon(Icons.email),
-            ),
+          PingTextField(
+            hintText: 't_email'.tr(),
+            prefixIcon: Icons.email,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             validator: emailValidator,
@@ -233,11 +320,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
             readOnly: loading,
           ),
           const SizedBox(height: 8),
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: 't_password'.tr(),
-              prefixIcon: const Icon(Icons.lock),
-            ),
+          PingTextField(
+            hintText: 't_password'.tr(),
+            prefixIcon: Icons.lock,
             keyboardType: TextInputType.text,
             obscureText: true,
             textInputAction: TextInputAction.next,
@@ -246,11 +331,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
             readOnly: loading,
           ),
           const SizedBox(height: 8),
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: 't_confirmPassword'.tr(),
-              prefixIcon: const Icon(Icons.lock),
-            ),
+          PingTextField(
+            hintText: 't_confirmPassword'.tr(),
+            prefixIcon: Icons.lock,
             obscureText: true,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.done,

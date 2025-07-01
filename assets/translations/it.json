@@ -280,5 +280,7 @@
   "t_BasicYearly": "Base Annuale",
   "t_ProMonthly": "Pro Mensile",
   "t_ProYearly": "Pro Annuale",
-  "t_noNotificationsFound": "Nessuna notifica trovata"
+  "t_noNotificationsFound": "Nessuna notifica trovata",
+  "t_appSettings": "Impostazioni dell'app",
+  "t_dialogTimer": "Timer del dialogo"
 }

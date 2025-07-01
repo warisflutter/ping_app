@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/util/ping_log.dart';
+
+import '../../member/model/member_model.dart';
 
 class AuthRepo {
   static final instance = AuthRepo._();
@@ -76,34 +81,73 @@ class AuthRepo {
       debugPrint("fcm Token $fcmToken");
       final docRef = usersCollection.doc(userId);
       final docSnapshot = await docRef.get();
-
+      var device = '';
+      if(kIsWeb){
+        device = 'Web';
+      }
+      else{
+        if(Platform.isAndroid){
+          device = 'Android';
+        }
+        else if(Platform.isIOS){
+          device = 'iOS';
+        }
+        else{
+          device = 'Other';
+        }
+      }
+      var fcmEntity = FcmEntity(token: fcmToken, device: device);
       if (docSnapshot.exists) {
         // Ensure the field exists before accessing it
-        List<String> existingTokens = [];
-        if (docSnapshot.data() != null && docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
-          existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
+        List<FcmEntity> existingTokens = [];
+        // if (docSnapshot.data() != null && docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
+        //   existingTokens = List.from(docSnapshot.get(PingUserModel.keyFcmToken));
+        // }
+
+        if (docSnapshot.data() != null &&
+            docSnapshot.data()!.containsKey(PingUserModel.keyFcmToken)) {
+          List<dynamic> rawList = docSnapshot.get(PingUserModel.keyFcmToken);
+          existingTokens = rawList
+              .map((item) => FcmEntity.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
         }
 
         // Check if fcmToken already exists
-        bool alreadyExists = existingTokens.contains(fcmToken);
+        bool alreadyExists = existingTokens.any((t) => t.token == fcmToken);
 
         if (alreadyExists) {
           debugPrint("token is already exist");
         } else {
           await docRef.update({
-            PingUserModel.keyFcmToken: FieldValue.arrayUnion([fcmToken])
+            PingUserModel.keyFcmToken: FieldValue.arrayUnion([fcmEntity.toJson()])
           });
         }
       } else {
         // If document doesn't exist, create it with the first entry
         await docRef.set({
-          PingUserModel.keyFcmToken: [fcmToken]
+          PingUserModel.keyFcmToken: [fcmEntity.toJson()]
         });
       }
     } catch (e) {
       PingLog.pingLog("updateFcmToken: $e");
     }
   }
+
+  Future<void> updateDialogTimer(String userId, int timer) async{
+    try{
+      final docRef = usersCollection.doc(userId);
+      final docSnapshot = await docRef.get();
+      if(docSnapshot.exists){
+        await docRef.update({
+          'dialogTimer': timer
+        });
+      }
+    }
+    catch(e){
+      PingLog.pingLog("updateDialogTimer: $e");
+    }
+  }
+
 
   Future<void> deleteUser() async {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -112,4 +156,26 @@ class AuthRepo {
       await usersCollection.doc(user.uid).delete();
     }
   }
+
+  Future<int> getDialogTimer(String userId) async{
+    int dialogTimer = 5;
+    var user = await getUserById(userId);
+    if(user != null){
+      dialogTimer = user.dialogTimer;
+    }
+    else{
+      final memberRef = FirebaseFirestore.instance.collection('members').doc(userId);
+      var memberSnapshot = await memberRef.get();
+      if(memberSnapshot.exists){
+        var json = memberSnapshot.data() as Map<String, dynamic>;
+        var member = json['teamLeadId'];
+        var aUser = await getUserById(member);
+        if(aUser != null){
+          dialogTimer = aUser.dialogTimer;
+        }
+      }
+    }
+    return dialogTimer;
+  }
+
 }

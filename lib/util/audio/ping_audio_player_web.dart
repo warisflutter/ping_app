@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:just_audio/just_audio.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_app/util/messenger.dart';
 
@@ -19,23 +18,54 @@ class PingAudioPlayerWeb extends StatefulWidget {
 }
 
 class _PingAudioPlayerWebState extends State<PingAudioPlayerWeb> {
-  late AudioPlayer player = AudioPlayer();
+  late AudioPlayer player;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-
     player = AudioPlayer();
+    _initializePlayer();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  Future<void> _initializePlayer() async {
+    try {
       final url = widget.url;
-      log("url: $url");
+      log("Initializing player with URL: $url");
+
       if (url != null) {
+        setState(() {
+          _isLoading = true;
+          _errorMessage = null;
+        });
+
+        // Wait for the audio to be fully loaded before considering it ready
         await player.setUrl(url);
+
+        // Wait for duration to be available (indicates audio is loaded)
+        await player.durationStream.firstWhere((duration) => duration != null);
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        log("Player initialized successfully with duration: ${player.duration}");
       } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 't_noAudioSourceProvided'.tr();
+        });
         snack('t_noAudioSourceProvided'.tr());
       }
-    });
+    } catch (e) {
+      log("Error initializing player: $e");
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Failed to load audio: $e";
+      });
+      snack("Failed to load audio: $e");
+    }
   }
 
   @override
@@ -46,6 +76,40 @@ class _PingAudioPlayerWebState extends State<PingAudioPlayerWeb> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 48,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _initializePlayer,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
     return PlayerWidgetWeb(player: player);
   }
 }
@@ -60,24 +124,26 @@ class PlayerWidgetWeb extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _PlayerWidgetState();
+    return _PlayerWidgetWebState();
   }
 }
 
-class _PlayerWidgetState extends State<PlayerWidgetWeb> {
+class _PlayerWidgetWebState extends State<PlayerWidgetWeb> {
   Duration? _duration;
   Duration? _position;
+  PlayerState _playerState = PlayerState(false, ProcessingState.idle);
 
   StreamSubscription? _durationSubscription;
   StreamSubscription? _positionSubscription;
-  StreamSubscription? _playerCompleteSubscription;
-  StreamSubscription? _playerStateChangeSubscription;
+  StreamSubscription? _playerStateSubscription;
 
-  bool get _isPlaying => widget.player.playing;
+  bool get _isPlaying => _playerState.playing;
+  bool get _isLoading => _playerState.processingState == ProcessingState.loading ||
+      _playerState.processingState == ProcessingState.buffering;
+  bool get _isCompleted => _playerState.processingState == ProcessingState.completed;
 
-  String get _durationText => _duration?.toString().split('.').first ?? '';
-
-  String get _positionText => _position?.toString().split('.').first ?? '';
+  String get _durationText => _formatDuration(_duration);
+  String get _positionText => _formatDuration(_position);
 
   @override
   void initState() {
@@ -89,14 +155,14 @@ class _PlayerWidgetState extends State<PlayerWidgetWeb> {
   void dispose() {
     _durationSubscription?.cancel();
     _positionSubscription?.cancel();
-    _playerCompleteSubscription?.cancel();
-    _playerStateChangeSubscription?.cancel();
+    _playerStateSubscription?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.secondary;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -105,21 +171,27 @@ class _PlayerWidgetState extends State<PlayerWidgetWeb> {
           children: [
             IconButton(
               key: const Key('play_button'),
-              onPressed: _isPlaying ? null : _play,
+              onPressed: _canPlay() ? _play : null,
               iconSize: 48.0,
-              icon: const Icon(Icons.play_arrow),
+              icon: _isLoading
+                  ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+                  : const Icon(Icons.play_arrow),
               color: color,
             ),
             IconButton(
               key: const Key('pause_button'),
-              onPressed: _isPlaying ? _pause : null,
+              onPressed: _canPause() ? _pause : null,
               iconSize: 48.0,
               icon: const Icon(Icons.pause),
               color: color,
             ),
             IconButton(
               key: const Key('stop_button'),
-              onPressed: _isPlaying ? _stop : null,
+              onPressed: _canStop() ? _stop : null,
               iconSize: 48.0,
               icon: const Icon(Icons.stop),
               color: color,
@@ -127,27 +199,17 @@ class _PlayerWidgetState extends State<PlayerWidgetWeb> {
           ],
         ),
         Slider(
-          onChanged: (value) {
+          onChanged: _canSeek() ? (value) {
             final duration = _duration;
-            if (duration == null) {
-              return;
-            }
+            if (duration == null) return;
+
             final position = value * duration.inMilliseconds;
             widget.player.seek(Duration(milliseconds: position.round()));
-          },
-          value: (_position != null &&
-              _duration != null &&
-              _position!.inMilliseconds > 0 &&
-              _position!.inMilliseconds < _duration!.inMilliseconds)
-              ? _position!.inMilliseconds / _duration!.inMilliseconds
-              : 0.0,
+          } : null,
+          value: _getSliderValue(),
         ),
         Text(
-          _position != null
-              ? '$_positionText / $_durationText'
-              : _duration != null
-              ? _durationText
-              : '',
+          _getTimeText(),
           style: const TextStyle(fontSize: 16.0),
         ),
       ],
@@ -156,39 +218,132 @@ class _PlayerWidgetState extends State<PlayerWidgetWeb> {
 
   void _initStreams() {
     _durationSubscription = widget.player.durationStream.listen((duration) {
+      log("Duration updated: $duration");
       setState(() => _duration = duration);
     });
 
     _positionSubscription = widget.player.positionStream.listen(
-          (p) => setState(() => _position = p),
+          (position) {
+        setState(() => _position = position);
+      },
     );
 
-    _playerCompleteSubscription = widget.player.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed) {
-        setState(() {
-          _position = Duration.zero;
-        });
-        widget.player.seek(Duration.zero);
-        widget.player.pause();
+    _playerStateSubscription = widget.player.playerStateStream.listen((state) {
+      log("Player state changed: playing=${state.playing}, processingState=${state.processingState}");
+      setState(() => _playerState = state);
+
+      if (state.processingState == ProcessingState.completed) {
+        log("Playback completed, resetting position");
+        setState(() => _position = Duration.zero);
       }
     });
   }
 
-  Future<void> _play() async {
-    if (widget.player.processingState == ProcessingState.completed) {
-      await widget.player.seek(Duration.zero); // Reset position
+  bool _canPlay() {
+    return !_isPlaying &&
+        !_isLoading &&
+        _duration != null &&
+        (_playerState.processingState == ProcessingState.ready ||
+            _playerState.processingState == ProcessingState.completed);
+  }
+
+  bool _canPause() {
+    return _isPlaying && !_isLoading;
+  }
+
+  bool _canStop() {
+    return (_isPlaying || _isCompleted) && !_isLoading;
+  }
+
+  bool _canSeek() {
+    return _duration != null &&
+        !_isLoading &&
+        _playerState.processingState != ProcessingState.idle;
+  }
+
+  double _getSliderValue() {
+    if (_position != null &&
+        _duration != null &&
+        _position!.inMilliseconds > 0 &&
+        _position!.inMilliseconds < _duration!.inMilliseconds) {
+      return _position!.inMilliseconds / _duration!.inMilliseconds;
     }
-    await widget.player.play();
+    return 0.0;
+  }
+
+  String _getTimeText() {
+    if (_position != null && _duration != null) {
+      return '$_positionText / $_durationText';
+    } else if (_duration != null) {
+      return _durationText;
+    }
+    return '';
+  }
+
+  String _formatDuration(Duration? duration) {
+    if (duration == null) return '';
+
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    if (hours > 0) {
+      return '$hours:${twoDigits(minutes)}:${twoDigits(seconds)}';
+    } else {
+      return '${twoDigits(minutes)}:${twoDigits(seconds)}';
+    }
+  }
+
+  Future<void> _play() async {
+    try {
+      log("Attempting to play audio. Current state: ${_playerState.processingState}, Duration: $_duration");
+
+      // Ensure audio is ready before playing
+      if (_playerState.processingState == ProcessingState.idle) {
+        log("Player not ready, cannot play");
+        snack("Audio not ready yet, please wait");
+        return;
+      }
+
+      if (_isCompleted) {
+        log("Audio completed, seeking to start");
+        await widget.player.seek(Duration.zero);
+      }
+
+      // For web, sometimes we need to ensure the player is in the right state
+      if (_playerState.processingState == ProcessingState.ready ||
+          _playerState.processingState == ProcessingState.completed) {
+        await widget.player.play();
+        log("Play command executed successfully");
+      } else {
+        log("Player not in ready state: ${_playerState.processingState}");
+        snack("Player not ready, current state: ${_playerState.processingState}");
+      }
+    } catch (e) {
+      log("Error playing audio: $e");
+      snack("Failed to play audio: $e");
+    }
   }
 
   Future<void> _pause() async {
-    await widget.player.pause();
+    try {
+      log("Pausing audio");
+      await widget.player.pause();
+    } catch (e) {
+      log("Error pausing audio: $e");
+      snack("Failed to pause audio: $e");
+    }
   }
 
   Future<void> _stop() async {
-    await widget.player.stop();
-    setState(() {
-      _position = Duration.zero;
-    });
+    try {
+      log("Stopping audio");
+      await widget.player.stop();
+      setState(() => _position = Duration.zero);
+    } catch (e) {
+      log("Error stopping audio: $e");
+      snack("Failed to stop audio: $e");
+    }
   }
 }

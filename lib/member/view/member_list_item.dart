@@ -19,10 +19,13 @@ import 'package:ping_app/util/audio/verify_audio_view.dart';
 import 'package:ping_app/util/messenger.dart';
 import 'package:ping_app/util/navigator.dart';
 import 'package:ping_app/util/ping_log.dart';
+import 'package:ping_app/util/ping_styles.dart';
 import 'package:ping_app/util/ping_utils.dart';
 import 'package:ping_app/util/record_web/audio_main.dart';
 import 'package:ping_app/view/settings/view/sub_view/message_template/message_template_list.dart';
+import 'package:ping_app/widgets/ping_list_tile.dart';
 import 'package:provider/provider.dart';
+
 
 class MemberListItem extends StatefulWidget {
   final bool isLoggedInAsMember;
@@ -50,6 +53,8 @@ class _MemberListItemState extends State<MemberListItem> {
   PingNotificationModel? recentNotification;
   StreamSubscription? notificationSubscription;
 
+
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +63,8 @@ class _MemberListItemState extends State<MemberListItem> {
       await loadRecentNotification();
     });
   }
+
+
 
   Future<void> loadRecentNotification() async {
     if (notificationSubscription != null) {
@@ -90,7 +97,11 @@ class _MemberListItemState extends State<MemberListItem> {
   Widget build(BuildContext context) {
     final color = widget.listTimeMemberModel.memberColor;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      height: (context.isWatch) ? 32 : null,
+      margin: EdgeInsets.symmetric(
+        vertical: (context.isWatch) ? 4.0 : 16,
+        horizontal: (kIsWeb) ? 0.0 : 16,
+      ),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
@@ -114,17 +125,19 @@ class _MemberListItemState extends State<MemberListItem> {
                 ),
                 child: Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    padding: EdgeInsets.symmetric(horizontal: context.isWatch ? 6 :  12.0),
                     child: Text(
                       widget.listTimeMemberModel.initials,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: (context.isWatch)
+                          ? PingStyles.watchStyle
+                          : Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8) -
+                  padding:  EdgeInsets.symmetric(horizontal: context.isWatch ? 8 : 24, vertical: 8) -
                       (widget.reOrderAble ? const EdgeInsets.only(left: 8) : EdgeInsets.zero),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,31 +146,50 @@ class _MemberListItemState extends State<MemberListItem> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (widget.reOrderAble)
-                            const Icon(
+                            Icon(
                               Icons.drag_indicator,
                               color: Colors.grey,
+                              size: (context.isWatch) ? PingStyles.watchIconSize : null,
                             ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: (context.isWatch) ? null : 8),
                           // if (widget.listTimeMemberModel.isOnline && !widget.listTimeMemberModel.isBlocked)
                           //   const Padding(
                           //     padding: EdgeInsets.only(right: 8.0),
                           //     child: Icon(Icons.circle, color: Colors.green, size: 12),
                           //   ),
-                          Text(widget.listTimeMemberModel.name),
+                          Text(
+                            widget.listTimeMemberModel.name,
+                            style: (context.isWatch) ? PingStyles.watchStyle : null,
+                          ),
                         ],
                       ),
                       if (!widget.viewOnly)
-                        IconButton(
-                          onPressed: () {
-                            showMemberOptions(
-                              context,
-                              widget.isLoggedInAsMember,
-                              widget.currentUserModel,
-                              widget.listTimeMemberModel,
-                            );
-                          },
-                          icon: const Icon(Icons.more_horiz),
-                        )
+                        (context.isWatch)
+                            ? GestureDetector(
+                                onTap: () {
+                                  showMemberOptions(
+                                    context,
+                                    widget.isLoggedInAsMember,
+                                    widget.currentUserModel,
+                                    widget.listTimeMemberModel,
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.more_horiz,
+                                  size: (context.isWatch) ? PingStyles.watchIconSize : null,
+                                ),
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  showMemberOptions(
+                                    context,
+                                    widget.isLoggedInAsMember,
+                                    widget.currentUserModel,
+                                    widget.listTimeMemberModel,
+                                  );
+                                },
+                                icon: const Icon(Icons.more_horiz),
+                              )
                       else
                         const SizedBox(height: 40)
                     ],
@@ -185,98 +217,142 @@ class _MemberListItemState extends State<MemberListItem> {
         builder: (context) {
           return Consumer<MemberState>(
             builder: (context, memberState, _) {
-              final member = memberState.member;
-              return Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: IconButton(
-                        onPressed: () {
-                          pop();
-                        },
-                        icon: const Icon(Icons.close),
+              // final member = memberState.member;
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: (context.isWatch)
+                            ? InkWell(
+                                onTap: () {
+                                  pop();
+                                },
+                                child: Icon(
+                                  Icons.close,
+                                  size: PingStyles.watchIconSize,
+                                ),
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  pop();
+                                },
+                                icon: const Icon(Icons.close),
+                              ),
                       ),
                     ),
-                  ),
-                  // if (widget.operationsBlocked)
-                  //   Padding(
-                  //     padding: const EdgeInsets.all(16.0),
-                  //     child: getErrorMessage(
-                  //       context,
-                  //       "You have more members than allowed. Please upgrade your plan or delete some members.",
-                  //     ),
-                  //   ),
-                  if (!widget.operationsBlocked)
-                    if (!selected.isBlocked)
-                      ListTile(
-                        leading: const Icon(Icons.phonelink_ring),
-                        title: Text("t_ping".tr()),
-                        onTap: () async {
-                          final res = await isMemberBlocked(widget.currentUserModel.id);
-                          pop();
-                          if (res) {
-                            snack("t_blockMemberCantSendPing".tr(), info: false);
-                          } else {
-                            if (context.mounted) {
-                              bool confirmation = await context.showConfirmationDialog(
-                                    title: "t_sendPing".tr(),
-                                    type: "Ping",
-                                  ) ??
-                                  false;
-                              if (confirmation) {
-                                final data = await NotificationRepo.instance.sendPingNotification(me, selected);
+                    // if (widget.operationsBlocked)
+                    //   Padding(
+                    //     padding: const EdgeInsets.all(16.0),
+                    //     child: getErrorMessage(
+                    //       context,
+                    //       "You have more members than allowed. Please upgrade your plan or delete some members.",
+                    //     ),
+                    //   ),
+                    if (!widget.operationsBlocked)
+                      if (!selected.isBlocked)
+                        PingListTile(
+                          iconData: Icons.phonelink_ring,
+                          title: "t_ping".tr(),
+                          onTap: () async {
+                            final res = await isMemberBlocked(widget.currentUserModel.id);
+                            pop();
+                            if (res) {
+                              snack("t_blockMemberCantSendPing".tr(), info: false);
+                            } else {
+                              if (context.mounted) {
+                                bool confirmation = await context.showConfirmationDialog(
+                                      title: "t_sendPing".tr(),
+                                      type: "Ping",
+                                    ) ??
+                                    false;
+                                if (confirmation) {
+                                  final data = await NotificationRepo.instance.sendPingNotification(me, selected);
 
-                                final res = await FirebaseNotificationService().sendNotification(
-                                  messageData: data.data ?? "",
-                                  type: "0",
-                                  id: data.id,
-                                  title: "Ping",
-                                  body: "${me.name} ${'t_sentAPing'.tr()}",
-                                  tokens: selected.fcm,
-                                  fromId: me.id,
-                                  toId: selected.id,
-                                );
-                                if (res) {
-                                  snack("t_pingSentSuccessfully".tr(), info: true);
+                                  final res = await FirebaseNotificationService().sendNotification(
+                                    messageData: data.data ?? "",
+                                    type: "0",
+                                    id: data.id,
+                                    title: "Ping",
+                                    body: "${me.name} ${'t_sentAPing'.tr()}",
+                                    tokens: selected.fcm,
+                                    fromId: me.id,
+                                    toId: selected.id,
+                                  );
+                                  if (res) {
+                                    snack("t_pingSentSuccessfully".tr(), info: true);
+                                  }
+                                } else {
+                                  snack("t_pingSendingCancelled".tr());
                                 }
-                              } else {
-                                snack("t_pingSendingCancelled".tr());
                               }
                             }
-                          }
-                        },
-                      ),
-                  if (!widget.operationsBlocked)
-                    if (!selected.isBlocked)
-                      ListTile(
-                        leading: const Icon(Icons.message),
-                        title: Text("t_message".tr()),
-                        onTap: () async {
-                          final res = await isMemberBlocked(widget.currentUserModel.id);
-                          pop();
-                          if (res) {
-                            snack("t_blockMemberCantSendMessage".tr(), info: false);
-                          } else {
-                            String? message = await push<String>(const MessageListView(pickMessageMode: true));
+                          },
+                        ),
+                    if (!widget.operationsBlocked)
+                      if (!selected.isBlocked)
+                        PingListTile(
+                          iconData: Icons.message,
+                          title: "t_message".tr(),
+                          onTap: () async {
+                            final res = await isMemberBlocked(widget.currentUserModel.id);
+                            pop();
+                            if (res) {
+                              snack("t_blockMemberCantSendMessage".tr(), info: false);
+                            } else {
+                              String? message = await push<String>(const MessageListView(pickMessageMode: true));
 
-                            if (message != null) {
-                              bool confirmation = await context.showConfirmationDialog(
-                                    title: "t_sendMessage".tr(),
-                                    message: message,
-                                    type: "Message",
-                                  ) ??
-                                  false;
-                              if (confirmation) {
-                                final data =
-                                    await NotificationRepo.instance.sendMessageNotification(me, selected, message);
+                              if (message != null ){
+                                bool confirmation = await context.showConfirmationDialog(
+                                      title: "t_sendMessage".tr(),
+                                      message: message,
+                                      type: "Message",
+                                    ) ??
+                                    false;
+                                if (confirmation) {
+                                  final data =
+                                      await NotificationRepo.instance.sendMessageNotification(me, selected, message);
+                                  final res = await FirebaseNotificationService().sendNotification(
+                                    messageData: data.data ?? "",
+                                    type: "1",
+                                    id: data.id,
+                                    title: "Message",
+                                    body: "${me.name} ${'t_sentYouAMessage'.tr()}",
+                                    tokens: selected.fcm,
+                                    fromId: me.id,
+                                    toId: selected.id,
+                                  );
+                                  if (res) {
+                                    snack("t_messageSentSuccessfully".tr(), info: true);
+                                  }
+                                } else {
+                                  snack("t_messageSendingCancelled".tr());
+                                }
+                              }
+                            }
+                          },
+                        ),
+                    if (!widget.operationsBlocked)
+                      if (!selected.isBlocked)
+                        PingListTile(
+                          iconData: Icons.mic,
+                          title: "t_audioMessage".tr(),
+                          onTap: () async {
+                            if (kIsWeb) {
+                              final data = await push<Uint8List?>(const AudioRecordWeb());
+                              if (data != null) {
+                                pop();
+                                final audioInfo = await NotificationRepo.instance.sendDataAudioNotification(me, selected, data);
+                                // Send FCM push
                                 final res = await FirebaseNotificationService().sendNotification(
-                                  messageData: data.data ?? "",
-                                  type: "1",
-                                  id: data.id,
-                                  title: "Message",
-                                  body: "${me.name} ${'t_sentYouAMessage'.tr()}",
+                                  messageData: audioInfo.data,
+                                  type: "2",
+                                  id: audioInfo.id,
+                                  title: "Audio Message",
+                                  body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
                                   tokens: selected.fcm,
                                   fromId: me.id,
                                   toId: selected.id,
@@ -284,111 +360,96 @@ class _MemberListItemState extends State<MemberListItem> {
                                 if (res) {
                                   snack("t_messageSentSuccessfully".tr(), info: true);
                                 }
-                              } else {
-                                snack("t_messageSendingCancelled".tr());
+                              }
+                              return;
+                            }
+                            final file = await push<File>(const PingAudioRecord());
+                            if (file == null) {
+                              return;
+                            }
+                            final send = await push<bool>(VerifyAudioView(audioFile: file));
+                            if (send ?? false) {
+                              pop();
+                              final data = await NotificationRepo.instance.sendAudioNotification(me, selected, file);
+                              final res = await FirebaseNotificationService().sendNotification(
+                                messageData: data.data ?? "",
+                                type: "2",
+                                id: data.id,
+                                title: "Audio Message",
+                                body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
+                                tokens: selected.fcm,
+                                fromId: me.id,
+                                toId: selected.id,
+                              );
+                              if (res) {
+                                snack("t_messageSentSuccessfully".tr(), info: true);
                               }
                             }
-                          }
-                        },
-                      ),
-                  if (!widget.operationsBlocked)
-                    if (!selected.isBlocked)
-                      ListTile(
-                        leading: const Icon(Icons.mic),
-                        title: Text("t_audioMessage".tr()),
-                        onTap: () async {
-                          if (kIsWeb) {
-                            final data = await push<Uint8List?>(const AudioRecordWeb());
-                            if (data != null) {
-                              pop();
-                              NotificationRepo.instance.sendDataAudioNotification(me, selected, data);
-                            }
-                            return;
-                          }
-                          final file = await push<File>(const PingAudioRecord());
-                          if (file == null) {
-                            return;
-                          }
-                          final send = await push<bool>(VerifyAudioView(audioFile: file));
-                          if (send ?? false) {
+                          },
+                        ),
+                    if (!widget.operationsBlocked)
+                      if (!isMember)
+                        PingListTile(
+                          iconData: Icons.edit,
+                          title: "t_updateMember".tr(),
+                          onTap: () {
                             pop();
-                            final data = await NotificationRepo.instance.sendAudioNotification(me, selected, file);
-                            await FirebaseNotificationService().sendNotification(
-                              messageData: data.data ?? "",
-                              type: "2",
-                              id: data.id,
-                              title: "Audio Message",
-                              body: "${me.name} ${'t_sentYouAudioMessage'.tr()}",
-                              tokens: selected.fcm,
-                              fromId: me.id,
-                              toId: selected.id,
-                            );
-                          }
-                        },
-                      ),
-                  if (!widget.operationsBlocked)
-                    if (!isMember)
-                      ListTile(
-                        leading: const Icon(Icons.edit),
-                        title: Text("t_updateMember".tr()),
+                            push(MemberManageView(member: selected));
+                          },
+                        ),
+                    if (!widget.operationsBlocked)
+                      PingListTile(
+                        iconData: Icons.qr_code,
+                        title: "t_viewQRCode".tr(),
                         onTap: () {
                           pop();
-                          push(MemberManageView(member: selected));
+                          push(MemberQrCode(memberId: selected.id));
                         },
                       ),
-                  if (!widget.operationsBlocked)
-                    ListTile(
-                      leading: const Icon(Icons.qr_code),
-                      title: Text("t_viewQRCode".tr()),
-                      onTap: () {
-                        pop();
-                        push(MemberQrCode(memberId: selected.id));
-                      },
-                    ),
-                  if (!widget.operationsBlocked)
-                    if (!isMember)
-                      ListTile(
-                        leading: selected.isBlocked ? const Icon(Icons.lock_open) : const Icon(Icons.block),
-                        title: selected.isBlocked ? Text("t_unblockMember".tr()) : Text("t_blockMember".tr()),
-                        onTap: () async {
-                          pop();
-                          bool checkInternet = await context.isInternetAvailable();
-                          if (checkInternet) {
-                            MemberRepo.instance
-                                .blockUnblockMember(selected.id, !selected.isBlocked)
-                                .catchError((error) => snack(error));
-                          } else {
-                            if (context.mounted) {
-                              snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
-                            }
-                          }
-                        },
-                      ),
-                  if (!isMember)
-                    ListTile(
-                      leading: const Icon(Icons.remove_circle, color: Colors.red),
-                      title: Text(
-                        "t_removeMember".tr(),
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                      onTap: () {
-                        pop();
-                        sureDialog(
-                          context: context,
-                          title: "t_removeMember".tr(),
-                          message: "${"t_areYouSureYouWantToRemove".tr()} ${selected.name}",
-                          onYes: () async {
-                            bool isInternet = await context.isInternetAvailable();
-                            if (isInternet) {
-                              MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error));
+                    if (!widget.operationsBlocked)
+                      if (!isMember)
+                        PingListTile(
+                          iconData: selected.isBlocked ? Icons.lock_open : Icons.block,
+                          title: selected.isBlocked ? "t_unblockMember".tr() : "t_blockMember".tr(),
+                          onTap: () async {
+                            pop();
+                            bool checkInternet = await context.isInternetAvailable();
+                            if (checkInternet) {
+                              MemberRepo.instance
+                                  .blockUnblockMember(selected.id, !selected.isBlocked)
+                                  .catchError((error) => snack(error));
                             } else {
-                              snack("t_noInternetPleaseConnectToTheInternet".tr());
+                              if (context.mounted) {
+                                snack(context.pingString("t_noInternetPleaseConnectToTheInternet"));
+                              }
                             }
                           },
-                        );
-                      },
-                    ),
-                ],
+                        ),
+                    if (!isMember)
+                      PingListTile(
+                        iconData: Icons.remove_circle,
+                        iconColor: Colors.red,
+                        title: "t_removeMember".tr(),
+                        textColor: Colors.red,
+                        onTap: () {
+                          pop();
+                          sureDialog(
+                            context: context,
+                            title: "t_removeMember".tr(),
+                            message: "${"t_areYouSureYouWantToRemove".tr()} ${selected.name}",
+                            onYes: () async {
+                              bool isInternet = await context.isInternetAvailable();
+                              if (isInternet) {
+                                MemberRepo.instance.removeMember(selected.id).catchError((error) => snack(error));
+                              } else {
+                                snack("t_noInternetPleaseConnectToTheInternet".tr());
+                              }
+                            },
+                          );
+                        },
+                      ),
+                  ],
+                ),
               );
             },
           );

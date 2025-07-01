@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:ping_app/auth/model/ping_user_model.dart';
@@ -29,7 +28,7 @@ class MemberModel {
   final String teamLeadId;
   final String name;
   final String initials;
-  final List<String> fcm;
+  final List<FcmEntity> fcm;
   final bool isBlocked;
   final bool _isOnline;
   final DateTime lastSeen;
@@ -109,7 +108,7 @@ class MemberModel {
         _isOnline = json[keyMemberOnline] ?? false,
         lastSeen = (json[keyLastSeen] as Timestamp?)?.toDate() ?? DateTime(1800),
         isBlocked = json[keyIsBlocked],
-        fcm = (json[keyFcm] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+        fcm = (json[keyFcm] as List<dynamic>?)?.map((e) => FcmEntity.fromJson(e)).toList() ?? [];
 
   Map<String, dynamic> toJson() => {
         keyMemberName: name,
@@ -128,4 +127,20 @@ class MemberModel {
         ' fcm: $fcm, isBlocked: $isBlocked, isOnline: $_isOnline, lastSeen: $lastSeen, '
         'memberColor: ${memberColor?.toString() ?? "null"}}';
   }
+}
+
+class FcmEntity{
+  String token;
+  String device;
+  FcmEntity({required this.token, required this.device});
+
+  factory FcmEntity.fromJson(Map<String, dynamic> json) => FcmEntity(token: json['token'], device: json['device']);
+
+  Map<String, dynamic> toJson() => {
+    'token': token,
+    'device': device
+  };
+
+
+
 }

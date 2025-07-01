@@ -249,7 +249,6 @@ class WatchConnectivity {
       );
 
       final members = await membersStream.first;
-
       // Create a list with the team lead first, then the other members
       final recentTeamLeadNotification = await NotificationRepo.instance
           .getMostRecentNotification(teamLead.userId)
