@@ -37,7 +37,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.team.pingapp.ping_app"
+    namespace "com.team.pingapp"
     compileSdk 35
     ndkVersion flutter.ndkVersion
 
@@ -55,7 +55,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.team.pingapp.ping_app"
+        applicationId "com.team.pingapp"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 23
@@ -85,7 +85,10 @@ flutter {
 }
 
 dependencies {
-    wearApp project(':wear')
+//    wearApp project(':wear')
+//    if (project.findProject(':wear') != null) {
+//        wearApp project(':wear')
+//    }
     implementation 'com.google.android.gms:play-services-wearable:18.2.0'
     implementation 'com.google.firebase:firebase-messaging-ktx:24.0.0'
 }

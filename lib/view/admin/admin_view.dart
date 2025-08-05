@@ -10,6 +10,8 @@ import 'package:ping_app/widgets/base_widget.dart';
 import 'package:ping_app/widgets/ping_loader.dart';
 import 'package:provider/provider.dart';
 
+import 'admin_logs_view.dart';
+
 // voucher status
 //0 pending
 //1 reject
@@ -49,7 +51,10 @@ class _AdminViewState extends State<AdminView> {
             }
           },
           icon: const Icon(Icons.logout, color: Colors.red),
-        )
+        ),
+        IconButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VoucherLogsScreen(isAdminView: true,))),
+            icon: const Icon(Icons.list))
       ],
       body: Consumer<AdminProvider>(
         builder: (context, value2, child) {
@@ -101,6 +106,7 @@ class _AdminViewState extends State<AdminView> {
                                     ),
                                   )
                                 : ListView.builder(
+                                    padding: const EdgeInsets.only(top: 20),
                                     itemCount: value2.vouchersList.length + (value2.hasMore ? 1 : 0),
                                     itemBuilder: (context, index) {
                                       if (index == value2.vouchersList.length) {
@@ -112,24 +118,71 @@ class _AdminViewState extends State<AdminView> {
                                         );
                                       }
                                       final voucher = value2.vouchersList[index];
-                                      return ListTile(
-                                        title: Text("Code: ${voucher.code}"),
-                                        subtitle: Text("Used: ${voucher.isUsed ? 'Yes' : 'No'}"),
-                                        trailing: ElevatedButton(
-                                          style: const ButtonStyle(
-                                            backgroundColor: WidgetStatePropertyAll(Colors.white),
-                                          ),
-                                          onPressed: () async {
-                                            value2.copyVoucherCode(voucher.code);
-                                          },
-                                          child: const Text(
-                                            "Copy",
-                                            style: TextStyle(
-                                              color: Colors.black,
+                                      return Container(
+                                        padding: const EdgeInsets.all(12),
+                                        margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: voucher.isUsed ? Colors.redAccent : Colors.greenAccent),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(alpha: 0.2),
+                                              spreadRadius: 0,
+                                              blurRadius: 7,
+                                              offset: const Offset(0, 3)
+                                            )
+                                          ]
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.redeem),
+                                            const SizedBox(width: 10,),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Text(voucher.code, style: const TextStyle(fontWeight: FontWeight.w600),),
+                                                  const SizedBox(height: 5,),
+                                                  Text('Created At: ${value2.formatDateFromTimestamp(voucher.createdAt)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w300),),
+                                                  if(voucher.isUsed) ...[
+                                                    const SizedBox(height: 5,),
+                                                    Text('Redeem By: ${voucher.usedBy}', style: const TextStyle(
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 12
+                                                    ),),
+                                                    const SizedBox(height: 5,),
+                                                    Text('Redeem At: ${voucher.usedAt != null ? value2.formatDateFromTimestamp(voucher.usedAt!) : 'N/A'}', style: const TextStyle(
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 11
+                                                    ),)
+                                                  ]
+                                                ],
+                                              ),
                                             ),
-                                          ),
+                                            IconButton(onPressed: () => value2.copyVoucherCode(voucher.code), icon: const Icon(Icons.copy))
+                                          ],
                                         ),
                                       );
+                                      // return ListTile(
+                                      //   title: Text("Code: ${voucher.code}"),
+                                      //   subtitle: Text("Used: ${voucher.isUsed ? 'Yes' : 'No'}"),
+                                      //   trailing: ElevatedButton(
+                                      //     style: const ButtonStyle(
+                                      //       backgroundColor: WidgetStatePropertyAll(Colors.white),
+                                      //     ),
+                                      //     onPressed: () async {
+                                      //       value2.copyVoucherCode(voucher.code);
+                                      //     },
+                                      //     child: const Text(
+                                      //       "Copy",
+                                      //       style: TextStyle(
+                                      //         color: Colors.black,
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // );
                                     },
                                   ),
                           ),

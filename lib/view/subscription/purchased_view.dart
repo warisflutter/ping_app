@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ping_app/file_path.dart';
 import 'package:universal_io/io.dart';
 

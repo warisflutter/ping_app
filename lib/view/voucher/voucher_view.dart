@@ -52,6 +52,17 @@ class VoucherView extends StatelessWidget {
                               controller: value.codeTEC,
                             ),
                           ),
+                          Text(
+                            '• Enter your voucher code above\n'
+                                '• You can try up to 5 times per day\n'
+                                '• Wait 1 minute between failed attempts\n'
+                                '• Each code can only be used once',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 20,),
                           Align(
                             alignment: Alignment.center,
                             child: ElevatedButton(

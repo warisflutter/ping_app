@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBTAfaKmW87rLctyES4KOpBblruQ4lOngo',
-    appId: '1:565573250233:android:018644332fe6f0c572ff68',
+    appId: '1:565573250233:android:c595c41f1f5b731a72ff68',
     messagingSenderId: '565573250233',
     projectId: 'ping-5657e',
     storageBucket: 'ping-5657e.firebasestorage.app',
@@ -62,11 +62,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBdniBQIIZknf6G43Oq87KJqXrEDYxi7Rc',
-    appId: '1:565573250233:ios:8c32c74b96979ca572ff68',
+    appId: '1:565573250233:ios:77f7a6332a90e72372ff68',
     messagingSenderId: '565573250233',
     projectId: 'ping-5657e',
     storageBucket: 'ping-5657e.firebasestorage.app',
-    iosBundleId: 'com.martin.pingapp.pingApp',
+    androidClientId: '565573250233-f7kvqqnibiceht1mrnnheae9ej9u3gsl.apps.googleusercontent.com',
+    iosClientId: '565573250233-d0f6pc309iq1jfr0sbm77gboipqfjpc3.apps.googleusercontent.com',
+    iosBundleId: 'com.team.pingapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

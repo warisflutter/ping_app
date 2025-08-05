@@ -1,4 +1,4 @@
-package com.team.pingapp.ping_app;
+package com.team.pingapp
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

@@ -7,6 +7,42 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:565573250233:android:c595c41f1f5b731a72ff68",
+        "android_client_info": {
+          "package_name": "com.team.pingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "565573250233-b4kc3mid8u9prjldftss6q8jefsnnjbv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTAfaKmW87rLctyES4KOpBblruQ4lOngo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "565573250233-b4kc3mid8u9prjldftss6q8jefsnnjbv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "565573250233-i4030id43plf7okvp2vdg106bccphd0n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.martin.pingapp.pingApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:565573250233:android:018644332fe6f0c572ff68",
         "android_client_info": {
           "package_name": "com.team.pingapp.ping_app"
@@ -19,6 +55,14 @@
           "android_info": {
             "package_name": "com.team.pingapp.ping_app",
             "certificate_hash": "01cd6b8036af9b0232ea00e77542286c6a7d80c3"
+          }
+        },
+        {
+          "client_id": "565573250233-vhghr1j4us1rq857dtscogv6a6dosa8o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.team.pingapp.ping_app",
+            "certificate_hash": "6d77af9c0feba648dbf5295b8ba868ccafc69c17"
           }
         },
         {

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>565573250233-i4030id43plf7okvp2vdg106bccphd0n.apps.googleusercontent.com</string>
+	<string>565573250233-d0f6pc309iq1jfr0sbm77gboipqfjpc3.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.565573250233-i4030id43plf7okvp2vdg106bccphd0n</string>
+	<string>com.googleusercontent.apps.565573250233-d0f6pc309iq1jfr0sbm77gboipqfjpc3</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>565573250233-f7kvqqnibiceht1mrnnheae9ej9u3gsl.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.martin.pingapp.pingApp</string>
+	<string>com.team.pingapp</string>
 	<key>PROJECT_ID</key>
 	<string>ping-5657e</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:565573250233:ios:8c32c74b96979ca572ff68</string>
+	<string>1:565573250233:ios:77f7a6332a90e72372ff68</string>
 </dict>
 </plist>

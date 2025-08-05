@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:developer' as log;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ping_app/auth/model/ping_user_model.dart';
 import 'package:ping_app/models/voucher_model.dart';
 import 'package:ping_app/services/firebase_service.dart';
 import 'package:ping_app/util/messenger.dart';
@@ -53,48 +53,120 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future generateVoucher() async {
+  // Future generateVoucher() async {
+  //   updateLoader(true);
+  //   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  //   final random = Random.secure();
+  //   Set<String> vouchers = {};
+  //   while (vouchers.length < 10) {
+  //     String code = List.generate(20, (index) => chars[random.nextInt(chars.length)]).join();
+  //     vouchers.add(code);
+  //   }
+  //   debugPrint("Generated Vouchers: $vouchers");
+  //   QuerySnapshot existingVouchers = await firebaseService.voucherCollection.get();
+  //   Set<String> existingCodes = existingVouchers.docs.map((doc) => doc['code'] as String).toSet();
+  //
+  //   // Remove Already Existing Vouchers
+  //   vouchers.removeWhere((code) => existingCodes.contains(code));
+  //   if (vouchers.isEmpty) {
+  //     snack("No new vouchers generated. All exist in Firestore.");
+  //     updateLoader(false);
+  //     return;
+  //   }
+  //
+  //   // Use Batch Write for Efficiency
+  //   WriteBatch batch = FirebaseFirestore.instance.batch();
+  //   for (String code in vouchers) {
+  //     DocumentReference docRef = firebaseService.voucherCollection.doc(); // Auto-generate ID
+  //     batch.set(docRef, {
+  //       'code': code,
+  //       'createdAt': DateTime.now().toIso8601String(),
+  //       'isUsed': false,
+  //     });
+  //   }
+  //
+  //   await batch.commit(); // Execute Firestore batch write
+  //
+  //   snack(
+  //     "${vouchers.length} New Vouchers Generated Successfully!",
+  //     backgroundColor: Colors.green,
+  //   );
+  //
+  //   await fetchVouchers();
+  //   updateLoader(false);
+  // }
+
+
+  Future<void> generateVoucher({int count = 10, double value = 0.0, String? description}) async {
     updateLoader(true);
+
+    // Enhanced character set for better security
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
+    final random = Random.secure();
     Set<String> vouchers = {};
-    while (vouchers.length < 10) {
-      String code = List.generate(20, (index) => chars[random.nextInt(chars.length)]).join();
+
+    // Generate more codes to account for potential duplicates
+    while (vouchers.length < count) {
+      // Generate 12-character codes (meets minimum 10 requirement)
+      String code = List.generate(12, (index) => chars[random.nextInt(chars.length)]).join();
       vouchers.add(code);
     }
-    debugPrint("Generated Vouchers: $vouchers");
-    QuerySnapshot existingVouchers = await firebaseService.voucherCollection.get();
-    Set<String> existingCodes = existingVouchers.docs.map((doc) => doc['code'] as String).toSet();
 
-    // Remove Already Existing Vouchers
-    vouchers.removeWhere((code) => existingCodes.contains(code));
-    if (vouchers.isEmpty) {
-      snack("No new vouchers generated. All exist in Firestore.");
+    debugPrint("Generated ${vouchers.length} voucher codes");
+
+    try {
+      // Check for existing codes in batches for better performance
+      QuerySnapshot existingVouchers = await firebaseService.voucherCollection
+          .where('code', whereIn: vouchers.take(10).toList()) // Firestore limit
+          .get();
+
+      Set<String> existingCodes = existingVouchers.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((data) => data['code'] as String)
+          .toSet();
+
+      // Remove existing codes and regenerate if needed
+      vouchers.removeWhere((code) => existingCodes.contains(code));
+
+      if (vouchers.isEmpty) {
+        snack("No new vouchers generated. All codes already exist.");
+        updateLoader(false);
+        return;
+      }
+
+      // Create vouchers with enhanced data structure
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      for (String code in vouchers) {
+        DocumentReference docRef = firebaseService.voucherCollection.doc();
+        batch.set(docRef, {
+          'code': code,
+          'value': value,
+          'description': description,
+          'createdAt': FieldValue.serverTimestamp(),
+          'createdBy': FirebaseAuth.instance.currentUser?.uid,
+          'isUsed': false,
+          'usedAt': null,
+          'usedBy': null,
+          'expiresAt': null, // Add expiration if needed
+          'status': 'active', // active, used, expired, disabled
+        });
+      }
+
+      await batch.commit();
+
+      snack(
+        "${vouchers.length} vouchers generated successfully!",
+        backgroundColor: Colors.green,
+      );
+
+      await fetchVouchers();
+    } catch (e) {
+      snack("Error generating vouchers: ${e.toString()}", backgroundColor: Colors.red);
+    } finally {
       updateLoader(false);
-      return;
     }
-
-    // Use Batch Write for Efficiency
-    WriteBatch batch = FirebaseFirestore.instance.batch();
-    for (String code in vouchers) {
-      DocumentReference docRef = firebaseService.voucherCollection.doc(); // Auto-generate ID
-      batch.set(docRef, {
-        'code': code,
-        'createdAt': DateTime.now().toIso8601String(),
-        'isUsed': false,
-      });
-    }
-
-    await batch.commit(); // Execute Firestore batch write
-
-    snack(
-      "${vouchers.length} New Vouchers Generated Successfully!",
-      backgroundColor: Colors.green,
-    );
-
-    await fetchVouchers();
-    updateLoader(false);
   }
+
 
   Future<void> fetchVouchers({
     bool isLoadMore = false,
@@ -122,18 +194,26 @@ class AdminProvider extends ChangeNotifier {
         lastDocument = snapshot.docs.last;
         List<VoucherModel> newVouchers = snapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
+          // return VoucherModel(
+          //   voucherId: doc.id,
+          //   userId: data['userId'] ?? '',
+          //   createdAt: data['createdAt'] ?? '',
+          //   status: "",
+          //   type: "",
+          //   code: data['code'] ?? '',
+          //   isUsed: data['isUsed'] ?? false,
+          //   pingUserModel: PingUserModel.empty(),
+          // );
           return VoucherModel(
-            voucherId: doc.id,
-            userId: data['userId'] ?? '',
-            createdAt: data['createdAt'] ?? '',
-            status: "",
-            type: "",
-            code: data['code'] ?? '',
-            isUsed: data['isUsed'] ?? false,
-            pingUserModel: PingUserModel.empty(),
-          );
+              voucherId: doc.id,
+              description: data['description'],
+              status: data['status'],
+              expiresAt: data['expiresAt'],
+              isUsed: data['isUsed'] ?? false,
+              usedAt: data['usedAt'],
+              usedBy: data['usedBy'],
+              code: data['code'], createdAt: data['createdAt'], createdBy: data['createdBy']);
         }).toList();
-
         vouchersList.addAll(newVouchers);
         hasMore = newVouchers.length == 10;
       } else {
@@ -175,16 +255,16 @@ class AdminProvider extends ChangeNotifier {
     try {
       String id = FirebaseAuth.instance.currentUser?.uid ?? "";
       QuerySnapshot querySnapshot = await firebaseService.voucherCollection
-          .where("userId", isEqualTo: id)
+          .where("usedBy", isEqualTo: id)
           .where("isUsed", isEqualTo: true)
           .get();
       log.log("userId: ${firebaseService.userId}");
       if (querySnapshot.docs.isNotEmpty) {
         if (querySnapshot.docs.isNotEmpty) {
           for (var doc in querySnapshot.docs) {
-            String usedAt = doc.get("usedAt");
+            Timestamp usedAt = doc.get("usedAt");
             log.log("userId: ${firebaseService.userId}");
-            DateTime approvedAtDate = DateTime.parse(usedAt);
+            DateTime approvedAtDate = usedAt.toDate();
             bool isOlderThan30Days = isApprovedAtOlderThan30Days(approvedAtDate);
             if (isOlderThan30Days) {
               data = "Voucher is Expire|Pro";
@@ -206,19 +286,24 @@ class AdminProvider extends ChangeNotifier {
 
   Future<void> startCountDown() async {
     try {
+      // QuerySnapshot querySnapshot = await firebaseService.firebaseFireStore
+      //     .collection("vouchers")
+      //     .where("userId", isEqualTo: firebaseService.userId)
+      //     .where("isUsed", isEqualTo: true)
+      //     .get();
       QuerySnapshot querySnapshot = await firebaseService.firebaseFireStore
           .collection("vouchers")
-          .where("userId", isEqualTo: firebaseService.userId)
+          .where("usedBy", isEqualTo: firebaseService.userId)
           .where("isUsed", isEqualTo: true)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         for (var doc in querySnapshot.docs) {
-          String usedAt = doc.get("usedAt");
-          DateTime usedAtDate = DateTime.parse(usedAt);
+          Timestamp usedAt = doc.get("usedAt");
+          DateTime usedAtDate = usedAt.toDate();
 
           // Define expiration time (e.g., 30 days from `usedAt`)
-          DateTime expiryDate = usedAtDate.add(Duration(days: 30));
+          DateTime expiryDate = usedAtDate.add(const Duration(days: 30));
 
           _startTimer(expiryDate);
         }
@@ -234,7 +319,6 @@ class AdminProvider extends ChangeNotifier {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final now = DateTime.now();
       final remaining = expiryDate.difference(now);
-
       if (remaining.isNegative) {
         remainingTime = Duration.zero;
         timer.cancel();
@@ -245,6 +329,15 @@ class AdminProvider extends ChangeNotifier {
     });
   }
 
+  // String formatDate(String dateTime){
+  //   DateTime parseDate = DateTime.parse(dateTime);
+  //   String formatted = DateFormat('d MMM, y').format(parseDate);
+  //   return formatted;
+  // }
+  String formatDateFromTimestamp(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate(); // Convert to DateTime
+    return DateFormat('d MMMM, y').format(dateTime); // Example: 2 July, 2025
+  }
   @override
   void dispose() {
     timer!.cancel();

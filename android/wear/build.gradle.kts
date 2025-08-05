@@ -13,11 +13,11 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.team.pingapp.ping_app"
+    namespace = "com.team.pingapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.team.pingapp.ping_app"
+        applicationId = "com.team.pingapp"
         minSdk = 30
         targetSdk = 35
         versionCode = 13
