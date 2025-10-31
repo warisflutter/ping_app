@@ -15,7 +15,7 @@ import 'package:ping_app/view/subscription/subscription_info_view.dart';
 import 'package:ping_app/view/subscription/subscription_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:wear_plus/wear_plus.dart';
+// import 'package:wear_plus/wear_plus.dart';
 
 class MessageListView extends StatefulWidget {
   final bool pickMessageMode;
@@ -60,33 +60,33 @@ class _MessageListViewState extends State<MessageListView> {
       appBar: context.isWatch ? null : AppBar(
           title: Text(
         't_messageTemplates'.tr(),
-        style: (context.isWatch) ? PingStyles.watchStyle : null,
+        // style: (context.isWatch) ? PingStyles.watchStyle : null,
       )),
       body: Consumer<SubscriptionProvider>(builder: (context, subscriptionProvider, _) {
         return Stack(
           children: [
-            if(context.isWatch)
-            WatchShape(
-              builder: (context, shape, _) => shape == WearShape.square ? Positioned(
-                  left: 8,
-                  top: 8,
-                  child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back, size: 16,)))
-                  : Positioned(
-                  left: 8,
-                  top: 8,
-                  right: 8,
-                  child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back, size: 16,)))
-            ),
-            // Positioned(
-            //     left: 8,
-            //     top: 8,
-            //     child: GestureDetector(
-            //         onTap: () => Navigator.pop(context),
-            //         child: const Icon(Icons.arrow_back, size: 16,))),
+            // if(context.isWatch)
+            // WatchShape(
+            //   builder: (context, shape, _) => shape == WearShape.square ? Positioned(
+            //       left: 8,
+            //       top: 8,
+            //       child: GestureDetector(
+            //           onTap: () => Navigator.pop(context),
+            //           child: const Icon(Icons.arrow_back, size: 16,)))
+            //       : Positioned(
+            //       left: 8,
+            //       top: 8,
+            //       right: 8,
+            //       child: GestureDetector(
+            //           onTap: () => Navigator.pop(context),
+            //           child: const Icon(Icons.arrow_back, size: 16,)))
+            // ),
+            Positioned(
+                left: 8,
+                top: 8,
+                child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.arrow_back, size: 16,))),
             SafeArea(
               child: LayoutBuilder(builder: (context, constraints) {
                 double maxWidth = constraints.maxWidth > 800 ? 200.0 : 16.0;
@@ -232,118 +232,6 @@ class _MessageListViewState extends State<MessageListView> {
     );
   }
 
-  // Widget _buildList(List<String> messages) {
-  //   buildMessages() => messages
-  //       .map(
-  //         (message) => (context.isWatch)
-  //             ? Padding(
-  //                 padding: EdgeInsets.all((context.isWatch) ? 8.0 : 16.0),
-  //                 child: InkWell(
-  //                   // key: ValueKey(message),
-  //                   onTap: widget.pickMessageMode ? () => pop(data: message) : null,
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       Text(
-  //                         message,
-  //                         style: (context.isWatch) ? PingStyles.watchStyle : null,
-  //                       ),
-  //                       widget.pickMessageMode
-  //                           ? const SizedBox()
-  //                           : Row(
-  //                               mainAxisSize: MainAxisSize.min,
-  //                               mainAxisAlignment: MainAxisAlignment.end,
-  //                               children: [
-  //                                 InkWell(
-  //                                   key: const Key("editButton"),
-  //                                   child: Icon(
-  //                                     Icons.edit,
-  //                                     color: Colors.blue,
-  //                                     size: PingStyles.watchIconSize,
-  //                                   ),
-  //                                   onTap: () => push(
-  //                                     MessageAddEditView(originalMessage: message),
-  //                                   ),
-  //                                 ),
-  //                                 InkWell(
-  //                                   key: const Key("keyDeleteButton"),
-  //                                   child: Icon(
-  //                                     Icons.delete_outline,
-  //                                     color: Colors.red,
-  //                                     size: PingStyles.watchIconSize,
-  //                                   ),
-  //                                   onTap: () => sureDialog(
-  //                                     title: 't_deleteTemplate'.tr(),
-  //                                     message: 't_areYouThisTemplate'.tr(),
-  //                                     context: context,
-  //                                     onYes: () async {
-  //                                       final isConnected = await context.isInternetAvailable();
-  //                                       if (isConnected) {
-  //                                         deleteAction(message);
-  //                                       } else {
-  //                                         snack("t_noInternetPleaseConnectToTheInternet".tr());
-  //                                       }
-  //                                     },
-  //                                   ),
-  //                                 ),
-  //                                 Icon(
-  //                                   Icons.drag_indicator,
-  //                                   size: PingStyles.watchIconSize,
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               )
-  //             : ListTile(
-  //                 key: ValueKey(message),
-  //                 title: Text(message),
-  //                 onTap: widget.pickMessageMode ? () => pop(data: message) : null,
-  //                 trailing: widget.pickMessageMode
-  //                     ? const SizedBox()
-  //                     : Row(
-  //                         mainAxisSize: MainAxisSize.min,
-  //                         mainAxisAlignment: MainAxisAlignment.end,
-  //                         children: [
-  //                           IconButton(
-  //                             key: const Key("editButton"),
-  //                             icon: const Icon(Icons.edit, color: Colors.blue),
-  //                             onPressed: () => push(
-  //                               MessageAddEditView(originalMessage: message),
-  //                             ),
-  //                           ),
-  //                           IconButton(
-  //                             key: const Key("keyDeleteButton"),
-  //                             icon: const Icon(Icons.delete_outline, color: Colors.red),
-  //                             onPressed: () => sureDialog(
-  //                               title: 't_deleteTemplate'.tr(),
-  //                               message: 't_areYouThisTemplate'.tr(),
-  //                               context: context,
-  //                               onYes: () async {
-  //                                 final isConnected = await context.isInternetAvailable();
-  //                                 if (isConnected) {
-  //                                   deleteAction(message);
-  //                                 } else {
-  //                                   snack("t_noInternetPleaseConnectToTheInternet".tr());
-  //                                 }
-  //                               },
-  //                             ),
-  //                           ),
-  //                           const Icon(Icons.drag_indicator),
-  //                         ],
-  //                       ),
-  //               ),
-  //       )
-  //       .toList();
-  //   return widget.pickMessageMode
-  //       ? ListView(children: buildMessages())
-  //       : ReorderableListView(
-  //           // buildDefaultDragHandles: false,
-  //           onReorder: (oldIndex, newIndex) => actionReordering(oldIndex, newIndex),
-  //           children: buildMessages(),
-  //         );
-  // }
   Widget _buildList(List<String> messages) {
     print("widget.pickMessageMode${widget.pickMessageMode}");
     buildMessages() => messages

@@ -7,9 +7,6 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-
-
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -68,7 +65,7 @@ android {
        release {
            keyAlias keystoreProperties['keyAlias']
            keyPassword keystoreProperties['keyPassword']
-           storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+           storeFile file(keystoreProperties['storeFile'])
            storePassword keystoreProperties['storePassword']
        }
    }
@@ -85,10 +82,5 @@ flutter {
 }
 
 dependencies {
-//    wearApp project(':wear')
-//    if (project.findProject(':wear') != null) {
-//        wearApp project(':wear')
-//    }
-    implementation 'com.google.android.gms:play-services-wearable:18.2.0'
     implementation 'com.google.firebase:firebase-messaging-ktx:24.0.0'
 }

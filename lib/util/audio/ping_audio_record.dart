@@ -8,7 +8,6 @@ import 'package:ping_app/file_path.dart';
 import 'package:ping_app/util/audio/amplitude_view.dart';
 import 'package:ping_app/util/ping_styles.dart';
 import 'package:record/record.dart';
-import 'package:wear_plus/wear_plus.dart';
 
 class PingAudioRecord extends StatefulWidget {
   const PingAudioRecord({super.key});
@@ -45,14 +44,11 @@ class _PingAudioRecordState extends State<PingAudioRecord> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: context.isWatch
-          ? null
-          : AppBar(
-              title: Text(
-                't_recordAudio'.tr(),
-                style: (context.isWatch) ? PingStyles.watchStyle : null,
-              ),
-            ),
+      appBar: AppBar(
+        title: Text(
+          't_recordAudio'.tr(),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -60,91 +56,25 @@ class _PingAudioRecordState extends State<PingAudioRecord> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (context.isWatch) ...[
-                WatchShape(
-                  builder: (context, shape, _) =>
-                  shape == WearShape.square ? Row(
-                    children: [
-                      GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(
-                            Icons.arrow_back,
-                            size: 16,
-                          )),
-                      Expanded(
-                        child: Text(
-                          't_recordAudio'.tr(),
-                          textAlign: TextAlign.center,
-                          style: PingStyles.watchStyle,
-                        ),
-                      )
-                    ],
-                  )
-                      : Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(
-                            Icons.arrow_back,
-                            size: 16,
-                          )),
-                      const SizedBox(width: 5,),
-                      Text(
-                        't_recordAudio'.tr(),
-                        textAlign: TextAlign.center,
-                        style: PingStyles.watchStyle,
-                      )
-                    ],
-                  )
-                ),
-                const SizedBox(height: 20,),
-                Text(
-                  'Hold the button to start recording.',
-                  style: PingStyles.watchStyle,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10,),
-                Container(
-                  height: 30,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: AmplitudeView(
-                      maxAmplitude: maxAmplitude,
-                      amplitudeList: amplitude,
-                    ),
-                  ),
-                ),
-              ],
-              if (!context.isWatch)
-                AmplitudeView(
-                  maxAmplitude: maxAmplitude,
-                  amplitudeList: amplitude,
-                ),
+              AmplitudeView(
+                maxAmplitude: maxAmplitude,
+                amplitudeList: amplitude,
+              ),
               const SizedBox(
                 height: 10,
               ),
               getRecordView(),
-              SizedBox(
-                height: context.isWatch ? 8 : 20,
+              const SizedBox(
+                height: 20,
               ),
-              if (!context.isWatch)
-                Text(
-                  'Hold the button to record',
-                  style: context.isWatch
-                      ? PingStyles.watchStyle
-                      : const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white),
-                  textAlign: TextAlign.center,
-                )
+              const Text(
+                'Hold the button to record',
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white),
+                textAlign: TextAlign.center,
+              )
             ],
           ),
         ),
@@ -153,36 +83,22 @@ class _PingAudioRecordState extends State<PingAudioRecord> {
   }
 
   Widget getRecordView() => GestureDetector(
-        // onTapDown: (_) => startRecording(),
-        // onTapUp: (_) => stopRecording(),
-        onLongPressStart: (_) => startRecording(),
-        onLongPressEnd: (_) => stopRecording(),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: (context.isWatch)
-              ? PingStyles.watchButtonHeight
-              : recording
-                  ? 112
-                  : 56,
-          width: (context.isWatch)
-              ? PingStyles.watchButtonHeight
-              : recording
-                  ? 112
-                  : 56,
-          decoration: BoxDecoration(
-            color: recording ? Colors.red : Colors.blue,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.mic,
-            size: (context.isWatch)
-                ? PingStyles.watchIconSize
-                : recording
-                    ? 56
-                    : 28,
-          ),
-        ),
-      );
+    onLongPressStart: (_) => startRecording(),
+    onLongPressEnd: (_) => stopRecording(),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: recording ? 112 : 56,
+      width: recording ? 112 : 56,
+      decoration: BoxDecoration(
+        color: recording ? Colors.red : Colors.blue,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        Icons.mic,
+        size: recording ? 56 : 28,
+      ),
+    ),
+  );
 
   void startRecording() async {
     debugPrint("✅ onLongPressStart");
